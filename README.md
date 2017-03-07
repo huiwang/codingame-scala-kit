@@ -2,12 +2,12 @@
 I love both CodinGame and Scala because they make programming fun.
 
 CodinGame is great and it would be better if I could
-- Code in my favorite IDE Intellij
 - Separate codes into packages and files
 - Reuse existing codes
-- Unit test the behavior of my bot
 - Avoid tedious copy/paste
+- Unit test the behavior of my bot
 - Control source code versions with Git
+- Stay in my favorite IDE [Intellij](https://www.jetbrains.com/idea/)
 
 This kit achieves the above goals through a source code Bundler which assembles source codes from different packages and files into a single one.
 Once we remove the constraint limiting us to code in just one file, we can organize our codes better and make them more reusable.
