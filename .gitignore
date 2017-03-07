@@ -1,0 +1,17 @@
+
+### SBT template
+# Simple Build Tool
+# http://www.scala-sbt.org/release/docs/Getting-Started/Directories.html#configuring-version-control
+
+target/
+lib_managed/
+src_managed/
+project/boot/
+.history
+.cache
+
+### JetBrains template
+.idea
+
+### mac os
+.DS_Store
