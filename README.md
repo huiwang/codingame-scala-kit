@@ -9,9 +9,11 @@ CodinGame is great and it would be better if I could
 - Avoid tedious repeating copy/paste
 - Control source code versions with Git
 
-That's why I created this Kit to make life easier. Hopefully, it can help you code better bot.
+This kit achieves the above goals through a source code Bundler which assembles source codes from different packages and files into a single one.
+Once we remove the constraint which limits us to code in just one file, we can organize our codes better and make them more reusable.
 
-This kit helps you to program better bot.
+With continuous building/running feature from SBT, we can generate the bundled file as long as code is modified. 
+Thanks to CodinGame Sync, the generated bundle can be synchronized to the online IDE without any copy/paste.
 
 # How it works
 
