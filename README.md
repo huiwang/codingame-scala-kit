@@ -6,14 +6,14 @@ CodinGame is great and it would be better if I could
 - Separate codes into packages and files
 - Reuse existing codes
 - Unit test the behavior of my bot
-- Avoid tedious repeating copy/paste
+- Avoid tedious copy/paste
 - Control source code versions with Git
 
 This kit achieves the above goals through a source code Bundler which assembles source codes from different packages and files into a single one.
-Once we remove the constraint which limits us to code in just one file, we can organize our codes better and make them more reusable.
+Once we remove the constraint limiting us to code in just one file, we can organize our codes better and make them more reusable.
 
-With continuous building/running feature from SBT, we can generate the bundled file as long as code is modified. 
-Thanks to CodinGame Sync, the generated bundle can be synchronized to the online IDE without any copy/paste.
+With continuous building/running feature in SBT, we can generate a uber file as long as code is modified. 
+Thanks to CodinGame Sync, the generated bundle can be synchronized to the online IDE automatically.
 
 # How it works
 
@@ -47,15 +47,13 @@ Thanks to CodinGame Sync, the generated bundle can be synchronized to the online
 # F&Q
 1. How Bundler works?
 
-    The Bundler reads a source file. Recursively, it replaces the import statements by source files found in this project
+    The Bundler reads a source file. Recursively, it replaces the import statements by source files found in this project.
+    
+    By default, the Bundler scans the `Player.scala` file from `src` folder and assemble all dependant source codes in a uber `Player.scala` file under `target` folder.
     
 2. Can I reuse codes from third party?
 
-    No, the Bundler only scan source files included in the project.
-    
-3. Is Java supported?
-    
-    I didn't test it. If you are interested in Java or C++, I strongly recommend Manwe's [Competitive Programming](https://github.com/Manwe56/competitive-programming) tools.
+    No, the Bundler only scans source files included in the project.   
     
 # Next steps
 
