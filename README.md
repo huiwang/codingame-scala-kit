@@ -10,9 +10,9 @@ CodinGame is great and it would be better if I could
 - Stay in my favorite IDE [Intellij](https://www.jetbrains.com/idea/)
 
 This kit achieves the above goals through a source code Bundler which assembles source codes from different packages and files into a single one.
-Once we remove the constraint limiting us to code in just one file, we can organize our codes better and make them more reusable.
+Once we remove the constraint limiting us to code in just one file, we can organize our codes better and make them  reusable.
 
-With continuous building/running feature in SBT, we can generate a uber file as long as code is modified. 
+With continuous building/running feature in SBT, we can generate a uber file as soon as code is modified. 
 Thanks to CodinGame Sync, the generated bundle can be synchronized to the online IDE automatically.
 
 # How it works
