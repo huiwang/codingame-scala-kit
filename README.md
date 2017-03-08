@@ -63,7 +63,7 @@ The example Bot `Ghost in the Cell` ranked `59/3509` overall and `2/50` for Scal
 3. Is Java Supported?
 
     No, the Bundler only inlines imported source codes and doesn't adapt Java code to Scala. 
-    If you prefer Java, I strongly recommend Manwe's great [Compettitive Programming](https://github.com/Manwe56/competitive-programming) tools.
+    If you prefer Java, I strongly recommend Manwe's great [Competitive Programming](https://github.com/Manwe56/competitive-programming) tools.
     
 # Next steps
 
