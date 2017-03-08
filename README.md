@@ -37,9 +37,9 @@ Thanks to CodinGame Sync, the generated bundle can be synchronized to the online
 
 4. Open a second terminal and fire SBT, hit
 
-    `~runMain codingame.scala.bundle.Bundler` to bundling Player file continuously
+    `~runMain codingame.scala.bundle.Bundler` to bundle Player.scala file continuously
 
-5. Open CodinGame Sync to synchronize Player file continuously to online IDE
+5. Open CodinGame Sync to synchronize Player.scala file continuously to online IDE
 
 ## Screenshot
 ![alt tag](./asset/screenshot.png)
@@ -49,7 +49,7 @@ Thanks to CodinGame Sync, the generated bundle can be synchronized to the online
 
     The Bundler reads a source file. Recursively, it replaces the import statements by source files found in this project.
     
-    By default, the Bundler scans the `Player.scala` file from `src` folder and assemble all dependant source codes in a uber `Player.scala` file under `target` folder.
+    By default, the Bundler scans the `Player.scala` file from `src` folder and assembles all dependant source codes in a uber `Player.scala` file under `target` folder.
     
 2. Can I reuse codes from third party?
 
