@@ -19,7 +19,7 @@ Thanks to CodinGame Sync, the generated bundle can be synchronized to the online
 # Example Bot
 The example Bot [Ghost in the Cell](https://www.codingame.com/multiplayer/bot-programming/ghost-in-the-cell) ranked `59/3509` overall and `2/50` for Scala language.
 
-# How it works
+# Setting Up
 
 ## Pre-requisite
 - Intellij
