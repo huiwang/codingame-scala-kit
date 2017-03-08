@@ -4,19 +4,20 @@ I love Both CodinGame and Scala because they make programming fun.
 CodinGame is great and it would be better if I could
 - Separate codes into packages and files
 - Reuse existing codes
-- Avoid tedious copy/paste
+- Generate the required Player file automatically
+- Avoid tedious inter-IDE copy/paste
 - Unit test the behavior of my Bot
 - Control source code versions with Git
 - Stay in my favorite IDE [Intellij](https://www.jetbrains.com/idea/)
 
-This kit achieves the above goals through a source code Bundler which assembles source codes from different packages and files into a single one.
-Once we remove the constraint limiting us to code in just one file, we can organize our codes better and make them  reusable.
+This kit achieves these goals through a source code Bundler which assembles source codes from different packages and files into a single one.
+Once we remove the constraint imposing us to code in one file, we can organize codes better and make them more reusable.
 
-With continuous building/running feature in SBT, we can generate a uber file as soon as code is modified. 
+With continuous building/running feature in SBT, we can generate the fat Player file as soon as code is modified. 
 Thanks to CodinGame Sync, the generated bundle can be synchronized to the online IDE automatically.
 
 # Example Bot
-The example Bot `Ghost in the Cell` ranked `59/3509` overall and `2/50` for Scala language.
+The example Bot [Ghost in the Cell](https://www.codingame.com/multiplayer/bot-programming/ghost-in-the-cell) ranked `59/3509` overall and `2/50` for Scala language.
 
 # How it works
 
