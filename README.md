@@ -1,11 +1,11 @@
 # CodinGame Scala Kit
-I love both CodinGame and Scala because they make programming fun.
+I love Both CodinGame and Scala because they make programming fun.
 
 CodinGame is great and it would be better if I could
 - Separate codes into packages and files
 - Reuse existing codes
 - Avoid tedious copy/paste
-- Unit test the behavior of my bot
+- Unit test the behavior of my Bot
 - Control source code versions with Git
 - Stay in my favorite IDE [Intellij](https://www.jetbrains.com/idea/)
 
@@ -14,6 +14,9 @@ Once we remove the constraint limiting us to code in just one file, we can organ
 
 With continuous building/running feature in SBT, we can generate a uber file as soon as code is modified. 
 Thanks to CodinGame Sync, the generated bundle can be synchronized to the online IDE automatically.
+
+# Example Bot
+The example Bot `Ghost in the Cell` ranked `59/3509` overall and `2/50` for Scala language.
 
 # How it works
 
@@ -43,6 +46,8 @@ Thanks to CodinGame Sync, the generated bundle can be synchronized to the online
 
 ## Screenshot
 ![alt tag](./asset/screenshot.png)
+
+
 
 # F&Q
 1. How Bundler works?
