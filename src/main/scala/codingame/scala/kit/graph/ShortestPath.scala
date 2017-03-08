@@ -1,4 +1,4 @@
-package codingame.scala.graph
+package codingame.scala.kit.graph
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer

@@ -1,6 +1,6 @@
-package codingame.scala.ghostcell
+package codingame.scala.kit.ghostcell
 
-import codingame.scala.graph.{Edge, Itinerary, ShortestPath}
+import codingame.scala.kit.graph.{Edge, Itinerary}
 
 object Player extends App {
   val factoryCount = io.StdIn.readInt()
@@ -20,8 +20,8 @@ object Player extends App {
     val entityCount = io.StdIn.readInt()
     val entities = (for {
       i <- 0 until entityCount
-      Array(entityid, entitytype, arg1, arg2, arg3, arg4, arg5) = io.StdIn.readLine().split(" ").map(_.toInt)
-    } yield Entity(entityid, entitytype, arg1, arg2, arg3, arg4, arg5)).toVector
+      Array(entityid, entitytype, arg1, arg2, arg3, arg4, arg5) = io.StdIn.readLine().split(" ")
+    } yield Entity(entityid.toInt, entitytype, arg1.toInt, arg2.toInt, arg3.toInt, arg4.toInt, arg5.toInt)).toVector
 
     val factories = entities.filter(_.entityType == "FACTORY").map(
       e => Factory(id = e.entityId, owner = e.arg1, cyborgs = e.arg2, production = e.arg3, again = e.arg4))
@@ -35,6 +35,7 @@ object Player extends App {
     val state = GhostCellGameState(itinearies, factories, troops, bombs)
 
     val actions = player.reactTo(state)
+
     if (actions.isEmpty) {
       println(WaitAction.command())
     } else {

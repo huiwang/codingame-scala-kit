@@ -1,4 +1,4 @@
-package codingame.scala.bundle
+package codingame.scala.kit.bundle
 
 import java.io.{File, PrintWriter}
 import java.nio.file.{Files, Paths}
@@ -7,9 +7,11 @@ import java.util.Objects
 import scala.collection.mutable
 import scala.io.Source
 
-class Bundler(private val fileName: String = "Player.scala",
-              private val srcFolder: String = "./src/main/scala",
-              private val destFolder: String = "./target") {
+class Bundler(val fileName: String = "Player.scala",
+              val srcFolder: String = "./src/main/scala",
+              val destFolder: String = "./target",
+              val organization : String = "codingame.scala.kit"
+             ) {
 
   val seenFiles: mutable.Set[File] = mutable.Set.empty
 
@@ -33,10 +35,10 @@ class Bundler(private val fileName: String = "Player.scala",
     seenFiles.add(file)
     val lines = readFile(file)
     val withoutPackages = lines.filterNot(_.startsWith("package"))
-    val (imports, withoutPackagesImports) = withoutPackages.partition(_.startsWith("import com.truelaurel"))
+    val (imports, body) = withoutPackages.partition(_.startsWith(s"import $organization"))
     val filesInSamePackage = transformFiles(file.getParentFile)
     val filesFromImports = imports.flatMap(im => transformFiles(extractFolderFromImport(im)))
-    filesInSamePackage ++ filesFromImports ++ withoutPackagesImports
+    filesInSamePackage ++ filesFromImports ++ body
   }
 
   private def readFile(file: File) = {
@@ -56,9 +58,9 @@ class Bundler(private val fileName: String = "Player.scala",
 
   def transformFiles(folder: File): List[String] = {
     Objects.requireNonNull(folder, "Folder should not be null")
-    val files: Array[File] = folder.listFiles((pathname: File) => !pathname.getName.startsWith("."))
-    Objects.requireNonNull(files, "files should not be null in folder " + folder)
-    files.toList.flatMap(transformFile)
+    val visibleFiles: Array[File] = folder.listFiles((pathname: File) => !pathname.getName.startsWith("."))
+    Objects.requireNonNull(visibleFiles, "visibleFiles should not be null in folder " + folder)
+    visibleFiles.toList.flatMap(transformFile)
   }
 
   def strip2(x: String, s: String = "/*", e: String = "*/"): String = {

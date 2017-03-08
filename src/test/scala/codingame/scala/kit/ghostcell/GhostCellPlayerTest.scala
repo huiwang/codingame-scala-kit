@@ -1,6 +1,7 @@
-package codingame.scala.ghostcell
+package codingame.scala.kit.ghostcell
 
-import codingame.scala.graph.{Edge, ShortestPath}
+import codingame.scala.kit.graph.{Edge, ShortestPath}
+import codingame.scala.kit.ghostcell._
 import org.scalatest.{FlatSpec, Matchers}
 
 /**

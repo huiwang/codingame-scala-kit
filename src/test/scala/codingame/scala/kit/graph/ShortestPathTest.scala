@@ -1,4 +1,4 @@
-package codingame.scala.graph
+package codingame.scala.kit.graph
 
 import org.scalatest.{FlatSpec, Matchers}
 

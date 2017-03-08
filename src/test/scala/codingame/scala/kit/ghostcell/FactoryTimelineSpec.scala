@@ -1,6 +1,6 @@
-package codingame.scala.ghostcell
+package codingame.scala.kit.ghostcell
 
-import FactoryTimeline.finalState
+import codingame.scala.kit.ghostcell.FactoryTimeline.finalState
 import org.scalatest.{FlatSpec, Matchers}
 
 class FactoryTimelineSpec extends FlatSpec with Matchers {

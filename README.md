@@ -40,7 +40,7 @@ The example Bot `Ghost in the Cell` ranked `59/3509` overall and `2/50` for Scal
 
 4. Open a second terminal and fire SBT, hit
 
-    `~runMain codingame.scala.bundle.Bundler` to bundle Player.scala file continuously
+    `~runMain codingame.scala.kit.bundle.Bundler` to bundle Player.scala file continuously
 
 5. Open CodinGame Sync to synchronize Player.scala file continuously to online IDE
 
@@ -58,7 +58,12 @@ The example Bot `Ghost in the Cell` ranked `59/3509` overall and `2/50` for Scal
     
 2. Can I reuse codes from third party?
 
-    No, the Bundler only scans source files included in the project.   
+    No, the Bundler only scans source files included in the project.
+
+3. Is Java Supported?
+
+    No, the Bundler only inlines imported source codes and doesn't adapt Java code to Scala. 
+    If you prefer Java, I strongly recommend Manwe's great [Compettitive Programming](https://github.com/Manwe56/competitive-programming) tools.
     
 # Next steps
 
