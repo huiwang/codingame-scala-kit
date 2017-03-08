@@ -26,6 +26,8 @@ case class Factory(id: Int, owner: Int, cyborgs: Int, production: Int, again: In
 }
 
 
+case class Entity(entityId : Int, entityType : Int, arg1 : Int, arg2 : Int, arg3 : Int, arg4 : Int, arg5 : Int)
+
 case class Troop(id: Int, owner: Int, from: Int, to: Int, cyborgs: Int, arrival: Int) {
 }
 
