@@ -4,7 +4,19 @@ import codingame.scala.kit.engine.GamePlayer
 
 object GhostCellPlayer extends GamePlayer[GhostCellGameState, Vector[GhostCellAction]] {
   override def reactTo(state: GhostCellGameState): Vector[GhostCellAction] = {
-    val attackPlan = FactoryAnalysis.movePlans(state)
+    val increasable = state.myFacs.filter(fac => fac.production < 3 && fac.cyborgs >= 10).filter(fac => FactoryAnalysis.available(fac, state) >= 10)
+    val increased = state.copy(factories = state.factories.map(fac => {
+      if (increasable.contains(fac)) fac.copy(cyborgs = fac.cyborgs - 10, production = fac.production + 1) else fac
+    }))
+    if (state.myFacs.size == 1 || increasable.isEmpty) {
+      reacToWithoutInc(state)
+    } else {
+      reacToWithoutInc(increased) ++ increasable.map(fac => IncreaseAction(fac.id))
+    }
+  }
+
+  def reacToWithoutInc(state: GhostCellGameState): Vector[GhostCellAction] = {
+    val attackPlan = FactoryAnalysis.movePlans(state).map(m => m.copy(to = m.to.abs)).filter(m => m.from != m.to)
     val attackMoves = attackPlan.map(m => {
       m.copy(to = state.itineraries(m.from)(m.to).path.tail.head)
     })
@@ -29,9 +41,9 @@ object GhostCellPlayer extends GamePlayer[GhostCellGameState, Vector[GhostCellAc
   }
 
   private def findFront(state: GhostCellGameState): Option[Factory] = {
-    if (state.center.mine) Some(state.center) else {
-      None
-    }
+    if (state.center.mine) Some(state.center) else if (state.center.other) {
+      Some(state.myFacs.minBy(fac => state.otherFacs.map(of => state.dist(of.id, fac.id)).sum))
+    } else None
   }
 
 

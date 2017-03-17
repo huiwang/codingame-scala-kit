@@ -15,6 +15,8 @@ object Player extends App {
 
   private val player = GhostCellPlayer
 
+  private var factoryProd : Map[Int, Int] = Map.empty
+
   while (true) {
 
     val entityCount = io.StdIn.readInt()
@@ -24,7 +26,11 @@ object Player extends App {
     } yield Entity(entityid.toInt, entitytype, arg1.toInt, arg2.toInt, arg3.toInt, arg4.toInt, arg5.toInt)).toVector
 
     val factories = entities.filter(_.entityType == "FACTORY").map(
-      e => Factory(id = e.entityId, owner = e.arg1, cyborgs = e.arg2, production = e.arg3, again = e.arg4))
+      e => Factory(id = e.entityId, owner = e.arg1, cyborgs = e.arg2, production = factoryProd.getOrElse(e.entityId, 0).max(e.arg3), again = e.arg4))
+
+    if(factoryProd.isEmpty) {
+      factoryProd = factories.map(fac => fac.id -> fac.production).toMap
+    }
 
     val troops = entities.filter(_.entityType == "TROOP").map(
       e => Troop(id = e.entityId, owner = e.arg1, from = e.arg2, to = e.arg3, cyborgs = e.arg4, arrival = e.arg5))
@@ -41,5 +47,7 @@ object Player extends App {
     } else {
       println(actions.map(a => a.command()).mkString(";"))
     }
+
+    System.err.println(state)
   }
 }

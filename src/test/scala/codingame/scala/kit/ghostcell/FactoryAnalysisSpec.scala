@@ -31,6 +31,18 @@ class FactoryAnalysisSpec extends FlatSpec with Matchers {
     FactoryAnalysis.conquer(to, from, Vector.empty, createState(from, to)) should be(49)
   }
 
+  it should "inc without sending cyborgs" in {
+    val from = Factory(0, 1, 50, 0, 0)
+    val to = Factory(1, 1, 8, 1, 0)
+    FactoryAnalysis.inc(to, from, Vector.empty, createState(from, to)) should be(0)
+  }
+
+  it should "inc with just necessary cyborgs" in {
+    val from = Factory(0, 1, 50, 0, 0)
+    val to = Factory(1, 1, 7, 1, 0)
+    FactoryAnalysis.inc(to, from, Vector.empty, createState(from, to)) should be(1)
+  }
+
   it should "move to all neutral factories" in {
     val from = Factory(0, 1, 6, 0, 0)
     val n1 = Factory(1, 0, 2, 1, 0)
@@ -70,36 +82,6 @@ class FactoryAnalysisSpec extends FlatSpec with Matchers {
       Troop(4, 1, 1, 0, 1, 1)
     ), bombs = Vector.empty)
     FactoryAnalysis.available(src, state) should be(0)
-  }
-
-  it should "move enough cyborgs to target with multiple src" in {
-    val src = Factory(0, 1, 0, 0, 0)
-    val n1 = Factory(1, -1, 0, 1, 0)
-    val n2 = Factory(2, 1, 100, 1, 0)
-    val state = GhostCellGameState(itineraries = ShortestPath.shortestItinearies(3, Vector(
-      Edge(0, 1, 6),
-      Edge(0, 2, 1),
-      Edge(1, 0, 6),
-      Edge(1, 2, 4),
-      Edge(2, 0, 1),
-      Edge(2, 1, 4)
-    )), factories = Vector(src, n1, n2), troops = Vector(Troop(226, 1, 2, 1, 1, 1), Troop(227, 1, 2, 1, 1, 2), Troop(228, 1, 2, 1, 1, 3), Troop(229, 1, 2, 1, 1, 4)), bombs = Vector.empty)
-    FactoryAnalysis.movePlans(state) should be(Vector(MoveAction(2, 1, 2)))
-  }
-
-  it should "attack should be synchronized" in {
-    val from = Factory(0, 1, 3, 1, 0)
-    val n1 = Factory(1, 1, 2, 1, 0)
-    val n2 = Factory(2, -1, 1, 1, 0)
-    val state = GhostCellGameState(itineraries = ShortestPath.shortestItinearies(3, Vector(
-      Edge(0, 1, 1),
-      Edge(0, 2, 1),
-      Edge(1, 0, 1),
-      Edge(1, 2, 1),
-      Edge(2, 0, 1),
-      Edge(2, 1, 1)
-    )), factories = Vector(from, n1, n2), troops = Vector.empty, bombs = Vector.empty)
-    FactoryAnalysis.movePlans(state) should be(Vector(MoveAction(0, 2, 3), MoveAction(1, 2, 1)))
   }
 
 
