@@ -1,6 +1,6 @@
 package codingame.scala.kit.ghostcell
 
-import codingame.scala.kit.graph.Itinerary
+import codingame.scala.kit.graph.Iti
 import org.scalatest.{FlatSpec, Matchers}
 
 /**
@@ -10,12 +10,10 @@ class GhostCellPlayerTest extends FlatSpec with Matchers {
 
   behavior of "GhostCellPlayer$Test"
 
-  /*
-    it should "study" in {
-      val state = GhostCellGameState(Map(0 -> Map(0 -> Itinerary(0, Vector(0)), 5 -> Itinerary(3, Vector(0, 5)), 1 -> Itinerary(5, Vector(0, 3, 1)), 6 -> Itinerary(3, Vector(0, 6)), 2 -> Itinerary(5, Vector(0, 4, 2)), 7 -> Itinerary(6, Vector(0, 5, 7)), 3 -> Itinerary(1, Vector(0, 3)), 8 -> Itinerary(6, Vector(0, 6, 8)), 4 -> Itinerary(1, Vector(0, 4))), 5 -> Map(0 -> Itinerary(3, Vector(5, 0)), 5 -> Itinerary(0, Vector(5)), 1 -> Itinerary(2, Vector(5, 1)), 6 -> Itinerary(6, Vector(5, 0, 6)), 2 -> Itinerary(8, Vector(5, 0, 4, 2)), 7 -> Itinerary(3, Vector(5, 7)), 3 -> Itinerary(2, Vector(5, 3)), 8 -> Itinerary(9, Vector(5, 0, 6, 8)), 4 -> Itinerary(4, Vector(5, 0, 4))), 1 -> Map(0 -> Itinerary(5, Vector(1, 3, 0)), 5 -> Itinerary(2, Vector(1, 5)), 1 -> Itinerary(0, Vector(1)), 6 -> Itinerary(8, Vector(1, 3, 0, 6)), 2 -> Itinerary(10, Vector(1, 3, 0, 4, 2)), 7 -> Itinerary(4, Vector(1, 7)), 3 -> Itinerary(4, Vector(1, 3)), 8 -> Itinerary(11, Vector(1, 3, 0, 6, 8)), 4 -> Itinerary(6, Vector(1, 3, 0, 4))), 6 -> Map(0 -> Itinerary(3, Vector(6, 0)), 5 -> Itinerary(6, Vector(6, 0, 5)), 1 -> Itinerary(8, Vector(6, 0, 3, 1)), 6 -> Itinerary(0, Vector(6)), 2 -> Itinerary(2, Vector(6, 2)), 7 -> Itinerary(9, Vector(6, 0, 5, 7)), 3 -> Itinerary(4, Vector(6, 0, 3)), 8 -> Itinerary(3, Vector(6, 8)), 4 -> Itinerary(2, Vector(6, 4))), 2 -> Map(0 -> Itinerary(5, Vector(2, 4, 0)), 5 -> Itinerary(8, Vector(2, 4, 0, 5)), 1 -> Itinerary(10, Vector(2, 4, 0, 3, 1)), 6 -> Itinerary(2, Vector(2, 6)), 2 -> Itinerary(0, Vector(2)), 7 -> Itinerary(11, Vector(2, 4, 0, 5, 7)), 3 -> Itinerary(6, Vector(2, 4, 0, 3)), 8 -> Itinerary(4, Vector(2, 8)), 4 -> Itinerary(4, Vector(2, 4))), 7 -> Map(0 -> Itinerary(6, Vector(7, 5, 0)), 5 -> Itinerary(3, Vector(7, 5)), 1 -> Itinerary(4, Vector(7, 1)), 6 -> Itinerary(9, Vector(7, 5, 0, 6)), 2 -> Itinerary(11, Vector(7, 5, 0, 4, 2)), 7 -> Itinerary(0, Vector(7)), 3 -> Itinerary(5, Vector(7, 5, 3)), 8 -> Itinerary(12, Vector(7, 5, 0, 6, 8)), 4 -> Itinerary(7, Vector(7, 5, 0, 4))), 3 -> Map(0 -> Itinerary(1, Vector(3, 0)), 5 -> Itinerary(2, Vector(3, 5)), 1 -> Itinerary(4, Vector(3, 1)), 6 -> Itinerary(4, Vector(3, 0, 6)), 2 -> Itinerary(6, Vector(3, 0, 4, 2)), 7 -> Itinerary(5, Vector(3, 5, 7)), 3 -> Itinerary(0, Vector(3)), 8 -> Itinerary(7, Vector(3, 0, 6, 8)), 4 -> Itinerary(2, Vector(3, 0, 4))), 8 -> Map(0 -> Itinerary(6, Vector(8, 6, 0)), 5 -> Itinerary(9, Vector(8, 6, 0, 5)), 1 -> Itinerary(11, Vector(8, 6, 0, 3, 1)), 6 -> Itinerary(3, Vector(8, 6)), 2 -> Itinerary(4, Vector(8, 2)), 7 -> Itinerary(12, Vector(8, 6, 0, 5, 7)), 3 -> Itinerary(7, Vector(8, 6, 0, 3)), 8 -> Itinerary(0, Vector(8)), 4 -> Itinerary(5, Vector(8, 6, 4))), 4 -> Map(0 -> Itinerary(1, Vector(4, 0)), 5 -> Itinerary(4, Vector(4, 0, 5)), 1 -> Itinerary(6, Vector(4, 0, 3, 1)), 6 -> Itinerary(2, Vector(4, 6)), 2 -> Itinerary(4, Vector(4, 2)), 7 -> Itinerary(7, Vector(4, 0, 5, 7)), 3 -> Itinerary(2, Vector(4, 0, 3)), 8 -> Itinerary(5, Vector(4, 6, 8)), 4 -> Itinerary(0, Vector(4)))), Vector(Factory(0, 1, 2, 0, 0), Factory(1, 1, 4, 0, 0), Factory(2, -1, 1, 1, 0), Factory(3, 1, 1, 1, 0), Factory(4, 1, 1, 1, 0), Factory(5, 1, 0, 0, 0), Factory(6, -1, 6, 0, 0), Factory(7, 1, 3, 3, 0), Factory(8, -1, 3, 3, 0)), Vector(Troop(32, 1, 3, 1, 1, 1), Troop(33, 1, 7, 1, 3, 1), Troop(41, 1, 3, 1, 1, 2), Troop(42, 1, 7, 1, 1, 2), Troop(43, 1, 7, 5, 2, 1), Troop(44, -1, 2, 4, 1, 2), Troop(45, -1, 8, 6, 3, 1), Troop(49, 1, 5, 1, 2, 1), Troop(52, 1, 5, 0, 1, 2), Troop(53, 1, 7, 5, 3, 2), Troop(54, -1, 8, 2, 2, 3), Troop(55, -1, 8, 6, 1, 2), Troop(59, 1, 3, 0, 1, 1), Troop(60, 1, 4, 0, 1, 1), Troop(61, 1, 5, 0, 3, 3), Troop(62, 1, 7, 5, 3, 3), Troop(64, -1, 8, 2, 3, 4), Troop(65, -1, 2, 4, 8, 4)), Vector(Bomb(29, 1, 0, 8, 4), Bomb(30, 1, 0, 2, 3), Bomb(34, -1, 4, -1, -1), Bomb(35, -1, 4, -1, -1)))
-      GhostCellPlayer.reactTo(state) should be(Vector(MoveAction(2, 1, 4), BombAction(0, 1)))
-    }
-  */
-
+/*
+  it should "study" in {
+    GhostCellPlayer.reactTo(???) should be(Vector.empty)
+  }
+*/
 
 }

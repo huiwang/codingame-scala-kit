@@ -4,7 +4,11 @@ import codingame.scala.kit.engine.GamePlayer
 
 object GhostCellPlayer extends GamePlayer[GhostCellGameState, Vector[GhostCellAction]] {
   override def reactTo(state: GhostCellGameState): Vector[GhostCellAction] = {
-    val increasable = state.myFacs.filter(fac => fac.production < 3 && fac.cyborgs >= 10).filter(fac => FactoryAnalysis.available(fac, state) >= 10)
+    val increasable = if(FactoryAnalysis.noIncrease(state)) {
+      Vector.empty
+    } else {
+      state.myFacs.filter(fac => fac.production < 3 && fac.cyborgs >= 10).filter(fac => FactoryAnalysis.available(fac, state) >= 10)
+    }
     val increased = state.copy(factories = state.factories.map(fac => {
       if (increasable.contains(fac)) fac.copy(cyborgs = fac.cyborgs - 10, production = fac.production + 1) else fac
     }))
@@ -18,9 +22,18 @@ object GhostCellPlayer extends GamePlayer[GhostCellGameState, Vector[GhostCellAc
   def reacToWithoutInc(state: GhostCellGameState): Vector[GhostCellAction] = {
     val attackPlan = FactoryAnalysis.movePlans(state).map(m => m.copy(to = m.to.abs)).filter(m => m.from != m.to)
     val attackMoves = attackPlan.map(m => {
-      m.copy(to = state.itineraries(m.from)(m.to).path.tail.head)
+      m.copy(to = state.transferFac(m.from, m.to))
     })
-    withBombPlan(state, attackMoves)
+
+    val avoidBomb = attackMoves
+      .filter(move => !state.bombs.filter(_.owner == 1).exists(b => b.to == move.to && b.explosion == state.dist(move.from, move.to)))
+      .filter(move => !state.bombs.filter(_.owner == -1).exists(b => {
+        val dist = state.directDist(b.from, move.to)
+        val travelled = state.turn - b.birth
+        val arrival = dist - travelled
+        arrival == state.dist(move.from, move.to) + 1
+      }))
+    withBombPlan(state, avoidBomb)
   }
 
   private def withBombPlan(state: GhostCellGameState, moves: Vector[MoveAction]) = {
@@ -32,6 +45,8 @@ object GhostCellPlayer extends GamePlayer[GhostCellGameState, Vector[GhostCellAc
     if (state.myFacs.isEmpty || state.otherFacs.isEmpty) Vector.empty else {
       findFront(state).map(front => {
         state.otherFacs
+          .filter(fac => fac.production > 0 || fac.cyborgs > 5)
+          .filter(fac => !state.bombs.filter(_.owner == 1).exists(b => b.to == fac.id))
           .map(of => FactoryTimeline.finalState(of, nextTroops, state.dist(front.id, of.id) + 1))
           .filter(fs => fs.owner == -1)
           .sortBy(fs => (state.factories(fs.id).production * -1, state.dist(front.id, fs.id)))
@@ -40,7 +55,7 @@ object GhostCellPlayer extends GamePlayer[GhostCellGameState, Vector[GhostCellAc
     }
   }
 
-  private def findFront(state: GhostCellGameState): Option[Factory] = {
+  private def findFront(state: GhostCellGameState): Option[Fac] = {
     if (state.center.mine) Some(state.center) else if (state.center.other) {
       Some(state.myFacs.minBy(fac => state.otherFacs.map(of => state.dist(of.id, fac.id)).sum))
     } else None

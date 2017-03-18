@@ -6,12 +6,12 @@ import scala.collection.mutable.ArrayBuffer
 
 case class Edge(from: Int, to: Int, distance: Int)
 
-case class Itinerary(distance: Int, path: Vector[Int])
+case class Iti(distance: Int, path: Vector[Int])
 /**
   * Floyd–Warshall algorithm
   */
 object ShortestPath {
-  def shortestItinearies(vertexCount: Int, edges: Vector[Edge]): Map[Int, Map[Int, Itinerary]] = {
+  def shortestItinearies(vertexCount: Int, edges: Vector[Edge]): Map[Int, Map[Int, Iti]] = {
     val n = vertexCount
     val inf = Int.MaxValue
 
@@ -66,7 +66,7 @@ object ShortestPath {
               case ((total, pre), cur) =>
                 (total + ds(pre)(cur), cur)
             }
-            dest -> Itinerary(totalDist, path.toVector)
+            dest -> Iti(totalDist, path.toVector)
           }
         }
       }

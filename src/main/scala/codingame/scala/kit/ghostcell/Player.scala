@@ -1,6 +1,6 @@
 package codingame.scala.kit.ghostcell
 
-import codingame.scala.kit.graph.{Edge, Itinerary}
+import codingame.scala.kit.graph.{Edge, Iti}
 
 object Player extends App {
   val factoryCount = io.StdIn.readInt()
@@ -11,11 +11,15 @@ object Player extends App {
     Array(factory1, factory2, distance) = for (i <- io.StdIn.readLine() split " ") yield i.toInt
   } yield Edge(factory1, factory2, distance)).toVector
 
-  private val itinearies: Map[Int, Map[Int, Itinerary]] = GhostCellGrahp.shortestPath(factoryCount, edges)
+  private val directDist = (edges.map(e => (e.from, e.to) -> e.distance) ++ edges.map(e => (e.to, e.from) -> e.distance)).toMap
 
   private val player = GhostCellPlayer
 
   private var factoryProd : Map[Int, Int] = Map.empty
+
+  private var turn = 1
+
+  private var bombBirth : Map[Int, Int] = Map.empty
 
   while (true) {
 
@@ -26,7 +30,7 @@ object Player extends App {
     } yield Entity(entityid.toInt, entitytype, arg1.toInt, arg2.toInt, arg3.toInt, arg4.toInt, arg5.toInt)).toVector
 
     val factories = entities.filter(_.entityType == "FACTORY").map(
-      e => Factory(id = e.entityId, owner = e.arg1, cyborgs = e.arg2, production = factoryProd.getOrElse(e.entityId, 0).max(e.arg3), again = e.arg4))
+      e => Fac(id = e.entityId, owner = e.arg1, cyborgs = e.arg2, production = factoryProd.getOrElse(e.entityId, 0).max(e.arg3), again = e.arg4))
 
     if(factoryProd.isEmpty) {
       factoryProd = factories.map(fac => fac.id -> fac.production).toMap
@@ -36,9 +40,14 @@ object Player extends App {
       e => Troop(id = e.entityId, owner = e.arg1, from = e.arg2, to = e.arg3, cyborgs = e.arg4, arrival = e.arg5))
 
     val bombs = entities.filter(_.entityType == "BOMB").map(
-      e => Bomb(id = e.entityId, owner = e.arg1, from = e.arg2, to = e.arg3, explosion = e.arg4))
+      e => Bomb(id = e.entityId, owner = e.arg1, from = e.arg2, to = e.arg3, explosion = e.arg4, birth = bombBirth.getOrElse(e.entityId, turn)))
 
-    val state = GhostCellGameState(itinearies, factories, troops, bombs)
+    bombBirth = bombBirth ++ bombs.map(b => b.id -> b.birth)
+
+    val state = GhostCellGameState(factories, troops, bombs, turn, edges)
+
+
+    System.err.println(state)
 
     val actions = player.reactTo(state)
 
@@ -48,6 +57,7 @@ object Player extends App {
       println(actions.map(a => a.command()).mkString(";"))
     }
 
-    System.err.println(state)
+    turn = turn + 1
+
   }
 }

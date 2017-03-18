@@ -5,7 +5,7 @@ object FactoryAnalysis {
   def movePlans(state: GhostCellGameState): Vector[MoveAction] = {
     val (sources, toLost) = state.myFacs.partition(mf => FactoryTimeline.finalState(mf, state.troops).owner == 1)
     val sourceBudget = sources.map(mf => mf.id -> available(mf, state)).toMap
-    val increasable = if(state.bombs.count(_.owner == -1) > 0) Vector.empty else sources.filter(s => s.production < 3 && s.cyborgs < 10)
+    val increasable = increaseableSources(state)
     val conquerable = state.factories.filter(fac => !fac.mine) ++ toLost.filter(_.production > 0)
     val conquerableToScoreRaw = conquerable.map(target => (target, evaluateFactoryConquer(target, sources, state, sourceBudget)))
     val increasableToScoreRaw = increasable.map(target => (target, evaluateFactoryInc(target, sources.filter(_.id != target.id), state, sourceBudget)))
@@ -15,9 +15,9 @@ object FactoryAnalysis {
     targetsSorted.foldLeft(initPlan) {
       case (totalMoves, sink) => {
         val sourcesSorted = sources.filter(_.id != sink.id).sortBy(src => state.dist(src.id, sink.id))
-        if(conquerable.contains(sink)) {
+        if (conquerable.contains(sink)) {
           planForConquer(sink, sourcesSorted, totalMoves, state, sourceBudget)
-        } else if(increasable.contains(sink)){
+        } else if (increasable.contains(sink)) {
           planForInc(sink, sourcesSorted, totalMoves, state, sourceBudget) :+ MoveAction(sink.id, sink.id, sink.cyborgs)
         } else {
           totalMoves
@@ -26,7 +26,25 @@ object FactoryAnalysis {
     }.filter(m => m.from != m.to)
   }
 
-  private def planForConquer(sink: Factory, sources: Vector[Factory], moves: Vector[MoveAction],
+  def noIncrease(state: GhostCellGameState) : Boolean = state.bombs.count(_.owner == -1) > 0 || state.center.owner == 0
+
+
+  def increaseableSources(state: GhostCellGameState): Vector[Fac] = {
+    if(noIncrease(state)) Vector.empty else {
+      state.myFacs.filter(mf => FactoryTimeline.finalState(mf, state.troops).owner == 1)
+        .filter(s => s.production < 3 && s.cyborgs < 10)
+        .filter(fac => !state.bombs
+          .filter(_.owner == -1)
+          .exists(b => {
+            val dist = state.directDist(b.from, fac.id)
+            val travelled = state.turn - b.birth
+            travelled < dist
+          })
+        )
+    }
+  }
+
+  private def planForConquer(sink: Fac, sources: Vector[Fac], moves: Vector[MoveAction],
                              state: GhostCellGameState, availability: Map[Int, Int]): Vector[MoveAction] = {
     if (sources.isEmpty) moves else {
       val src = sources.head
@@ -46,7 +64,7 @@ object FactoryAnalysis {
     }
   }
 
-  private def evaluateFactoryConquer(sink: Factory, sources: Vector[Factory],
+  private def evaluateFactoryConquer(sink: Fac, sources: Vector[Fac],
                                      state: GhostCellGameState, availability: Map[Int, Int]) = {
     val moves = planForConquer(sink, sources, Vector.empty, state, availability)
     val troops = movesToTroops(moves, state)
@@ -65,7 +83,7 @@ object FactoryAnalysis {
   }
 
 
-  private def evaluateFactoryInc(sink: Factory, sources: Vector[Factory],
+  private def evaluateFactoryInc(sink: Fac, sources: Vector[Fac],
                                  state: GhostCellGameState, availability: Map[Int, Int]) = {
     val moves = planForInc(sink, sources, Vector.empty, state, availability)
     val troops = movesToTroops(moves, state)
@@ -84,19 +102,23 @@ object FactoryAnalysis {
       m.cyborgs, state.dist(m.from, m.to) + 1))
   }
 
-  def available(src: Factory, state: GhostCellGameState): Int = {
-    available(src, state, 0, src.cyborgs)
+  def available(src: Fac, state: GhostCellGameState): Int = {
+    val neighborMoves = state.otherFacs
+      .filter(fac => state.dist(fac.id, src.id) == 1 && src.production > fac.production)
+      .map(fac => MoveAction(fac.id, src.id, fac.cyborgs))
+
+    available(src, state.troops ++ movesToTroops(neighborMoves, state), 0, src.cyborgs)
   }
 
-  def available(src: Factory, state: GhostCellGameState, lower: Int, upper: Int): Int = {
+  def available(src: Fac, troops: Vector[Troop], lower: Int, upper: Int): Int = {
     if (lower == upper) {
       src.cyborgs - lower
     } else {
       val middle = (lower + upper) / 2
-      if (FactoryTimeline.finalState(src.copy(cyborgs = middle), state.troops).owner == 1) {
-        available(src, state, lower, middle)
+      if (FactoryTimeline.finalState(src.copy(cyborgs = middle), troops).owner == 1) {
+        available(src, troops, lower, middle)
       } else {
-        available(src, state, middle + 1, upper)
+        available(src, troops, middle + 1, upper)
       }
     }
   }
@@ -107,11 +129,11 @@ object FactoryAnalysis {
     * Move to be executed for the next round, then it takes the enough time(the distance) to reach the target
     * that's why we need to add increase the arrival time by one
     */
-  def conquer(to: Factory, from: Factory, troops: Vector[Troop], state: GhostCellGameState): Int = {
+  def conquer(to: Fac, from: Fac, troops: Vector[Troop], state: GhostCellGameState): Int = {
     conquer(to, from, troops, state, 0, from.cyborgs)
   }
 
-  def conquer(to: Factory, from: Factory, troops: Vector[Troop], state: GhostCellGameState,
+  def conquer(to: Fac, from: Fac, troops: Vector[Troop], state: GhostCellGameState,
               lower: Int, upper: Int): Int = {
     if (lower == upper) {
       lower
@@ -132,7 +154,7 @@ object FactoryAnalysis {
 
   }
 
-  private def planForInc(sink: Factory, sources: Vector[Factory], moves: Vector[MoveAction],
+  private def planForInc(sink: Fac, sources: Vector[Fac], moves: Vector[MoveAction],
                          state: GhostCellGameState, availability: Map[Int, Int]): Vector[MoveAction] = {
     if (sources.isEmpty) moves else {
       val src = sources.head
@@ -152,11 +174,11 @@ object FactoryAnalysis {
     }
   }
 
-  def inc(to: Factory, from: Factory, troops: Vector[Troop], state: GhostCellGameState): Int = {
+  def inc(to: Fac, from: Fac, troops: Vector[Troop], state: GhostCellGameState): Int = {
     inc(to, from, troops, state, 0, from.cyborgs)
   }
 
-  def inc(to: Factory, from: Factory, troops: Vector[Troop], state: GhostCellGameState,
+  def inc(to: Fac, from: Fac, troops: Vector[Troop], state: GhostCellGameState,
           lower: Int, upper: Int): Int = {
     if (lower == upper) {
       lower
