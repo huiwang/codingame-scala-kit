@@ -32,9 +32,8 @@ object Player extends App {
     val factories = entities.filter(_.entityType == "FACTORY").map(
       e => Fac(id = e.entityId, owner = e.arg1, cyborgs = e.arg2, production = factoryProd.getOrElse(e.entityId, 0).max(e.arg3), again = e.arg4))
 
-    if(factoryProd.isEmpty) {
-      factoryProd = factories.map(fac => fac.id -> fac.production).toMap
-    }
+    factoryProd = factories.map(fac => fac.id -> fac.production.max(factoryProd.getOrElse(fac.id, 0))).toMap
+
 
     val troops = entities.filter(_.entityType == "TROOP").map(
       e => Troop(id = e.entityId, owner = e.arg1, from = e.arg2, to = e.arg3, cyborgs = e.arg4, arrival = e.arg5))

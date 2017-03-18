@@ -4,7 +4,7 @@ object FactoryAnalysis {
 
   def movePlans(state: GhostCellGameState): Vector[MoveAction] = {
     val (sources, toLost) = state.myFacs.partition(mf => FactoryTimeline.finalState(mf, state.troops).owner == 1)
-    val sourceBudget = sources.map(mf => mf.id -> available(mf, state)).toMap
+    val sourceBudget = sources.map(mf => mf.id -> moveAvailable(mf, state)).toMap
     val increasable = increaseableSources(state)
     val conquerable = state.factories.filter(fac => !fac.mine) ++ toLost.filter(_.production > 0)
     val conquerableToScoreRaw = conquerable.map(target => (target, evaluateFactoryConquer(target, sources, state, sourceBudget)))
@@ -30,18 +30,21 @@ object FactoryAnalysis {
 
 
   def increaseableSources(state: GhostCellGameState): Vector[Fac] = {
-    if(noIncrease(state)) Vector.empty else {
+    if (noIncrease(state)) Vector.empty else {
       state.myFacs.filter(mf => FactoryTimeline.finalState(mf, state.troops).owner == 1)
-        .filter(s => s.production < 3 && s.cyborgs < 10)
-        .filter(fac => !state.bombs
-          .filter(_.owner == -1)
-          .exists(b => {
-            val dist = state.directDist(b.from, fac.id)
-            val travelled = state.turn - b.birth
-            travelled < dist
-          })
-        )
+        .filter(fac => fac.production < 3).filter(fac => !mayExplode(fac, state))
     }
+  }
+
+  def mayExplode(fac: Fac, state: GhostCellGameState): Boolean = {
+    state.bombs
+      .filter(_.owner == -1)
+      .exists(b => {
+        val dist = state.directDist(b.from, fac.id)
+        val travelled = state.turn - b.birth
+        val remaining = dist - travelled
+        remaining == 1
+      })
   }
 
   private def planForConquer(sink: Fac, sources: Vector[Fac], moves: Vector[MoveAction],
@@ -73,7 +76,7 @@ object FactoryAnalysis {
     val returns = ((sink.owner, finalState.owner) match {
       case (0, 1) => 2
       case (0, 0) => 1
-      case (1, 1) => 1
+      case (1, 1) => 2
       case (1, -1) => -1
       case (-1, 1) => 1
       case (-1, -1) => -1
@@ -89,7 +92,7 @@ object FactoryAnalysis {
     val troops = movesToTroops(moves, state)
     val investments = (moves :+ MoveAction(sink.id, sink.id, sink.cyborgs)).map(m => m.cyborgs * Math.pow(2, state.dist(m.from, m.to))).sum
     val returns = if (moves.isEmpty) {
-      10
+      13
     } else {
       val inc = moves.map(m => state.dist(m.from, m.to)).max
       GhostCellConstant.MAX_TURN - inc
@@ -102,9 +105,17 @@ object FactoryAnalysis {
       m.cyborgs, state.dist(m.from, m.to) + 1))
   }
 
-  def available(src: Fac, state: GhostCellGameState): Int = {
+  def incAvailable(src: Fac, state: GhostCellGameState): Int = {
     val neighborMoves = state.otherFacs
-      .filter(fac => state.dist(fac.id, src.id) == 1 && src.production > fac.production)
+      .filter(fac => state.dist(fac.id, src.id) <= 3)
+      .map(fac => MoveAction(fac.id, src.id, fac.cyborgs))
+
+    available(src, state.troops ++ movesToTroops(neighborMoves, state), 0, src.cyborgs)
+  }
+
+  def moveAvailable(src: Fac, state: GhostCellGameState): Int = {
+    val neighborMoves = state.otherFacs
+      .filter(fac => state.dist(fac.id, src.id) <= 1)
       .map(fac => MoveAction(fac.id, src.id, fac.cyborgs))
 
     available(src, state.troops ++ movesToTroops(neighborMoves, state), 0, src.cyborgs)

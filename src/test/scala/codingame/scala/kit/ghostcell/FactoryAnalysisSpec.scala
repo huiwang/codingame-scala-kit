@@ -84,7 +84,7 @@ class FactoryAnalysisSpec extends FlatSpec with Matchers {
           Troop(3, -1, 2, 0, 4, 1),
           Troop(4, 1, 1, 0, 1, 1)
         ), bombs = Vector.empty, undirectedEdges = edges)
-    FactoryAnalysis.available(src, state) should be(0)
+    FactoryAnalysis.moveAvailable(src, state) should be(0)
   }
 
 

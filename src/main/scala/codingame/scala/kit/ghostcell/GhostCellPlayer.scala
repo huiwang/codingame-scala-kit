@@ -4,10 +4,13 @@ import codingame.scala.kit.engine.GamePlayer
 
 object GhostCellPlayer extends GamePlayer[GhostCellGameState, Vector[GhostCellAction]] {
   override def reactTo(state: GhostCellGameState): Vector[GhostCellAction] = {
-    val increasable = if(FactoryAnalysis.noIncrease(state)) {
+    val increasable = if (FactoryAnalysis.noIncrease(state)) {
       Vector.empty
     } else {
-      state.myFacs.filter(fac => fac.production < 3 && fac.cyborgs >= 10).filter(fac => FactoryAnalysis.available(fac, state) >= 10)
+      state.myFacs
+        .filter(fac => fac.production < 3 && fac.cyborgs >= 10)
+        .filter(fac => FactoryAnalysis.incAvailable(fac, state) >= 10)
+        .filter(fac => !FactoryAnalysis.mayExplode(fac, state))
     }
     val increased = state.copy(factories = state.factories.map(fac => {
       if (increasable.contains(fac)) fac.copy(cyborgs = fac.cyborgs - 10, production = fac.production + 1) else fac
@@ -41,15 +44,16 @@ object GhostCellPlayer extends GamePlayer[GhostCellGameState, Vector[GhostCellAc
     moves ++ bombPlan(state, nextTroops)
   }
 
+
   private def bombPlan(state: GhostCellGameState, nextTroops: Vector[Troop]): Vector[BombAction] = {
     if (state.myFacs.isEmpty || state.otherFacs.isEmpty) Vector.empty else {
       findFront(state).map(front => {
         state.otherFacs
           .filter(fac => fac.production > 0 || fac.cyborgs > 5)
           .filter(fac => !state.bombs.filter(_.owner == 1).exists(b => b.to == fac.id))
-          .map(of => FactoryTimeline.finalState(of, nextTroops, state.dist(front.id, of.id) + 1))
+          .map(of => FactoryTimeline.finalState(of, nextTroops, state.directDist(front.id, of.id) + 1))
           .filter(fs => fs.owner == -1)
-          .sortBy(fs => (state.factories(fs.id).production * -1, state.dist(front.id, fs.id)))
+          .sortBy(fs => (state.factories(fs.id).production * -1, state.directDist(front.id, fs.id)))
           .map(fs => BombAction(front.id, fs.id))
       }).getOrElse(Vector.empty)
     }
@@ -57,7 +61,7 @@ object GhostCellPlayer extends GamePlayer[GhostCellGameState, Vector[GhostCellAc
 
   private def findFront(state: GhostCellGameState): Option[Fac] = {
     if (state.center.mine) Some(state.center) else if (state.center.other) {
-      Some(state.myFacs.minBy(fac => state.otherFacs.map(of => state.dist(of.id, fac.id)).sum))
+      Some(state.myFacs.minBy(fac => state.otherFacs.map(of => state.directDist(of.id, fac.id)).sum))
     } else None
   }
 
