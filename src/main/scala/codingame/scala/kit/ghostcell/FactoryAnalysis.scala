@@ -19,7 +19,7 @@ object FactoryAnalysis {
         if (conquerable.contains(sink)) {
           planForConquer(sink, sourcesSorted, totalMoves, state, sourceBudget)
         } else if (increasable.contains(sink)) {
-          planForInc(sink, sourcesSorted, totalMoves, state, sourceBudget) :+ MoveAction(sink.id, sink.id, sink.cyborgs)
+          planForInc(sink, sourcesSorted, totalMoves, state, sourceBudget) :+ MoveAction(sink.id, sink.id, sink.cyborgs.min(10))
         } else {
           totalMoves
         }

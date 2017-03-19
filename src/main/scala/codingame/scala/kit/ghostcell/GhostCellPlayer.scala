@@ -4,26 +4,7 @@ import codingame.scala.kit.engine.GamePlayer
 
 object GhostCellPlayer extends GamePlayer[GhostCellGameState, Vector[GhostCellAction]] {
   override def reactTo(state: GhostCellGameState): Vector[GhostCellAction] = {
-    val increasable = if (FactoryAnalysis.noIncrease(state)) {
-      Vector.empty
-    } else {
-      state.myFacs
-        .filter(fac => fac.production < 3 && fac.cyborgs >= 10)
-        .filter(fac => FactoryAnalysis.moveAvailable(fac, state) >= 10)
-        .filter(fac => !FactoryAnalysis.mayExplode(fac, state))
-    }
-    val increased = state.copy(factories = state.factories.map(fac => {
-      if (increasable.contains(fac)) fac.copy(cyborgs = fac.cyborgs - 10, production = fac.production + 1) else fac
-    }))
-    if (state.myFacs.size == 1 || increasable.isEmpty) {
-      reacToWithoutInc(state)
-    } else {
-      reacToWithoutInc(increased) ++ increasable.map(fac => IncreaseAction(fac.id))
-    }
-  }
-
-  def reacToWithoutInc(state: GhostCellGameState): Vector[GhostCellAction] = {
-    val attackPlan = FactoryAnalysis.movePlans(state).map(m => m.copy(to = m.to.abs)).filter(m => m.from != m.to)
+    val attackPlan = FactoryAnalysis.movePlans(state)
     val attackMoves = attackPlan.map(m => {
       m.copy(to = state.transferFac(m.from, m.to))
     })
@@ -36,7 +17,17 @@ object GhostCellPlayer extends GamePlayer[GhostCellGameState, Vector[GhostCellAc
         val arrival = dist - travelled
         state.factories(move.to).production > 0 && arrival == state.dist(move.from, move.to) + 1
       }))
-    withBombPlan(state, avoidBomb)
+
+    val increasable = if (FactoryAnalysis.noIncrease(state)) {
+      Vector.empty
+    } else {
+      state.myFacs
+        .filter(fac => fac.production < 3)
+        .filter(fac => FactoryAnalysis.moveAvailable(fac, state) >= 10)
+        .filter(fac => (fac.cyborgs - avoidBomb.filter(_.from == fac.id).map(_.cyborgs).sum) >= 10)
+    }
+
+    withBombPlan(state, avoidBomb) ++ increasable.map(fac => IncreaseAction(fac.id))
   }
 
   private def withBombPlan(state: GhostCellGameState, moves: Vector[MoveAction]) = {
