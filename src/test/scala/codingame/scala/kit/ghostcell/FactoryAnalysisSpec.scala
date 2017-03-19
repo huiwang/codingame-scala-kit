@@ -52,7 +52,7 @@ class FactoryAnalysisSpec extends FlatSpec with Matchers {
     FactoryAnalysis.movePlans(state) should be(Vector(MoveAction(0, 1, 3), MoveAction(0, 2, 3)))
   }
 
-  it should "move to alley and oppo" in {
+  it should "save alley" in {
     val from = Fac(0, 1, 6, 1, 0)
     val n1 = Fac(1, 1, 1, 1, 0)
     val n2 = Fac(2, -1, 2, 1, 0)
@@ -65,7 +65,7 @@ class FactoryAnalysisSpec extends FlatSpec with Matchers {
       Edge(2, 1, 1)
     )
     val state = GhostCellGameState(factories = Vector(from, n1, n2), troops = Vector(Troop(3, -1, 2, 1, 4, 2)), bombs = Vector.empty, undirectedEdges = edges)
-    FactoryAnalysis.movePlans(state) should be(Vector(MoveAction(0, 1, 1), MoveAction(0, 2, 5)))
+    FactoryAnalysis.movePlans(state) should be(Vector(MoveAction(0, 1, 1)))
   }
 
   it should "find available cyborgs" in {

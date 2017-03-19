@@ -35,12 +35,24 @@ case class GhostCellGameState(factories: Vector[Fac],
   private val edges = undirectedEdges.flatMap(edge => Vector(edge, Edge(edge.to, edge.from, edge.distance)))
   private val directDistances = edges.map(e => (e.from, e.to) -> e.distance).toMap
   private val itineraries = ShortestPath.shortestItinearies(factories.size, edges)
+  private val passThroughSegments: Iterable[Vector[Int]] = for {
+    (from, toMap) <- itineraries
+    (to, itinerary) <- toMap
+    if from != to
+    through = itinerary.path.tail.init
+  } yield through
+
+  val facValue: Map[Int, Double] = factories.map(fac => {
+    val passThroughCount = passThroughSegments.count(segment => segment.contains(fac.id))
+    fac.id -> (fac.production + 0.01 * Math.pow(passThroughCount, 0.5) + 0.1)
+  }).toMap
+
   val myFacs: Vector[Fac] = factories.filter(_.mine)
   val otherFacs: Vector[Fac] = factories.filter(_.other)
 
   def dist(from: Int, to: Int): Int = itineraries(from)(to).distance
 
-  def transferFac(from : Int, to : Int) : Int = itineraries(from)(to).path.tail.head
+  def transferFac(from: Int, to: Int): Int = itineraries(from)(to).path.tail.head
 
   def directDist(from: Int, to: Int): Int = if (from == to) 0 else directDistances((from, to))
 

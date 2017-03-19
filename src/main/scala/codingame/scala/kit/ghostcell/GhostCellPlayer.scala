@@ -9,7 +9,7 @@ object GhostCellPlayer extends GamePlayer[GhostCellGameState, Vector[GhostCellAc
     } else {
       state.myFacs
         .filter(fac => fac.production < 3 && fac.cyborgs >= 10)
-        .filter(fac => FactoryAnalysis.incAvailable(fac, state) >= 10)
+        .filter(fac => FactoryAnalysis.moveAvailable(fac, state) >= 10)
         .filter(fac => !FactoryAnalysis.mayExplode(fac, state))
     }
     val increased = state.copy(factories = state.factories.map(fac => {
@@ -34,7 +34,7 @@ object GhostCellPlayer extends GamePlayer[GhostCellGameState, Vector[GhostCellAc
         val dist = state.directDist(b.from, move.to)
         val travelled = state.turn - b.birth
         val arrival = dist - travelled
-        arrival == state.dist(move.from, move.to) + 1
+        state.factories(move.to).production > 0 && arrival == state.dist(move.from, move.to) + 1
       }))
     withBombPlan(state, avoidBomb)
   }

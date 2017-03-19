@@ -3,7 +3,8 @@ package codingame.scala.kit.ghostcell
 object FactoryAnalysis {
 
   def movePlans(state: GhostCellGameState): Vector[MoveAction] = {
-    val (sources, toLost) = state.myFacs.partition(mf => FactoryTimeline.finalState(mf, state.troops).owner == 1)
+    val (sources, toLost) = state.myFacs.partition(
+      mf => FactoryTimeline.finalState(mf, state.troops).owner == 1)
     val sourceBudget = sources.map(mf => mf.id -> moveAvailable(mf, state)).toMap
     val increasable = increaseableSources(state)
     val conquerable = state.factories.filter(fac => !fac.mine) ++ toLost.filter(_.production > 0)
@@ -26,7 +27,7 @@ object FactoryAnalysis {
     }.filter(m => m.from != m.to)
   }
 
-  def noIncrease(state: GhostCellGameState) : Boolean = state.bombs.count(_.owner == -1) > 0 || state.center.owner == 0
+  def noIncrease(state: GhostCellGameState): Boolean = state.bombs.count(_.owner == -1) > 0 || state.center.owner == 0
 
 
   def increaseableSources(state: GhostCellGameState): Vector[Fac] = {
@@ -76,13 +77,13 @@ object FactoryAnalysis {
     val returns = ((sink.owner, finalState.owner) match {
       case (0, 1) => 2
       case (0, 0) => 1
-      case (1, 1) => 2
+      case (1, 1) => 4
       case (1, -1) => -1
       case (-1, 1) => 1
       case (-1, -1) => -1
       case _ => 0
     }) * finalState.cyborgs.toDouble
-    returns / investments
+    state.facValue(sink.id) / (1.0 + investments)
   }
 
 
@@ -91,13 +92,7 @@ object FactoryAnalysis {
     val moves = planForInc(sink, sources, Vector.empty, state, availability)
     val troops = movesToTroops(moves, state)
     val investments = (moves :+ MoveAction(sink.id, sink.id, sink.cyborgs)).map(m => m.cyborgs * Math.pow(2, state.dist(m.from, m.to))).sum
-    val returns = if (moves.isEmpty) {
-      13
-    } else {
-      val inc = moves.map(m => state.dist(m.from, m.to)).max
-      GhostCellConstant.MAX_TURN - inc
-    } - sink.cyborgs
-    returns / investments
+    state.facValue(sink.id) / (1.0 + investments)
   }
 
   def movesToTroops(moves: Vector[MoveAction], state: GhostCellGameState): Vector[Troop] = {
@@ -114,11 +109,17 @@ object FactoryAnalysis {
   }
 
   def moveAvailable(src: Fac, state: GhostCellGameState): Int = {
-    val neighborMoves = state.otherFacs
-      .filter(fac => state.dist(fac.id, src.id) <= 1)
-      .map(fac => MoveAction(fac.id, src.id, fac.cyborgs))
+    available(src, generateTroopWithNeighborMoves(src, state, 1), 0, src.cyborgs)
+  }
 
-    available(src, state.troops ++ movesToTroops(neighborMoves, state), 0, src.cyborgs)
+  private def generateTroopWithNeighborMoves(src: Fac, state: GhostCellGameState, dist: Int): Vector[Troop] = {
+    state.troops ++ movesToTroops(generateNeighborMoves(src, state, dist), state)
+  }
+
+  private def generateNeighborMoves(src: Fac, state: GhostCellGameState, dist: Int): Vector[MoveAction] = {
+    state.otherFacs
+      .filter(fac => fac.production < src.production && state.dist(fac.id, src.id) <= dist)
+      .map(fac => MoveAction(fac.id, src.id, fac.cyborgs))
   }
 
   def available(src: Fac, troops: Vector[Troop], lower: Int, upper: Int): Int = {
