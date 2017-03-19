@@ -71,18 +71,7 @@ object FactoryAnalysis {
   private def evaluateFactoryConquer(sink: Fac, sources: Vector[Fac],
                                      state: GhostCellGameState, availability: Map[Int, Int]) = {
     val moves = planForConquer(sink, sources, Vector.empty, state, availability)
-    val troops = movesToTroops(moves, state)
-    val finalState = FactoryTimeline.finalState(sink, troops ++ state.troops)
     val investments = moves.map(m => m.cyborgs * Math.pow(2, state.dist(m.from, m.to))).sum
-    val returns = ((sink.owner, finalState.owner) match {
-      case (0, 1) => 2
-      case (0, 0) => 1
-      case (1, 1) => 4
-      case (1, -1) => -1
-      case (-1, 1) => 1
-      case (-1, -1) => -1
-      case _ => 0
-    }) * finalState.cyborgs.toDouble
     state.facValue(sink.id) / (1.0 + investments)
   }
 
@@ -90,7 +79,6 @@ object FactoryAnalysis {
   private def evaluateFactoryInc(sink: Fac, sources: Vector[Fac],
                                  state: GhostCellGameState, availability: Map[Int, Int]) = {
     val moves = planForInc(sink, sources, Vector.empty, state, availability)
-    val troops = movesToTroops(moves, state)
     val investments = (moves :+ MoveAction(sink.id, sink.id, sink.cyborgs)).map(m => m.cyborgs * Math.pow(2, state.dist(m.from, m.to))).sum
     state.facValue(sink.id) / (1.0 + investments)
   }
