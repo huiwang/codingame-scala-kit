@@ -13,7 +13,7 @@ object FactoryAnalysis {
     val targetToScoreSorted = (conquerableToScoreRaw ++ increasableToScoreRaw).sortBy(_._2).reverse
     val targetsSorted = targetToScoreSorted.map(_._1)
     val initPlan: Vector[MoveAction] = Vector.empty
-    targetsSorted.foldLeft(initPlan) {
+    val moves = targetsSorted.foldLeft(initPlan) {
       case (totalMoves, sink) => {
         val sourcesSorted = sources.filter(_.id != sink.id).sortBy(src => state.dist(src.id, sink.id))
         if (conquerable.contains(sink)) {
@@ -24,7 +24,17 @@ object FactoryAnalysis {
           totalMoves
         }
       }
-    }.filter(m => m.from != m.to)
+    }
+
+    val remainingMoves = (for {
+      (facId, budget) <- sourceBudget
+      remaining = budget - moves.filter(_.from == facId).map(_.cyborgs).sum
+      if remaining > 0
+      if moves.nonEmpty
+      best = moves.last.to
+    } yield MoveAction(facId, best, remaining)).toVector
+
+    (moves ++ remainingMoves).filter(m => m.from != m.to)
   }
 
   def noIncrease(state: GhostCellGameState): Boolean = state.bombs.count(_.owner == -1) > 0 || state.center.owner == 0
