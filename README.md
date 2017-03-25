@@ -32,7 +32,7 @@ The example Bot [Ghost in the Cell](https://www.codingame.com/multiplayer/bot-pr
 
 1. Clone the _CodinGame Scala Kit_ with Git
 
-    `git clone https://github.com/huiwang/CodinGame-Scala-Kit.git`
+    `git clone https://github.com/truelaurel/CodinGame-Scala-Kit.git`
 
 2. Import the SBT project in Intellij
 3. Open a terminal and fire SBT, hit
@@ -41,7 +41,7 @@ The example Bot [Ghost in the Cell](https://www.codingame.com/multiplayer/bot-pr
 
 4. Open a second terminal and fire SBT, hit
 
-    `~runMain codingame.scala.kit.bundle.Bundler` to bundle Player.scala file continuously
+    `~runMain com.truelaurel.codingame.bundle.Bundler GhostInTheCell.scala` to bundle destination file continuously
 
 5. Open CodinGame Sync to synchronize Player.scala file continuously to online IDE
 

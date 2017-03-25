@@ -1,4 +1,4 @@
-package codingame.scala.kit.bundle
+package com.truelaurel.codingame.bundle
 
 import java.io.{File, PrintWriter}
 import java.nio.file.{Files, Paths}
@@ -7,10 +7,10 @@ import java.util.Objects
 import scala.collection.mutable
 import scala.io.Source
 
-class Bundler(val fileName: String = "Player.scala",
+class Bundler(val fileName: String,
               val srcFolder: String = "./src/main/scala",
               val destFolder: String = "./target",
-              val organization : String = "codingame.scala.kit"
+              val organization: String = "com.truelaurel"
              ) {
 
   val seenFiles: mutable.Set[File] = mutable.Set.empty
@@ -73,6 +73,7 @@ class Bundler(val fileName: String = "Player.scala",
 
 object Bundler {
   def main(args: Array[String]): Unit = {
-    new Bundler().bundle()
+    if (args.length != 1) throw new IllegalArgumentException("Input file name must be provided")
+    new Bundler(args(0)).bundle()
   }
 }

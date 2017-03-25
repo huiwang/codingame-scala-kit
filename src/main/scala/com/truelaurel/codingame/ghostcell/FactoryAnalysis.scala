@@ -1,4 +1,4 @@
-package codingame.scala.kit.ghostcell
+package com.truelaurel.codingame.ghostcell
 
 object FactoryAnalysis {
 

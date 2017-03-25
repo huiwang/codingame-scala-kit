@@ -1,6 +1,6 @@
-package codingame.scala.kit.ghostcell
+package com.truelaurel.codingame.ghostcell
 
-import codingame.scala.kit.graph.{Edge, ShortestPath}
+import com.truelaurel.codingame.graph.{Edge, ShortestPath}
 import org.scalatest.{FlatSpec, Matchers}
 
 class FactoryAnalysisSpec extends FlatSpec with Matchers {

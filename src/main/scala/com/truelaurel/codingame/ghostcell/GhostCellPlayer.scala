@@ -1,6 +1,6 @@
-package codingame.scala.kit.ghostcell
+package com.truelaurel.codingame.ghostcell
 
-import codingame.scala.kit.engine.GamePlayer
+import com.truelaurel.codingame.engine.GamePlayer
 
 object GhostCellPlayer extends GamePlayer[GhostCellGameState, Vector[GhostCellAction]] {
   override def reactTo(state: GhostCellGameState): Vector[GhostCellAction] = {

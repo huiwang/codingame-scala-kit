@@ -1,6 +1,6 @@
-package codingame.scala.kit.ghostcell
+package com.truelaurel.codingame.ghostcell
 
-import codingame.scala.kit.graph.{Edge, Iti}
+import com.truelaurel.codingame.graph.{Edge, Iti}
 
 object Player extends App {
   val factoryCount = io.StdIn.readInt()

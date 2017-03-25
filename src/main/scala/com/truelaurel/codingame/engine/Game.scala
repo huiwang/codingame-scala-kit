@@ -1,4 +1,4 @@
-package codingame.scala.kit.engine
+package com.truelaurel.codingame.engine
 
 trait GameState[A] {
   def apply(action : A) : GameState[A]

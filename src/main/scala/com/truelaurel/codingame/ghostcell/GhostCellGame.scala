@@ -1,6 +1,6 @@
-package codingame.scala.kit.ghostcell
+package com.truelaurel.codingame.ghostcell
 
-import codingame.scala.kit.graph.{Edge, Iti, ShortestPath}
+import com.truelaurel.codingame.graph.{Edge, Iti, ShortestPath}
 
 /**
   * Created by hwang on 26/02/2017.

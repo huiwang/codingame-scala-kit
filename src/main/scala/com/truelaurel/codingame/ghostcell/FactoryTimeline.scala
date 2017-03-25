@@ -1,4 +1,4 @@
-package codingame.scala.kit.ghostcell
+package com.truelaurel.codingame.ghostcell
 
 case class FactoryState(id: Int, owner: Int, cyborgs: Int, balance: Int = 0)
 
