@@ -50,7 +50,7 @@ The example Bot [Ghost in the Cell](https://www.codingame.com/multiplayer/bot-pr
 
 
 
-# F&Q
+# FAQ
 1. How Bundler works?
 
     The Bundler reads a source file. Recursively, it replaces the import statements by source files found in this project.
