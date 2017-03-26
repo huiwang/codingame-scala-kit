@@ -2,7 +2,7 @@ package com.truelaurel.codingame.ghostcell
 
 import com.truelaurel.codingame.engine.GamePlayer
 
-object GhostCellPlayer extends GamePlayer[GhostCellGameState, Vector[GhostCellAction]] {
+object GhostCellPlayer extends GamePlayer[GhostCellGameState, GhostCellAction] {
   override def reactTo(state: GhostCellGameState): Vector[GhostCellAction] = {
     val attackPlan = FactoryAnalysis.movePlans(state)
     val attackMoves = attackPlan.map(m => {

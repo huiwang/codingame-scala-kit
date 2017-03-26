@@ -15,7 +15,6 @@ case class Fac(id: Int, owner: Int, cyborgs: Int, production: Int, again: Int) {
 
   def other: Boolean = owner == -1
 
-  def inc: Fac = copy(cyborgs = cyborgs - 10, production = production + 1)
 }
 
 case class Entity(entityId: Int, entityType: String, arg1: Int, arg2: Int, arg3: Int, arg4: Int, arg5: Int)
