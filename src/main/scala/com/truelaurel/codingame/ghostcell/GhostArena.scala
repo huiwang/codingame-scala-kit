@@ -74,11 +74,6 @@ object GhostArena extends GameArena[GhostCellGameState, GhostCellAction] {
       bomb <- nextBoombs.find(b => b.explosion == 0 && b.to == fac.id)
     } yield fac.copy(again = 5, cyborgs = 10.max(fac.cyborgs / 2))
 
-    fromState.copy(
-      factories = afterBomb,
-      troops = nextTroops.filter(_.arrival > 0) ++ newTroops,
-      bombs = nextBoombs.filter(_.explosion > 0) ++ newBombs,
-      turn = fromState.turn + 1
-    )
+    fromState.copy(factories = afterBomb, troops = nextTroops.filter(_.arrival > 0) ++ newTroops, bombs = nextBoombs.filter(_.explosion > 0) ++ newBombs, turn = fromState.turn + 1)
   }
 }

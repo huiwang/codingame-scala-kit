@@ -48,7 +48,11 @@ class FactoryAnalysisSpec extends FlatSpec with Matchers {
     val n1 = Fac(1, 0, 2, 1, 0)
     val n2 = Fac(2, 0, 2, 1, 0)
     val edges = Vector(Edge(0, 1, 1), Edge(0, 2, 2), Edge(1, 2, 1))
-    val state = GhostCellGameState(factories = Vector(from, n1, n2), troops = Vector.empty, bombs = Vector.empty, undirectedEdges = edges)
+    val state = GhostCellGameState(
+      factories = Vector(from, n1, n2),
+      troops = Vector.empty,
+      bombs = Vector.empty,
+      graph = GhostGraph(3, edges))
     FactoryAnalysis.movePlans(state) should be(Vector(MoveAction(0, 1, 3), MoveAction(0, 2, 3)))
   }
 
@@ -56,15 +60,11 @@ class FactoryAnalysisSpec extends FlatSpec with Matchers {
     val from = Fac(0, 1, 6, 1, 0)
     val n1 = Fac(1, 1, 1, 1, 0)
     val n2 = Fac(2, -1, 2, 1, 0)
-    val edges = Vector(
-      Edge(0, 1, 1),
-      Edge(0, 2, 1),
-      Edge(1, 0, 1),
-      Edge(1, 2, 1),
-      Edge(2, 0, 1),
-      Edge(2, 1, 1)
-    )
-    val state = GhostCellGameState(factories = Vector(from, n1, n2), troops = Vector(Troop(3, -1, 2, 1, 4, 2)), bombs = Vector.empty, undirectedEdges = edges)
+    val state = GhostCellGameState(
+      factories = Vector(from, n1, n2),
+      troops = Vector(Troop(3, -1, 2, 1, 4, 2)),
+      bombs = Vector.empty,
+      graph = GhostGraph(3, Vector(Edge(0, 1, 1), Edge(0, 2, 1), Edge(1, 2, 1))))
     FactoryAnalysis.movePlans(state) should be(Vector(MoveAction(0, 1, 1)))
   }
 
@@ -72,24 +72,16 @@ class FactoryAnalysisSpec extends FlatSpec with Matchers {
     val src = Fac(0, 1, 1, 1, 0)
     val n1 = Fac(1, 1, 2, 1, 0)
     val n2 = Fac(2, -1, 2, 1, 0)
-    val edges = Vector(
-      Edge(0, 1, 1),
-      Edge(0, 2, 1),
-      Edge(1, 0, 1),
-      Edge(1, 2, 1),
-      Edge(2, 0, 1),
-      Edge(2, 1, 1)
-    )
     val state = GhostCellGameState(factories = Vector(src, n1, n2), troops = Vector(
-          Troop(3, -1, 2, 0, 4, 1),
-          Troop(4, 1, 1, 0, 1, 1)
-        ), bombs = Vector.empty, undirectedEdges = edges)
+      Troop(3, -1, 2, 0, 4, 1),
+      Troop(4, 1, 1, 0, 1, 1)
+    ), bombs = Vector.empty, graph = GhostGraph(3, Vector(Edge(0, 1, 1), Edge(0, 2, 1), Edge(1, 2, 1))))
     FactoryAnalysis.moveAvailable(src, state) should be(0)
   }
 
 
   def createState(from: Fac, to: Fac): GhostCellGameState = {
     val edges = Vector(Edge(0, 1, 1))
-    GhostCellGameState(factories = Vector(from, to), troops = Vector.empty, bombs = Vector.empty, undirectedEdges = edges)
+    GhostCellGameState(factories = Vector(from, to), troops = Vector.empty, bombs = Vector.empty, graph = GhostGraph(2, edges))
   }
 }

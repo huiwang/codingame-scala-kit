@@ -11,8 +11,7 @@ object Player extends App {
     Array(factory1, factory2, distance) = for (i <- io.StdIn.readLine() split " ") yield i.toInt
   } yield Edge(factory1, factory2, distance)).toVector
 
-  private val directDist = (edges.map(e => (e.from, e.to) -> e.distance) ++ edges.map(e => (e.to, e.from) -> e.distance)).toMap
-
+  private val ghostGraph = GhostGraph(factoryCount, edges)
   private val player = GhostCellPlayer
 
   private var factoryProd : Map[Int, Int] = Map.empty
@@ -43,7 +42,7 @@ object Player extends App {
 
     bombBirth = bombBirth ++ bombs.map(b => b.id -> b.birth)
 
-    val state = GhostCellGameState(factories, troops, bombs, turn, edges)
+    val state = GhostCellGameState(factories, troops, bombs, turn, ghostGraph)
 
 
     System.err.println(state)
