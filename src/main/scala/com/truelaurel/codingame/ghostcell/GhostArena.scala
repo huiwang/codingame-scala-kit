@@ -8,11 +8,9 @@ import com.truelaurel.codingame.engine.GameArena
 object GhostArena extends GameArena[GhostCellGameState, GhostCellAction] {
   override def execute(fromState: GhostCellGameState, actions: Vector[GhostCellAction]): GhostCellGameState = {
 
-
-
     val nextTroops = fromState.troops.map(t => t.copy(arrival = t.arrival - 1))
 
-    val nextBoombs = fromState.bombs.map(b => b.copy(explosion = b.explosion - 1))
+    val nextBombs = fromState.bombs.map(b => b.copy(explosion = b.explosion - 1))
 
     val newTroops = actions.flatMap {
       case MoveAction(from, to, cyborgs) => Some(Troop(-1, fromState.fac(from).owner, from, to, cyborgs, fromState.dist(from, to)))
@@ -26,16 +24,16 @@ object GhostArena extends GameArena[GhostCellGameState, GhostCellAction] {
 
     val afterDeparture = for {
       fac <- fromState.factories
-      departure <- newTroops.find(_.from == fac)
-    } yield fac.copy(cyborgs = fac.cyborgs - departure.cyborgs)
+      departure = newTroops.find(_.from == fac.id).map(_.cyborgs).getOrElse(0)
+    } yield fac.copy(cyborgs = fac.cyborgs - departure)
 
     val afterInc = for {
       fac <- afterDeparture
-      if actions.exists {
+      shouldInc =  actions.exists {
         case IncreaseAction(facId) => facId == fac.id
         case _ => false
       }
-    } yield fac.copy(cyborgs = fac.cyborgs - 10, production = fac.production + 1)
+    } yield if (shouldInc) fac.copy(cyborgs = fac.cyborgs - 10, production = fac.production + 1) else fac
 
     val afterProduction = for {
       fac <- afterInc
@@ -71,9 +69,9 @@ object GhostArena extends GameArena[GhostCellGameState, GhostCellAction] {
 
     val afterBomb = for {
       fac <- afterFight
-      bomb <- nextBoombs.find(b => b.explosion == 0 && b.to == fac.id)
-    } yield fac.copy(again = 5, cyborgs = 10.max(fac.cyborgs / 2))
+      bombed = nextBombs.exists(b => b.explosion == 0 && b.to == fac.id)
+    } yield if (bombed) fac.copy(again = 5, cyborgs = 10.max(fac.cyborgs / 2)) else fac
 
-    fromState.copy(factories = afterBomb, troops = nextTroops.filter(_.arrival > 0) ++ newTroops, bombs = nextBoombs.filter(_.explosion > 0) ++ newBombs, turn = fromState.turn + 1)
+    fromState.copy(factories = afterBomb, troops = nextTroops.filter(_.arrival > 0) ++ newTroops, bombs = nextBombs.filter(_.explosion > 0) ++ newBombs, turn = fromState.turn + 1)
   }
 }
