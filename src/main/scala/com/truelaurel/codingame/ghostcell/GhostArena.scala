@@ -70,8 +70,11 @@ object GhostArena extends GameArena[GhostCellGameState, GhostCellAction] {
     val afterBomb = for {
       fac <- afterFight
       bombed = nextBombs.exists(b => b.explosion == 0 && b.to == fac.id)
-    } yield if (bombed) fac.copy(again = 5, cyborgs = 10.max(fac.cyborgs / 2)) else fac
+    } yield if (bombed) fac.copy(again = 5, cyborgs = fac.cyborgs - 10.max((fac.cyborgs / 2).floor.toInt)) else fac
 
-    fromState.copy(factories = afterBomb, troops = nextTroops.filter(_.arrival > 0) ++ newTroops, bombs = nextBombs.filter(_.explosion > 0) ++ newBombs, turn = fromState.turn + 1)
+    fromState.copy(factories = afterBomb,
+      troops = nextTroops.filter(_.arrival > 0) ++ newTroops,
+      bombs = nextBombs.filter(_.explosion > 0) ++ newBombs,
+      turn = fromState.turn + 1)
   }
 }
