@@ -20,6 +20,8 @@ object Player extends App {
 
   private var bombBirth : Map[Int, Int] = Map.empty
 
+  private var bombBudget : Map[Int, Int] = Map(1 -> 2, -1 -> 2)
+
   while (true) {
 
     val entityCount = io.StdIn.readInt()
@@ -42,7 +44,7 @@ object Player extends App {
 
     bombBirth = bombBirth ++ bombs.map(b => b.id -> b.birth)
 
-    val state = GhostCellGameState(factories, troops, bombs, turn, ghostGraph)
+    val state = GhostCellGameState(factories = factories, troops = troops, bombs = bombs, turn = turn, bombBudget = bombBudget, graph = ghostGraph)
 
 
     System.err.println(state)
@@ -55,7 +57,11 @@ object Player extends App {
       println(actions.map(a => a.command()).mkString(";"))
     }
 
+    bombBudget = GhostArena.computeBombBudget(actions, state, bombBudget)
+
     turn = turn + 1
 
   }
+
+
 }

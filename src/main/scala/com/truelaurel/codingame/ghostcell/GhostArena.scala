@@ -29,7 +29,7 @@ object GhostArena extends GameArena[GhostCellGameState, GhostCellAction] {
 
     val afterInc = for {
       fac <- afterDeparture
-      shouldInc =  actions.exists {
+      shouldInc = actions.exists {
         case IncreaseAction(facId) => facId == fac.id
         case _ => false
       }
@@ -75,6 +75,20 @@ object GhostArena extends GameArena[GhostCellGameState, GhostCellAction] {
     fromState.copy(factories = afterBomb,
       troops = nextTroops.filter(_.arrival > 0) ++ newTroops,
       bombs = nextBombs.filter(_.explosion > 0) ++ newBombs,
-      turn = fromState.turn + 1)
+      turn = fromState.turn + 1,
+      bombBudget = computeBombBudget(actions, fromState, fromState.bombBudget)
+    )
   }
+
+  def computeBombBudget(actions: Vector[GhostCellAction], state: GhostCellGameState, budget: Map[Int, Int]): Map[Int, Int] = {
+    for {
+      (playerId, bombBudget) <- budget
+      used = actions.count {
+        case BombAction(from, _) => state.fac(from).owner == playerId
+        case _ => false
+      }
+    } yield playerId -> (bombBudget - used)
+  }
+
+
 }

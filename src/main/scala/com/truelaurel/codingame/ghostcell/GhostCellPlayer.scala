@@ -37,7 +37,7 @@ object GhostCellPlayer extends GamePlayer[GhostCellGameState, GhostCellAction] {
 
 
   private def bombPlan(state: GhostCellGameState, nextTroops: Vector[Troop]): Vector[BombAction] = {
-    if (state.myFacs.isEmpty || state.otherFacs.isEmpty) Vector.empty else {
+    if (state.myFacs.isEmpty || state.otherFacs.isEmpty || state.bombBudget(1) == 0) Vector.empty else {
       findFront(state).map(front => {
         state.otherFacs
           .filter(fac => fac.production > 0 || fac.cyborgs > 5)

@@ -24,8 +24,7 @@ class GhostArenaSpec extends FunSpec with Matchers {
         factories = facs,
         troops = Vector.empty,
         bombs = Vector.empty,
-        turn = 1,
-        graph
+        graph = graph
       )
       val actions = Vector(MoveAction(1, 0, 1))
       val state1 = GhostArena.execute(state, actions)
@@ -44,8 +43,7 @@ class GhostArenaSpec extends FunSpec with Matchers {
         factories = facs,
         troops = Vector.empty,
         bombs = Vector.empty,
-        turn = 1,
-        graph
+        graph = graph
       )
       val state1 = GhostArena.execute(state, Vector(BombAction(2, 1)))
       val state2 = GhostArena.execute(state1, Vector.empty)

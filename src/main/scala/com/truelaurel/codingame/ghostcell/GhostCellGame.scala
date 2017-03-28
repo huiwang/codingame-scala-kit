@@ -28,7 +28,8 @@ case class Bomb(id: Int, owner: Int, from: Int, to: Int, explosion: Int, birth: 
 case class GhostCellGameState(factories: Vector[Fac],
                               troops: Vector[Troop],
                               bombs: Vector[Bomb],
-                              turn: Int = 0,
+                              turn: Int = 1,
+                              bombBudget: Map[Int, Int] = Map(1 -> 2, -1 -> 2),
                               graph: GhostGraph) {
 
   val facValue: Map[Int, Double] = factories.map(fac => {
