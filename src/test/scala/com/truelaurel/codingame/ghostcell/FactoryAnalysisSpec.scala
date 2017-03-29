@@ -7,40 +7,41 @@ class FactoryAnalysisSpec extends FlatSpec with Matchers {
 
   behavior of "Factory Analysis Spec"
 
+  val analysis = FactoryAnalysis(1)
   it should "just necessary cyborgs" in {
     val from = Fac(0, 1, 100, 0, 0)
     val to = Fac(1, 0, 50, 1, 0)
-    FactoryAnalysis.conquer(to, from, Vector.empty, createState(from, to)) should be(51)
+    analysis.conquer(to, from, Vector.empty, createState(from, to)) should be(51)
   }
 
   it should "just necessary cyborgs with zero oppo" in {
     val from = Fac(0, 1, 4, 0, 0)
     val to = Fac(1, -1, 0, 1, 0)
-    FactoryAnalysis.conquer(to, from, Vector.empty, createState(from, to)) should be(3)
+    analysis.conquer(to, from, Vector.empty, createState(from, to)) should be(3)
   }
 
   it should "just necessary cyborgs for oppo" in {
     val from = Fac(0, 1, 100, 0, 0)
     val to = Fac(1, -1, 1, 1, 0)
-    FactoryAnalysis.conquer(to, from, Vector.empty, createState(from, to)) should be(4)
+    analysis.conquer(to, from, Vector.empty, createState(from, to)) should be(4)
   }
 
   it should "sent all cyborgs" in {
     val from = Fac(0, 1, 49, 0, 0)
     val to = Fac(1, 0, 50, 1, 0)
-    FactoryAnalysis.conquer(to, from, Vector.empty, createState(from, to)) should be(49)
+    analysis.conquer(to, from, Vector.empty, createState(from, to)) should be(49)
   }
 
   it should "inc without sending cyborgs" in {
     val from = Fac(0, 1, 50, 0, 0)
     val to = Fac(1, 1, 8, 1, 0)
-    FactoryAnalysis.inc(to, from, Vector.empty, createState(from, to)) should be(0)
+    analysis.inc(to, from, Vector.empty, createState(from, to)) should be(0)
   }
 
   it should "inc with just necessary cyborgs" in {
     val from = Fac(0, 1, 50, 0, 0)
     val to = Fac(1, 1, 7, 1, 0)
-    FactoryAnalysis.inc(to, from, Vector.empty, createState(from, to)) should be(1)
+    analysis.inc(to, from, Vector.empty, createState(from, to)) should be(1)
   }
 
   it should "move to all neutral factories" in {
@@ -53,7 +54,7 @@ class FactoryAnalysisSpec extends FlatSpec with Matchers {
       troops = Vector.empty,
       bombs = Vector.empty,
       graph = GhostGraph(3, edges))
-    FactoryAnalysis.movePlans(state) should be(Vector(MoveAction(0, 1, 3), MoveAction(0, 2, 3)))
+    analysis.movePlans(state) should be(Vector(MoveAction(0, 1, 3), MoveAction(0, 2, 3)))
   }
 
   it should "save alley" in {
@@ -65,7 +66,7 @@ class FactoryAnalysisSpec extends FlatSpec with Matchers {
       troops = Vector(Troop(3, -1, 2, 1, 4, 2)),
       bombs = Vector.empty,
       graph = GhostGraph(3, Vector(Edge(0, 1, 1), Edge(0, 2, 1), Edge(1, 2, 1))))
-    FactoryAnalysis.movePlans(state) should be(Vector(MoveAction(0, 1, 1)))
+    analysis.movePlans(state) should be(Vector(MoveAction(0, 1, 1)))
   }
 
   it should "find available cyborgs" in {
@@ -76,7 +77,7 @@ class FactoryAnalysisSpec extends FlatSpec with Matchers {
       Troop(3, -1, 2, 0, 4, 1),
       Troop(4, 1, 1, 0, 1, 1)
     ), bombs = Vector.empty, graph = GhostGraph(3, Vector(Edge(0, 1, 1), Edge(0, 2, 1), Edge(1, 2, 1))))
-    FactoryAnalysis.moveAvailable(src, state) should be(0)
+    analysis.moveAvailable(src, state) should be(0)
   }
 
 

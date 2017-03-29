@@ -12,7 +12,7 @@ object Player extends App {
   } yield Edge(factory1, factory2, distance)).toVector
 
   private val ghostGraph = GhostGraph(factoryCount, edges)
-  private val player = GhostCellPlayer
+  private val player = GhostCellPlayer(1)
 
   private var factoryProd : Map[Int, Int] = Map.empty
 

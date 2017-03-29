@@ -1,13 +1,13 @@
 package com.truelaurel.codingame.ghostcell
 
-object FactoryAnalysis {
+case class FactoryAnalysis(me : Int) {
 
   def movePlans(state: GhostCellGameState): Vector[MoveAction] = {
-    val (sources, toLost) = state.factories.filter(_.owner == 1).partition(
-      mf => FactoryTimeline.finalState(mf, state.troops).owner == 1)
+    val (sources, toLost) = state.factories.filter(_.owner == me).partition(
+      mf => FactoryTimeline.finalState(mf, state.troops).owner == me)
     val sourceBudget = sources.map(mf => mf.id -> moveAvailable(mf, state)).toMap
     val increasable = increaseableSources(state)
-    val conquerable = state.factories.filter(fac => fac.owner != 1) ++ toLost.filter(_.production > 0)
+    val conquerable = state.factories.filter(fac => fac.owner != me) ++ toLost.filter(_.production > 0)
     val conquerableToScoreRaw = conquerable.map(target => (target, evaluateFactoryConquer(target, sources, state, sourceBudget)))
     val increasableToScoreRaw = increasable.map(target => (target, evaluateFactoryInc(target, sources.filter(_.id != target.id), state, sourceBudget)))
     val targetToScoreSorted = (conquerableToScoreRaw ++ increasableToScoreRaw).sortBy(_._2).reverse
@@ -37,19 +37,19 @@ object FactoryAnalysis {
     (moves ++ remainingMoves).filter(m => m.from != m.to)
   }
 
-  def noIncrease(state: GhostCellGameState): Boolean = state.bombs.count(_.owner == -1) > 0 || state.center.owner == 0
+  def noIncrease(state: GhostCellGameState): Boolean = state.bombs.count(_.owner == -me) > 0 || state.center.owner == 0
 
 
   def increaseableSources(state: GhostCellGameState): Vector[Fac] = {
     if (noIncrease(state)) Vector.empty else {
-      state.factories.filter(_.owner == 1).filter(mf => FactoryTimeline.finalState(mf, state.troops).owner == 1)
+      state.factories.filter(_.owner == me).filter(mf => FactoryTimeline.finalState(mf, state.troops).owner == me)
         .filter(fac => fac.production < 3).filter(fac => !mayExplode(fac, state))
     }
   }
 
   def mayExplode(fac: Fac, state: GhostCellGameState): Boolean = {
     state.bombs
-      .filter(_.owner == -1)
+      .filter(_.owner == -me)
       .exists(b => {
         val dist = state.directDist(b.from, fac.id)
         val travelled = state.turn - b.birth
@@ -99,7 +99,7 @@ object FactoryAnalysis {
   }
 
   def incAvailable(src: Fac, state: GhostCellGameState): Int = {
-    val neighborMoves = state.factories.filter(_.owner == -1)
+    val neighborMoves = state.factories.filter(_.owner == -me)
       .filter(fac => state.dist(fac.id, src.id) <= 3)
       .map(fac => MoveAction(fac.id, src.id, fac.cyborgs))
 
@@ -115,7 +115,7 @@ object FactoryAnalysis {
   }
 
   private def generateNeighborMoves(src: Fac, state: GhostCellGameState, dist: Int): Vector[MoveAction] = {
-    state.factories.filter(_.owner == -1)
+    state.factories.filter(_.owner == -me)
       .filter(fac => fac.production < src.production && state.dist(fac.id, src.id) <= dist)
       .map(fac => MoveAction(fac.id, src.id, fac.cyborgs))
   }
@@ -125,7 +125,7 @@ object FactoryAnalysis {
       src.cyborgs - lower
     } else {
       val middle = (lower + upper) / 2
-      if (FactoryTimeline.finalState(src.copy(cyborgs = middle), troops).owner == 1) {
+      if (FactoryTimeline.finalState(src.copy(cyborgs = middle), troops).owner == me) {
         available(src, troops, lower, middle)
       } else {
         available(src, troops, middle + 1, upper)
@@ -155,7 +155,7 @@ object FactoryAnalysis {
         to = to.id,
         cyborgs = middle,
         arrival = state.dist(from.id, to.id) + 1)
-      if (FactoryTimeline.finalState(to, troops :+ troop).owner == 1) {
+      if (FactoryTimeline.finalState(to, troops :+ troop).owner == me) {
         conquer(to, from, troops, state, lower, middle)
       } else {
         conquer(to, from, troops, state, middle + 1, upper)
@@ -201,7 +201,7 @@ object FactoryAnalysis {
         cyborgs = middle,
         arrival = state.dist(from.id, to.id) + 1)
       val finalState = FactoryTimeline.finalState(to, troops :+ troop, troop.arrival)
-      if (finalState.owner == 1 && finalState.cyborgs >= 10) {
+      if (finalState.owner == me && finalState.cyborgs >= 10) {
         inc(to, from, troops, state, lower, middle)
       } else {
         inc(to, from, troops, state, middle + 1, upper)

@@ -11,7 +11,7 @@ class GhostCellPlayerTest extends FlatSpec with Matchers {
   behavior of "GhostCellPlayer$Test"
 
   ignore should "study the behavoir by copying game state from console" in {
-    GhostCellPlayer.reactTo(GhostCellGameState(factories = Vector.empty, troops = Vector.empty, bombs = Vector.empty, turn = 0, graph = GhostGraph(0, Vector.empty))) should be(Vector.empty)
+    GhostCellPlayer(1).reactTo(GhostCellGameState(factories = Vector.empty, troops = Vector.empty, bombs = Vector.empty, turn = 0, graph = GhostGraph(0, Vector.empty))) should be(Vector.empty)
   }
 
 }

@@ -8,6 +8,7 @@ trait GamePlayer[S, A] {
   def reactTo(state: S): Vector[A]
 }
 
+//TODO Add referee to judge game win/loss result
 trait GameArena[S, A] {
   def execute(fromState: S, actions: Vector[A]): S
 }
