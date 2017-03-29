@@ -1,6 +1,7 @@
 package com.truelaurel.codingame.ghostcell
 
-import com.truelaurel.codingame.engine.GameArena
+import com.truelaurel.codingame.engine.{GameArena, GameSimulator}
+import com.truelaurel.codingame.graph.Edge
 
 /**
   * Created by hwang on 25/03/2017.
@@ -90,6 +91,11 @@ object GhostArena extends GameArena[GhostCellGameState, GhostCellAction] {
         case _ => false
       }
     } yield playerId -> (bombBudget - used)
+  }
+
+  def main(args: Array[String]): Unit = {
+    val state = GhostCellGameState(Vector(Fac(0,0,0,0,0), Fac(1,1,27,2,0), Fac(2,-1,27,2,0), Fac(3,0,11,3,0), Fac(4,0,11,3,0), Fac(5,0,3,1,0), Fac(6,0,3,1,0)),Vector(),Vector(),1,Map(1 -> 2, -1 -> 2),GhostGraph(7,Vector(Edge(0,1,7), Edge(0,2,7), Edge(0,3,4), Edge(0,4,4), Edge(0,5,5), Edge(0,6,5), Edge(1,2,15), Edge(1,3,1), Edge(1,4,13), Edge(1,5,3), Edge(1,6,13), Edge(2,3,13), Edge(2,4,1), Edge(2,5,13), Edge(2,6,3), Edge(3,4,10), Edge(3,5,1), Edge(3,6,11), Edge(4,5,11), Edge(4,6,1), Edge(5,6,11))))
+    GameSimulator.simulate(200, state, GhostArena, Vector(GhostCellPlayer,GhostCellPlayer))
   }
 
 

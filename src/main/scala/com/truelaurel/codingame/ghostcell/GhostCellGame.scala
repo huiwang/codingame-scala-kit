@@ -11,10 +11,6 @@ object GhostCellConstant {
 }
 
 case class Fac(id: Int, owner: Int, cyborgs: Int, production: Int, again: Int) {
-  def mine: Boolean = owner == 1
-
-  def other: Boolean = owner == -1
-
 }
 
 case class Entity(entityId: Int, entityType: String, arg1: Int, arg2: Int, arg3: Int, arg4: Int, arg5: Int)
@@ -36,10 +32,6 @@ case class GhostCellGameState(factories: Vector[Fac],
     val passThroughCount = graph.passThroughSegments.count(segment => segment.contains(fac.id))
     fac.id -> (fac.production + 0.01 * Math.pow(passThroughCount, 0.5) + 0.1)
   }).toMap
-
-  def myFacs: Vector[Fac] = factories.filter(_.mine)
-
-  def otherFacs: Vector[Fac] = factories.filter(_.other)
 
   def dist(from: Int, to: Int): Int = graph.itineraries(from)(to).distance
 

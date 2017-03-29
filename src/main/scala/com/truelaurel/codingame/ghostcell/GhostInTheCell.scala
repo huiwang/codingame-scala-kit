@@ -46,7 +46,6 @@ object Player extends App {
 
     val state = GhostCellGameState(factories = factories, troops = troops, bombs = bombs, turn = turn, bombBudget = bombBudget, graph = ghostGraph)
 
-
     System.err.println(state)
 
     val actions = player.reactTo(state)

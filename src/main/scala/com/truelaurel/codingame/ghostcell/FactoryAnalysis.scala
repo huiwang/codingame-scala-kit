@@ -3,11 +3,11 @@ package com.truelaurel.codingame.ghostcell
 object FactoryAnalysis {
 
   def movePlans(state: GhostCellGameState): Vector[MoveAction] = {
-    val (sources, toLost) = state.myFacs.partition(
+    val (sources, toLost) = state.factories.filter(_.owner == 1).partition(
       mf => FactoryTimeline.finalState(mf, state.troops).owner == 1)
     val sourceBudget = sources.map(mf => mf.id -> moveAvailable(mf, state)).toMap
     val increasable = increaseableSources(state)
-    val conquerable = state.factories.filter(fac => !fac.mine) ++ toLost.filter(_.production > 0)
+    val conquerable = state.factories.filter(fac => fac.owner != 1) ++ toLost.filter(_.production > 0)
     val conquerableToScoreRaw = conquerable.map(target => (target, evaluateFactoryConquer(target, sources, state, sourceBudget)))
     val increasableToScoreRaw = increasable.map(target => (target, evaluateFactoryInc(target, sources.filter(_.id != target.id), state, sourceBudget)))
     val targetToScoreSorted = (conquerableToScoreRaw ++ increasableToScoreRaw).sortBy(_._2).reverse
@@ -42,7 +42,7 @@ object FactoryAnalysis {
 
   def increaseableSources(state: GhostCellGameState): Vector[Fac] = {
     if (noIncrease(state)) Vector.empty else {
-      state.myFacs.filter(mf => FactoryTimeline.finalState(mf, state.troops).owner == 1)
+      state.factories.filter(_.owner == 1).filter(mf => FactoryTimeline.finalState(mf, state.troops).owner == 1)
         .filter(fac => fac.production < 3).filter(fac => !mayExplode(fac, state))
     }
   }
@@ -99,7 +99,7 @@ object FactoryAnalysis {
   }
 
   def incAvailable(src: Fac, state: GhostCellGameState): Int = {
-    val neighborMoves = state.otherFacs
+    val neighborMoves = state.factories.filter(_.owner == -1)
       .filter(fac => state.dist(fac.id, src.id) <= 3)
       .map(fac => MoveAction(fac.id, src.id, fac.cyborgs))
 
@@ -115,7 +115,7 @@ object FactoryAnalysis {
   }
 
   private def generateNeighborMoves(src: Fac, state: GhostCellGameState, dist: Int): Vector[MoveAction] = {
-    state.otherFacs
+    state.factories.filter(_.owner == -1)
       .filter(fac => fac.production < src.production && state.dist(fac.id, src.id) <= dist)
       .map(fac => MoveAction(fac.id, src.id, fac.cyborgs))
   }

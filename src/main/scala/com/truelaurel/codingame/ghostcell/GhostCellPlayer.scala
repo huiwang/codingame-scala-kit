@@ -2,6 +2,7 @@ package com.truelaurel.codingame.ghostcell
 
 import com.truelaurel.codingame.engine.GamePlayer
 
+//TODO specify player
 object GhostCellPlayer extends GamePlayer[GhostCellGameState, GhostCellAction] {
   override def reactTo(state: GhostCellGameState): Vector[GhostCellAction] = {
     val attackPlan = FactoryAnalysis.movePlans(state)
@@ -21,7 +22,7 @@ object GhostCellPlayer extends GamePlayer[GhostCellGameState, GhostCellAction] {
     val increasable = if (FactoryAnalysis.noIncrease(state)) {
       Vector.empty
     } else {
-      state.myFacs
+      state.factories.filter(_.owner == 1)
         .filter(fac => fac.production < 3)
         .filter(fac => FactoryAnalysis.moveAvailable(fac, state) >= 10)
         .filter(fac => (fac.cyborgs - avoidBomb.filter(_.from == fac.id).map(_.cyborgs).sum) >= 10)
@@ -37,9 +38,9 @@ object GhostCellPlayer extends GamePlayer[GhostCellGameState, GhostCellAction] {
 
 
   private def bombPlan(state: GhostCellGameState, nextTroops: Vector[Troop]): Vector[BombAction] = {
-    if (state.myFacs.isEmpty || state.otherFacs.isEmpty || state.bombBudget(1) == 0) Vector.empty else {
+    if (!state.factories.exists(_.owner == 1) || !state.factories.exists(_.owner == -1) || state.bombBudget(1) == 0) Vector.empty else {
       findFront(state).map(front => {
-        state.otherFacs
+        state.factories.filter(_.owner == -1)
           .filter(fac => fac.production > 0 || fac.cyborgs > 5)
           .filter(fac => !state.bombs.filter(_.owner == 1).exists(b => b.to == fac.id))
           .map(of => FactoryTimeline.finalState(of, nextTroops, state.directDist(front.id, of.id) + 1))
@@ -51,8 +52,8 @@ object GhostCellPlayer extends GamePlayer[GhostCellGameState, GhostCellAction] {
   }
 
   private def findFront(state: GhostCellGameState): Option[Fac] = {
-    if (state.center.mine) Some(state.center) else if (state.center.other) {
-      Some(state.myFacs.minBy(fac => state.otherFacs.map(of => state.directDist(of.id, fac.id)).sum))
+    if (state.center.owner == 1) Some(state.center) else if (state.center.owner == -1) {
+      Some(state.factories.filter(_.owner == 1).minBy(fac => state.factories.filter(_.owner == -1).map(of => state.directDist(of.id, fac.id)).sum))
     } else None
   }
 

@@ -72,5 +72,21 @@ class GhostArenaSpec extends FunSpec with Matchers {
       state2.fac(2).cyborgs should be(1)
     }
 
+    it("should not destroy leaving cyborgs") {
+      val fac1 = Fac(1, 1, 33, 0, 0)
+      val fac2 = Fac(2, -1, 1, 0, 0)
+      val facs = Vector(center, fac1, fac2)
+
+      val state = GhostCellGameState(
+        factories = facs,
+        troops = Vector.empty,
+        bombs = Vector.empty,
+        graph = graph
+      )
+      val state1 = GhostArena.execute(state, Vector(BombAction(2, 1), MoveAction(1, 2, 3)))
+      val state2 = GhostArena.execute(state1, Vector.empty)
+      state2.fac(1).cyborgs should be(15)
+    }
+
   }
 }
