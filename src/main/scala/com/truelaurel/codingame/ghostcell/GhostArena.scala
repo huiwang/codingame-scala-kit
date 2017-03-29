@@ -22,9 +22,11 @@ object GhostArena extends GameArena[GhostCellGameState, GhostCellAction] {
       case _ => None
     }
 
+    val departures = newTroops.groupBy(_.from).mapValues(troops => troops.map(_.cyborgs).sum)
+
     val afterDeparture = for {
       fac <- fromState.factories
-      departure = newTroops.find(_.from == fac.id).map(_.cyborgs).getOrElse(0)
+      departure = departures.getOrElse(fac.id, 0)
     } yield fac.copy(cyborgs = fac.cyborgs - departure)
 
     val afterInc = for {
