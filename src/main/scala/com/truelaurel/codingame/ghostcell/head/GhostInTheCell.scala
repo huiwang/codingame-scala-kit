@@ -1,6 +1,7 @@
-package com.truelaurel.codingame.ghostcell
+package com.truelaurel.codingame.ghostcell.head
 
-import com.truelaurel.codingame.graph.{Edge, Iti}
+import com.truelaurel.codingame.ghostcell.common._
+import com.truelaurel.codingame.graph.Edge
 
 object Player extends App {
   val factoryCount = io.StdIn.readInt()
@@ -11,15 +12,16 @@ object Player extends App {
     Array(factory1, factory2, distance) = for (i <- io.StdIn.readLine() split " ") yield i.toInt
   } yield Edge(factory1, factory2, distance)).toVector
 
-  private val directDist = (edges.map(e => (e.from, e.to) -> e.distance) ++ edges.map(e => (e.to, e.from) -> e.distance)).toMap
-
-  private val player = GhostCellPlayer
+  private val ghostGraph = GhostGraph(factoryCount, edges)
+  private val player = GhostCellPlayer(1)
 
   private var factoryProd : Map[Int, Int] = Map.empty
 
   private var turn = 1
 
   private var bombBirth : Map[Int, Int] = Map.empty
+
+  private var bombBudget : Map[Int, Int] = Map(1 -> 2, -1 -> 2)
 
   while (true) {
 
@@ -43,8 +45,7 @@ object Player extends App {
 
     bombBirth = bombBirth ++ bombs.map(b => b.id -> b.birth)
 
-    val state = GhostCellGameState(factories, troops, bombs, turn, edges)
-
+    val state = GhostCellGameState(factories = factories, troops = troops, bombs = bombs, turn = turn, bombBudget = bombBudget, graph = ghostGraph)
 
     System.err.println(state)
 
@@ -56,7 +57,11 @@ object Player extends App {
       println(actions.map(a => a.command()).mkString(";"))
     }
 
+    bombBudget = BombBudget.computeBombBudget(actions, state, bombBudget)
+
     turn = turn + 1
 
   }
+
+
 }

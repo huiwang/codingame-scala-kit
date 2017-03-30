@@ -1,14 +1,10 @@
-package com.truelaurel.codingame.ghostcell
+package com.truelaurel.codingame.ghostcell.best
+
+import com.truelaurel.codingame.ghostcell.common.{Fac, GhostCellConstant, Troop}
 
 case class FactoryState(id: Int, owner: Int, cyborgs: Int, balance: Int = 0)
 
 object FactoryTimeline {
-
-  def finalStateFullAttack(target: Fac, state: GhostCellGameState): FactoryState = {
-    val moves = state.factories.map(f => MoveAction(f.id, target.id, f.cyborgs))
-    val troops = FactoryAnalysis.movesToTroops(moves, state)
-    FactoryTimeline.finalState(target, troops ++ state.troops)
-  }
 
   def finalState(factory: Fac, troops: Vector[Troop], finalTurn: Int = GhostCellConstant.MAX_TURN): FactoryState = {
     var arrivals = troops

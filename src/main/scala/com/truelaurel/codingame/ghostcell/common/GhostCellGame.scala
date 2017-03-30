@@ -1,6 +1,4 @@
-package com.truelaurel.codingame.ghostcell
-
-import com.truelaurel.codingame.graph.{Edge, Iti, ShortestPath}
+package com.truelaurel.codingame.ghostcell.common
 
 /**
   * Created by hwang on 26/02/2017.
@@ -11,11 +9,7 @@ object GhostCellConstant {
 }
 
 case class Fac(id: Int, owner: Int, cyborgs: Int, production: Int, again: Int) {
-  def mine: Boolean = owner == 1
-
-  def other: Boolean = owner == -1
-
-  def inc: Fac = copy(cyborgs = cyborgs - 10, production = production + 1)
+  require(cyborgs >= 0, "cyborgs can't be negative")
 }
 
 case class Entity(entityId: Int, entityType: String, arg1: Int, arg2: Int, arg3: Int, arg4: Int, arg5: Int)
@@ -29,32 +23,20 @@ case class Bomb(id: Int, owner: Int, from: Int, to: Int, explosion: Int, birth: 
 case class GhostCellGameState(factories: Vector[Fac],
                               troops: Vector[Troop],
                               bombs: Vector[Bomb],
-                              turn: Int = 0,
-                              undirectedEdges: Vector[Edge]) {
-
-  private val edges = undirectedEdges.flatMap(edge => Vector(edge, Edge(edge.to, edge.from, edge.distance)))
-  private val directDistances = edges.map(e => (e.from, e.to) -> e.distance).toMap
-  private val itineraries = ShortestPath.shortestItinearies(factories.size, edges)
-  private val passThroughSegments: Iterable[Vector[Int]] = for {
-    (from, toMap) <- itineraries
-    (to, itinerary) <- toMap
-    if from != to
-    through = itinerary.path.tail.init
-  } yield through
+                              turn: Int = 1,
+                              bombBudget: Map[Int, Int] = Map(1 -> 2, -1 -> 2),
+                              graph: GhostGraph) {
 
   val facValue: Map[Int, Double] = factories.map(fac => {
-    val passThroughCount = passThroughSegments.count(segment => segment.contains(fac.id))
+    val passThroughCount = graph.passThroughSegments.count(segment => segment.contains(fac.id))
     fac.id -> (fac.production + 0.01 * Math.pow(passThroughCount, 0.5) + 0.1)
   }).toMap
 
-  val myFacs: Vector[Fac] = factories.filter(_.mine)
-  val otherFacs: Vector[Fac] = factories.filter(_.other)
+  def dist(from: Int, to: Int): Int = graph.itineraries(from)(to).distance
 
-  def dist(from: Int, to: Int): Int = itineraries(from)(to).distance
+  def transferFac(from: Int, to: Int): Int = graph.itineraries(from)(to).path.tail.head
 
-  def transferFac(from: Int, to: Int): Int = itineraries(from)(to).path.tail.head
-
-  def directDist(from: Int, to: Int): Int = if (from == to) 0 else directDistances((from, to))
+  def directDist(from: Int, to: Int): Int = if (from == to) 0 else graph.directDistances((from, to))
 
   def center: Fac = factories(0)
 
