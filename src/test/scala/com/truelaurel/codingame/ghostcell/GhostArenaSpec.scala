@@ -27,8 +27,8 @@ class GhostArenaSpec extends FunSpec with Matchers {
         graph = graph
       )
       val actions = Vector(MoveAction(1, 0, 1))
-      val state1 = GhostArena.execute(state, actions)
-      val state2 = GhostArena.execute(state1, Vector.empty)
+      val state1 = GhostArena.next(state, actions)
+      val state2 = GhostArena.next(state1, Vector.empty)
 
       state1.fac(0).owner should be(0)
       state2.fac(0).owner should be(1)
@@ -45,10 +45,10 @@ class GhostArenaSpec extends FunSpec with Matchers {
         bombs = Vector.empty,
         graph = graph
       )
-      val state1 = GhostArena.execute(state, Vector(BombAction(2, 1)))
-      val state2 = GhostArena.execute(state1, Vector.empty)
-      val state3 = GhostArena.execute(state2, Vector(BombAction(2, 1)))
-      val state4 = GhostArena.execute(state3, Vector.empty)
+      val state1 = GhostArena.next(state, Vector(BombAction(2, 1)))
+      val state2 = GhostArena.next(state1, Vector.empty)
+      val state3 = GhostArena.next(state2, Vector(BombAction(2, 1)))
+      val state4 = GhostArena.next(state3, Vector.empty)
       state2.fac(1).cyborgs should be(17)
       state4.fac(1).cyborgs should be(7)
       state4.fac(1).again should be(5)
@@ -65,8 +65,8 @@ class GhostArenaSpec extends FunSpec with Matchers {
         bombs = Vector.empty,
         graph = graph
       )
-      val state1 = GhostArena.execute(state, Vector(MoveAction(1, 2, 1), MoveAction(1, 2, 1)))
-      val state2 = GhostArena.execute(state1, Vector.empty)
+      val state1 = GhostArena.next(state, Vector(MoveAction(1, 2, 1), MoveAction(1, 2, 1)))
+      val state2 = GhostArena.next(state1, Vector.empty)
       state2.fac(1).cyborgs should be(31)
       state2.fac(2).owner should be(1)
       state2.fac(2).cyborgs should be(1)
@@ -83,8 +83,8 @@ class GhostArenaSpec extends FunSpec with Matchers {
         bombs = Vector.empty,
         graph = graph
       )
-      val state1 = GhostArena.execute(state, Vector(BombAction(2, 1), MoveAction(1, 2, 3)))
-      val state2 = GhostArena.execute(state1, Vector.empty)
+      val state1 = GhostArena.next(state, Vector(BombAction(2, 1), MoveAction(1, 2, 3)))
+      val state2 = GhostArena.next(state1, Vector.empty)
       state2.fac(1).cyborgs should be(15)
     }
 
