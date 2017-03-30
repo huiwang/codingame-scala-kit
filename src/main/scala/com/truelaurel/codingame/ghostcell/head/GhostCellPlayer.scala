@@ -1,6 +1,7 @@
-package com.truelaurel.codingame.ghostcell
+package com.truelaurel.codingame.ghostcell.head
 
 import com.truelaurel.codingame.engine.GamePlayer
+import com.truelaurel.codingame.ghostcell.common._
 
 case class GhostCellPlayer(me: Int) extends GamePlayer[GhostCellGameState, GhostCellAction] {
 

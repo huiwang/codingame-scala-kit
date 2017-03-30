@@ -1,6 +1,4 @@
-package com.truelaurel.codingame.ghostcell
-
-import com.truelaurel.codingame.graph.{Edge, Iti, ShortestPath}
+package com.truelaurel.codingame.ghostcell.common
 
 /**
   * Created by hwang on 26/02/2017.
@@ -11,6 +9,7 @@ object GhostCellConstant {
 }
 
 case class Fac(id: Int, owner: Int, cyborgs: Int, production: Int, again: Int) {
+  require(cyborgs >= 0, "cyborgs can't be negative")
 }
 
 case class Entity(entityId: Int, entityType: String, arg1: Int, arg2: Int, arg3: Int, arg4: Int, arg5: Int)

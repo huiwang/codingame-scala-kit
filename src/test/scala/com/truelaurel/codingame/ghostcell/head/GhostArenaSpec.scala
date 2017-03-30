@@ -1,6 +1,7 @@
-package com.truelaurel.codingame.ghostcell
+package com.truelaurel.codingame.ghostcell.head
 
-import com.truelaurel.codingame.engine.GameSimulator
+import com.truelaurel.codingame.ghostcell.battle.GhostArena
+import com.truelaurel.codingame.ghostcell.common._
 import com.truelaurel.codingame.graph.Edge
 import org.scalatest.{FunSpec, Matchers}
 

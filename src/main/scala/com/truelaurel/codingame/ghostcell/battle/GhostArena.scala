@@ -1,6 +1,8 @@
-package com.truelaurel.codingame.ghostcell
+package com.truelaurel.codingame.ghostcell.battle
 
 import com.truelaurel.codingame.engine._
+import com.truelaurel.codingame.ghostcell.common._
+import com.truelaurel.codingame.ghostcell.{best, _}
 import com.truelaurel.codingame.graph.Edge
 
 /**
@@ -13,11 +15,8 @@ object GhostArena extends GameArena[GhostCellGameState, GhostCellAction] {
     } else if (noFacNoTroop(state, -1)) {
       WinKO
     } else {
-      cyborgs(state, 1) - cyborgs(state, -1) match {
-        case diff if diff > 0 => WinTech
-        case diff if diff < 0 => LossTech
-        case _ => Draw
-      }
+      val diff = cyborgs(state, 1) - cyborgs(state, -1)
+      if(diff > 0) WinTech else if(diff < 0) LossTech else Draw
     }
   }
 
@@ -96,7 +95,8 @@ object GhostArena extends GameArena[GhostCellGameState, GhostCellAction] {
     val afterBomb = for {
       fac <- afterFight
       bombed = nextBombs.exists(b => b.explosion == 0 && b.to == fac.id)
-    } yield if (bombed) fac.copy(again = 5, cyborgs = fac.cyborgs - 10.max((fac.cyborgs / 2).floor.toInt)) else fac
+      damage = Math.min(fac.cyborgs, Math.max(10, (fac.cyborgs / 2).floor.toInt))
+    } yield if (bombed) fac.copy(again = 5, cyborgs = fac.cyborgs - damage) else fac
 
     fromState.copy(factories = afterBomb,
       troops = nextTroops.filter(_.arrival > 0) ++ newTroops,
@@ -118,7 +118,7 @@ object GhostArena extends GameArena[GhostCellGameState, GhostCellAction] {
 
   def main(args: Array[String]): Unit = {
     val state = GhostCellGameState(Vector(Fac(0, 0, 0, 0, 0), Fac(1, 1, 27, 2, 0), Fac(2, -1, 27, 2, 0), Fac(3, 0, 11, 3, 0), Fac(4, 0, 11, 3, 0), Fac(5, 0, 3, 1, 0), Fac(6, 0, 3, 1, 0)), Vector(), Vector(), 1, Map(1 -> 2, -1 -> 2), GhostGraph(7, Vector(Edge(0, 1, 7), Edge(0, 2, 7), Edge(0, 3, 4), Edge(0, 4, 4), Edge(0, 5, 5), Edge(0, 6, 5), Edge(1, 2, 15), Edge(1, 3, 1), Edge(1, 4, 13), Edge(1, 5, 3), Edge(1, 6, 13), Edge(2, 3, 13), Edge(2, 4, 1), Edge(2, 5, 13), Edge(2, 6, 3), Edge(3, 4, 10), Edge(3, 5, 1), Edge(3, 6, 11), Edge(4, 5, 11), Edge(4, 6, 1), Edge(5, 6, 11))))
-    println(GameSimulator.play(state, GhostArena, Vector(GhostCellPlayer(1), GhostCellPlayer(-1))))
+    println(GameSimulator.play(state, GhostArena, Vector(head.GhostCellPlayer(1), best.GhostCellPlayer(-1))))
   }
 
 

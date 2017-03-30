@@ -1,4 +1,6 @@
-package com.truelaurel.codingame.ghostcell
+package com.truelaurel.codingame.ghostcell.best
+
+import com.truelaurel.codingame.ghostcell.common.{Fac, GhostCellGameState, MoveAction, Troop}
 
 case class FactoryAnalysis(me : Int) {
 

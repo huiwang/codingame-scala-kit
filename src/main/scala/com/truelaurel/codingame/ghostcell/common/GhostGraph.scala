@@ -1,4 +1,4 @@
-package com.truelaurel.codingame.ghostcell
+package com.truelaurel.codingame.ghostcell.common
 
 import com.truelaurel.codingame.graph.{Edge, Iti, ShortestPath}
 

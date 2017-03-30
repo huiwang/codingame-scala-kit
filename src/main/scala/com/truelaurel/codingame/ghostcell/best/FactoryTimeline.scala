@@ -1,4 +1,6 @@
-package com.truelaurel.codingame.ghostcell
+package com.truelaurel.codingame.ghostcell.best
+
+import com.truelaurel.codingame.ghostcell.common.{Fac, GhostCellConstant, Troop}
 
 case class FactoryState(id: Int, owner: Int, cyborgs: Int, balance: Int = 0)
 

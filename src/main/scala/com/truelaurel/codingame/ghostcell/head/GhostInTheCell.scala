@@ -1,6 +1,8 @@
-package com.truelaurel.codingame.ghostcell
+package com.truelaurel.codingame.ghostcell.head
 
-import com.truelaurel.codingame.graph.{Edge, Iti}
+import com.truelaurel.codingame.ghostcell.battle.GhostArena
+import com.truelaurel.codingame.ghostcell.common._
+import com.truelaurel.codingame.graph.Edge
 
 object Player extends App {
   val factoryCount = io.StdIn.readInt()

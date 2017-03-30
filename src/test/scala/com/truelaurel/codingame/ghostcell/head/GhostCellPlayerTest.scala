@@ -1,6 +1,6 @@
-package com.truelaurel.codingame.ghostcell
+package com.truelaurel.codingame.ghostcell.head
 
-import com.truelaurel.codingame.graph.{Edge, Iti}
+import com.truelaurel.codingame.ghostcell.common.{GhostCellGameState, GhostGraph}
 import org.scalatest.{FlatSpec, Matchers}
 
 /**
