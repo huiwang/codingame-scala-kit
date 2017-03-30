@@ -1,6 +1,5 @@
 package com.truelaurel.codingame.ghostcell.head
 
-import com.truelaurel.codingame.ghostcell.battle.GhostArena
 import com.truelaurel.codingame.ghostcell.common._
 import com.truelaurel.codingame.graph.Edge
 
@@ -58,7 +57,7 @@ object Player extends App {
       println(actions.map(a => a.command()).mkString(";"))
     }
 
-    bombBudget = GhostArena.computeBombBudget(actions, state, bombBudget)
+    bombBudget = BombBudget.computeBombBudget(actions, state, bombBudget)
 
     turn = turn + 1
 
