@@ -1,7 +1,5 @@
 package com.truelaurel.codingame.ghostcell.online
 
-import com.truelaurel.codingame.engine.GameSimulator
-import com.truelaurel.codingame.ghostcell.offline.GhostArena
 import com.truelaurel.codingame.ghostcell.best.BestGhostCellPlayer
 import com.truelaurel.codingame.ghostcell.common._
 import com.truelaurel.codingame.ghostcell.head.GhostCellPlayer
@@ -56,7 +54,12 @@ object Player extends App {
     System.err.println(predicted)
     System.err.println(state)
 
-    predicted = GameSimulator.simulate(1, state, GhostArena, Vector(GhostCellPlayer(1), BestGhostCellPlayer(-1)))
+    if(predicted != null) {
+      //require(state.factories == predicted.factories)
+      //require(state.troops.size == predicted.troops.size)
+      //require(state.newBombBudget == predicted.newBombBudget)
+    }
+
 
     val actions = player.reactTo(state)
 
@@ -66,8 +69,9 @@ object Player extends App {
       println(actions.map(a => a.command()).mkString(";"))
     }
 
+    //predicted = GameSimulator.simulate(1, state, GhostArena, Vector(GhostCellPlayer(1), BestGhostCellPlayer(-1)))
+    System.err.println(BestGhostCellPlayer(-1).reactTo(state))
     bombBudget = state.newBombBudget
-
     turn = turn + 1
   }
 

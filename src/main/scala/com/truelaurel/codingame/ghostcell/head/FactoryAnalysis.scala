@@ -203,7 +203,7 @@ case class FactoryAnalysis(me : Int) {
         cyborgs = middle,
         arrival = state.dist(from.id, to.id) + 1)
       val finalState = FactoryTimeline.finalState(to, troops :+ troop, troop.arrival)
-      if (finalState.owner == me && finalState.cyborgs >= 10) {
+      if (finalState.owner == me && finalState.cyborgs * me >= 10) {
         inc(to, from, troops, state, lower, middle)
       } else {
         inc(to, from, troops, state, middle + 1, upper)

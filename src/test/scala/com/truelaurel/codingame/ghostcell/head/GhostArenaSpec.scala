@@ -98,5 +98,10 @@ class GhostArenaSpec extends FunSpec with Matchers {
       result should be(WinKO)
     }
 
+    it("should simulate a single round") {
+      val state = GhostCellGameState(Vector(Fac(0,1,2,0,0), Fac(1,1,2,2,0), Fac(2,-1,4,2,0), Fac(3,1,0,0,0), Fac(4,-1,0,0,0), Fac(5,1,1,1,0), Fac(6,-1,1,1,0), Fac(7,1,4,1,0), Fac(8,-1,2,1,0)),Vector(Troop(95,1,0,8,2,1), Troop(97,1,7,0,2,1), Troop(98,1,1,0,4,2), Troop(99,1,5,7,1,1), Troop(100,-1,6,8,1,1), Troop(101,1,0,8,3,2), Troop(103,1,7,0,2,2), Troop(104,1,1,0,4,3), Troop(105,1,5,7,1,2), Troop(106,-1,8,2,4,1), Troop(107,-1,6,8,1,2)),Vector(Bomb(92,-1,8,-1,-1,14), Bomb(93,-1,8,-1,-1,14)),16,Map(1 -> 0, -1 -> 0),GhostGraph(9,Vector(Edge(0,1,3), Edge(0,2,3), Edge(0,3,5), Edge(0,4,5), Edge(0,5,6), Edge(0,6,6), Edge(0,7,2), Edge(0,8,2), Edge(1,2,8), Edge(1,3,2), Edge(1,4,10), Edge(1,5,4), Edge(1,6,9), Edge(1,7,1), Edge(1,8,6), Edge(2,3,10), Edge(2,4,2), Edge(2,5,9), Edge(2,6,4), Edge(2,7,6), Edge(2,8,1), Edge(3,4,13), Edge(3,5,2), Edge(3,6,13), Edge(3,7,2), Edge(3,8,9), Edge(4,5,13), Edge(4,6,2), Edge(4,7,9), Edge(4,8,2), Edge(5,6,13), Edge(5,7,2), Edge(5,8,9), Edge(6,7,9), Edge(6,8,2), Edge(7,8,6))))
+      val result = GameSimulator.simulate(1, state, GhostArena, Vector(GhostCellPlayer(1), BestGhostCellPlayer(-1)))
+    }
+
   }
 }
