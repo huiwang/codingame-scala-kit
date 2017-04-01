@@ -31,6 +31,7 @@ object BestFactoryTimeline {
     }
   }
 
+
   private def afterResolving(owner: Int, produced: Int, cyborgs: Int, arrivalResolved: Int) = {
     produced + (if (owner == 0) {
       if (arrivalResolved > 0) (arrivalResolved - cyborgs).abs else arrivalResolved + cyborgs

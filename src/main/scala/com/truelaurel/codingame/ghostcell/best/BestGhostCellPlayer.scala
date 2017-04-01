@@ -56,7 +56,9 @@ case class BestGhostCellPlayer(me: Int) extends GamePlayer[GhostCellGameState, G
   }
 
   private def findFront(state: GhostCellGameState): Option[Fac] = {
-    Some(state.factories.filter(_.owner == me).minBy(fac => state.factories.filter(_.owner == -me).map(of => state.directDist(of.id, fac.id)).sum))
+    if (state.center.owner == me) Some(state.center) else if (state.center.owner == -me) {
+      Some(state.factories.filter(_.owner == me).minBy(fac => state.factories.filter(_.owner == -me).map(of => state.directDist(of.id, fac.id)).sum))
+    } else None
   }
 
 
