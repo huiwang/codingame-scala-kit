@@ -1,9 +1,10 @@
-package com.truelaurel.codingame.ghostcell.head
+package com.truelaurel.codingame.ghostcell.online
 
 import com.truelaurel.codingame.engine.GameSimulator
-import com.truelaurel.codingame.ghostcell.arena.GhostArena
+import com.truelaurel.codingame.ghostcell.offline.GhostArena
 import com.truelaurel.codingame.ghostcell.best.BestGhostCellPlayer
 import com.truelaurel.codingame.ghostcell.common._
+import com.truelaurel.codingame.ghostcell.head.GhostCellPlayer
 import com.truelaurel.codingame.graph.Edge
 
 object Player extends App {

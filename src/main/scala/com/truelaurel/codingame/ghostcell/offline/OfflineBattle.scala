@@ -1,4 +1,4 @@
-package com.truelaurel.codingame.ghostcell.arena
+package com.truelaurel.codingame.ghostcell.offline
 
 import com.truelaurel.codingame.engine.GameSimulator
 import com.truelaurel.codingame.ghostcell.best.BestGhostCellPlayer

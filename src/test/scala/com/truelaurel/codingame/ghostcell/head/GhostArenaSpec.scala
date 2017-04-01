@@ -1,7 +1,7 @@
 package com.truelaurel.codingame.ghostcell.head
 
 import com.truelaurel.codingame.engine.{GameSimulator, WinKO}
-import com.truelaurel.codingame.ghostcell.arena.GhostArena
+import com.truelaurel.codingame.ghostcell.offline.GhostArena
 import com.truelaurel.codingame.ghostcell.best.BestGhostCellPlayer
 import com.truelaurel.codingame.ghostcell.common._
 import com.truelaurel.codingame.ghostcell.{best, head}
