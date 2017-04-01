@@ -1,6 +1,6 @@
 package com.truelaurel.codingame.ghostcell.head
 
-import com.truelaurel.codingame.ghostcell.common.{Fac, GhostCellConstant, Troop}
+import com.truelaurel.codingame.ghostcell.common.{Fac, FactoryState, GhostCellConstant, Troop}
 import com.truelaurel.codingame.ghostcell.head.FactoryTimeline.finalState
 import org.scalatest.{FlatSpec, Matchers}
 

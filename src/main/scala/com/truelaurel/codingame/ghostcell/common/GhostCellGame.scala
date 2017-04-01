@@ -8,6 +8,8 @@ object GhostCellConstant {
   val MAX_TURN = 20
 }
 
+case class FactoryState(id: Int, owner: Int, cyborgs: Int, balance: Int = 0)
+
 case class Fac(id: Int, owner: Int, cyborgs: Int, production: Int, again: Int) {
   require(cyborgs >= 0, "cyborgs can't be negative")
 }
@@ -17,7 +19,7 @@ case class Entity(entityId: Int, entityType: String, arg1: Int, arg2: Int, arg3:
 case class Troop(id: Int, owner: Int, from: Int, to: Int, cyborgs: Int, arrival: Int) {
 }
 
-case class Bomb(id: Int, owner: Int, from: Int, to: Int, explosion: Int, birth: Int = 0) {
+case class Bomb(id: Int, owner: Int, from: Int, to: Int, explosion: Int, observed: Int = 0) {
 }
 
 case class GhostCellGameState(factories: Vector[Fac],

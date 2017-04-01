@@ -3,9 +3,9 @@ package com.truelaurel.codingame.ghostcell.best
 import com.truelaurel.codingame.engine.GamePlayer
 import com.truelaurel.codingame.ghostcell.common._
 
-case class GhostCellPlayer(me: Int) extends GamePlayer[GhostCellGameState, GhostCellAction] {
+case class BestGhostCellPlayer(me: Int) extends GamePlayer[GhostCellGameState, GhostCellAction] {
 
-  val factoryAnalysis = FactoryAnalysis(me)
+  val factoryAnalysis = BestFactoryAnalysis(me)
 
   override def reactTo(state: GhostCellGameState): Vector[GhostCellAction] = {
     val attackPlan = factoryAnalysis.movePlans(state)
@@ -17,7 +17,7 @@ case class GhostCellPlayer(me: Int) extends GamePlayer[GhostCellGameState, Ghost
       .filter(move => !state.bombs.filter(_.owner == me).exists(b => b.to == move.to && b.explosion == state.dist(move.from, move.to)))
       .filter(move => !state.bombs.filter(_.owner == -me).exists(b => {
         val dist = state.directDist(b.from, move.to)
-        val travelled = state.turn - b.birth
+        val travelled = state.turn - b.observed
         val arrival = dist - travelled
         state.factories(move.to).production > 0 && arrival == state.dist(move.from, move.to) + 1
       }))
@@ -41,14 +41,15 @@ case class GhostCellPlayer(me: Int) extends GamePlayer[GhostCellGameState, Ghost
 
 
   private def bombPlan(state: GhostCellGameState, nextTroops: Vector[Troop]): Vector[BombAction] = {
-    if (!state.factories.exists(_.owner == me) || !state.factories.exists(_.owner == -me) || state.bombBudget(1) == 0) Vector.empty else {
+    if (!state.factories.exists(_.owner == me) || !state.factories.exists(_.owner == -me)) Vector.empty else {
       findFront(state).map(front => {
         state.factories.filter(_.owner == -me)
           .filter(fac => fac.production > 0 || fac.cyborgs > 5)
           .filter(fac => !state.bombs.filter(_.owner == me).exists(b => b.to == fac.id))
-          .map(of => FactoryTimeline.finalState(of, nextTroops, state.directDist(front.id, of.id) + 1))
+          .map(of => BestFactoryTimeline.finalState(of, nextTroops, state.directDist(front.id, of.id) + 1))
           .filter(fs => fs.owner == -me)
           .sortBy(fs => (state.factories(fs.id).production * -1, state.directDist(front.id, fs.id)))
+          .take(state.bombBudget(me))
           .map(fs => BombAction(front.id, fs.id))
       }).getOrElse(Vector.empty)
     }

@@ -17,7 +17,7 @@ case class GhostCellPlayer(me: Int) extends GamePlayer[GhostCellGameState, Ghost
       .filter(move => !state.bombs.filter(_.owner == me).exists(b => b.to == move.to && b.explosion == state.dist(move.from, move.to)))
       .filter(move => !state.bombs.filter(_.owner == -me).exists(b => {
         val dist = state.directDist(b.from, move.to)
-        val travelled = state.turn - b.birth
+        val travelled = state.turn - b.observed
         val arrival = dist - travelled
         state.factories(move.to).production > 0 && arrival == state.dist(move.from, move.to) + 1
       }))
@@ -41,7 +41,7 @@ case class GhostCellPlayer(me: Int) extends GamePlayer[GhostCellGameState, Ghost
 
 
   private def bombPlan(state: GhostCellGameState, nextTroops: Vector[Troop]): Vector[BombAction] = {
-    if (!state.factories.exists(_.owner == me) || !state.factories.exists(_.owner == -me) || state.bombBudget(1) == 0) Vector.empty else {
+    if (!state.factories.exists(_.owner == me) || !state.factories.exists(_.owner == -me)) Vector.empty else {
       findFront(state).map(front => {
         state.factories.filter(_.owner == -me)
           .filter(fac => fac.production > 0 || fac.cyborgs > 5)
@@ -49,15 +49,14 @@ case class GhostCellPlayer(me: Int) extends GamePlayer[GhostCellGameState, Ghost
           .map(of => FactoryTimeline.finalState(of, nextTroops, state.directDist(front.id, of.id) + 1))
           .filter(fs => fs.owner == -me)
           .sortBy(fs => (state.factories(fs.id).production * -1, state.directDist(front.id, fs.id)))
+          .take(state.bombBudget(me))
           .map(fs => BombAction(front.id, fs.id))
       }).getOrElse(Vector.empty)
     }
   }
 
   private def findFront(state: GhostCellGameState): Option[Fac] = {
-    if (state.center.owner == me) Some(state.center) else if (state.center.owner == -me) {
-      Some(state.factories.filter(_.owner == me).minBy(fac => state.factories.filter(_.owner == -me).map(of => state.directDist(of.id, fac.id)).sum))
-    } else None
+    Some(state.factories.filter(_.owner == me).minBy(fac => state.factories.filter(_.owner == -me).map(of => state.directDist(of.id, fac.id)).sum))
   }
 
 

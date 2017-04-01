@@ -1,5 +1,8 @@
 package com.truelaurel.codingame.ghostcell.head
 
+import com.truelaurel.codingame.engine.GameSimulator
+import com.truelaurel.codingame.ghostcell.arena.GhostArena
+import com.truelaurel.codingame.ghostcell.best.BestGhostCellPlayer
 import com.truelaurel.codingame.ghostcell.common._
 import com.truelaurel.codingame.graph.Edge
 
@@ -15,13 +18,15 @@ object Player extends App {
   private val ghostGraph = GhostGraph(factoryCount, edges)
   private val player = GhostCellPlayer(1)
 
-  private var factoryProd : Map[Int, Int] = Map.empty
+  private var factoryProd: Map[Int, Int] = Map.empty
 
   private var turn = 1
 
-  private var bombBirth : Map[Int, Int] = Map.empty
+  private var bombObserved: Map[Int, Int] = Map.empty
 
-  private var bombBudget : Map[Int, Int] = Map(1 -> 2, -1 -> 2)
+  private var bombBudget: Map[Int, Int] = Map(1 -> 2, -1 -> 2)
+
+  var predicted: GhostCellGameState = null
 
   while (true) {
 
@@ -41,13 +46,16 @@ object Player extends App {
       e => Troop(id = e.entityId, owner = e.arg1, from = e.arg2, to = e.arg3, cyborgs = e.arg4, arrival = e.arg5))
 
     val bombs = entities.filter(_.entityType == "BOMB").map(
-      e => Bomb(id = e.entityId, owner = e.arg1, from = e.arg2, to = e.arg3, explosion = e.arg4, birth = bombBirth.getOrElse(e.entityId, turn)))
+      e => Bomb(id = e.entityId, owner = e.arg1, from = e.arg2, to = e.arg3, explosion = e.arg4, observed = bombObserved.getOrElse(e.entityId, turn)))
 
-    bombBirth = bombBirth ++ bombs.map(b => b.id -> b.birth)
+    bombObserved = bombObserved ++ bombs.map(b => b.id -> b.observed)
 
     val state = GhostCellGameState(factories = factories, troops = troops, bombs = bombs, turn = turn, bombBudget = bombBudget, graph = ghostGraph)
 
+    System.err.println(predicted)
     System.err.println(state)
+
+    predicted = GameSimulator.simulate(1, state, GhostArena, Vector(GhostCellPlayer(1), BestGhostCellPlayer(-1)))
 
     val actions = player.reactTo(state)
 
@@ -60,8 +68,6 @@ object Player extends App {
     bombBudget = BombBudget.computeBombBudget(actions, state, bombBudget)
 
     turn = turn + 1
-
   }
-
 
 }

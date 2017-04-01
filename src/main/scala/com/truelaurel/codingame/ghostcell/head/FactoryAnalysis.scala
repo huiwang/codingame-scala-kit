@@ -54,7 +54,7 @@ case class FactoryAnalysis(me : Int) {
       .filter(_.owner == -me)
       .exists(b => {
         val dist = state.directDist(b.from, fac.id)
-        val travelled = state.turn - b.birth
+        val travelled = state.turn - b.observed
         val remaining = dist - travelled
         remaining == 1
       })

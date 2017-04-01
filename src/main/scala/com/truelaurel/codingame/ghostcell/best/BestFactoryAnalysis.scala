@@ -2,11 +2,11 @@ package com.truelaurel.codingame.ghostcell.best
 
 import com.truelaurel.codingame.ghostcell.common.{Fac, GhostCellGameState, MoveAction, Troop}
 
-case class FactoryAnalysis(me : Int) {
+case class BestFactoryAnalysis(me : Int) {
 
   def movePlans(state: GhostCellGameState): Vector[MoveAction] = {
     val (sources, toLost) = state.factories.filter(_.owner == me).partition(
-      mf => FactoryTimeline.finalState(mf, state.troops).owner == me)
+      mf => BestFactoryTimeline.finalState(mf, state.troops).owner == me)
     val sourceBudget = sources.map(mf => mf.id -> moveAvailable(mf, state)).toMap
     val increasable = increaseableSources(state)
     val conquerable = state.factories.filter(fac => fac.owner != me) ++ toLost.filter(_.production > 0)
@@ -44,7 +44,7 @@ case class FactoryAnalysis(me : Int) {
 
   def increaseableSources(state: GhostCellGameState): Vector[Fac] = {
     if (noIncrease(state)) Vector.empty else {
-      state.factories.filter(_.owner == me).filter(mf => FactoryTimeline.finalState(mf, state.troops).owner == me)
+      state.factories.filter(_.owner == me).filter(mf => BestFactoryTimeline.finalState(mf, state.troops).owner == me)
         .filter(fac => fac.production < 3).filter(fac => !mayExplode(fac, state))
     }
   }
@@ -54,7 +54,7 @@ case class FactoryAnalysis(me : Int) {
       .filter(_.owner == -me)
       .exists(b => {
         val dist = state.directDist(b.from, fac.id)
-        val travelled = state.turn - b.birth
+        val travelled = state.turn - b.observed
         val remaining = dist - travelled
         remaining == 1
       })
@@ -127,7 +127,7 @@ case class FactoryAnalysis(me : Int) {
       src.cyborgs - lower
     } else {
       val middle = (lower + upper) / 2
-      if (FactoryTimeline.finalState(src.copy(cyborgs = middle), troops).owner == me) {
+      if (BestFactoryTimeline.finalState(src.copy(cyborgs = middle), troops).owner == me) {
         available(src, troops, lower, middle)
       } else {
         available(src, troops, middle + 1, upper)
@@ -157,7 +157,7 @@ case class FactoryAnalysis(me : Int) {
         to = to.id,
         cyborgs = middle,
         arrival = state.dist(from.id, to.id) + 1)
-      if (FactoryTimeline.finalState(to, troops :+ troop).owner == me) {
+      if (BestFactoryTimeline.finalState(to, troops :+ troop).owner == me) {
         conquer(to, from, troops, state, lower, middle)
       } else {
         conquer(to, from, troops, state, middle + 1, upper)
@@ -202,7 +202,7 @@ case class FactoryAnalysis(me : Int) {
         to = to.id,
         cyborgs = middle,
         arrival = state.dist(from.id, to.id) + 1)
-      val finalState = FactoryTimeline.finalState(to, troops :+ troop, troop.arrival)
+      val finalState = BestFactoryTimeline.finalState(to, troops :+ troop, troop.arrival)
       if (finalState.owner == me && finalState.cyborgs >= 10) {
         inc(to, from, troops, state, lower, middle)
       } else {

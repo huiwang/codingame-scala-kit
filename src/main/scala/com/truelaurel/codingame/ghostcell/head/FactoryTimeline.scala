@@ -1,8 +1,6 @@
 package com.truelaurel.codingame.ghostcell.head
 
-import com.truelaurel.codingame.ghostcell.common.{Fac, GhostCellConstant, Troop}
-
-case class FactoryState(id: Int, owner: Int, cyborgs: Int, balance: Int = 0)
+import com.truelaurel.codingame.ghostcell.common.{Fac, FactoryState, GhostCellConstant, Troop}
 
 object FactoryTimeline {
 
@@ -32,6 +30,7 @@ object FactoryTimeline {
       FactoryState(factory.id, owner, cyborgs, balance)
     }
   }
+
 
   private def afterResolving(owner: Int, produced: Int, cyborgs: Int, arrivalResolved: Int) = {
     produced + (if (owner == 0) {

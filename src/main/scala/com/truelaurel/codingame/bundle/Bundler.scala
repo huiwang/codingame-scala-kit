@@ -37,7 +37,10 @@ class Bundler(val fileName: String,
     val withoutPackages = lines.filterNot(_.startsWith("package"))
     val (imports, body) = withoutPackages.partition(_.startsWith(s"import $organization"))
     val filesInSamePackage = transformFiles(file.getParentFile)
-    val filesFromImports = imports.flatMap(im => transformFiles(extractFolderFromImport(im)))
+    val filesFromImports = imports.flatMap(im => {
+      val folderFromImport = extractFolderFromImport(im)
+      transformFiles(folderFromImport)
+    })
     filesInSamePackage ++ filesFromImports ++ body
   }
 
@@ -60,7 +63,7 @@ class Bundler(val fileName: String,
     Objects.requireNonNull(folder, "Folder should not be null")
     val visibleFiles: Array[File] = folder.listFiles((pathname: File) => !pathname.getName.startsWith("."))
     Objects.requireNonNull(visibleFiles, "visibleFiles should not be null in folder " + folder)
-    visibleFiles.toList.flatMap(transformFile)
+    visibleFiles.filterNot(_.isDirectory).toList.flatMap(transformFile)
   }
 
   def strip2(x: String, s: String = "/*", e: String = "*/"): String = {

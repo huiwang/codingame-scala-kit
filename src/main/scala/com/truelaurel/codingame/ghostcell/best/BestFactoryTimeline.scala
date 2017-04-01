@@ -1,10 +1,8 @@
 package com.truelaurel.codingame.ghostcell.best
 
-import com.truelaurel.codingame.ghostcell.common.{Fac, GhostCellConstant, Troop}
+import com.truelaurel.codingame.ghostcell.common.{Fac, FactoryState, GhostCellConstant, Troop}
 
-case class FactoryState(id: Int, owner: Int, cyborgs: Int, balance: Int = 0)
-
-object FactoryTimeline {
+object BestFactoryTimeline {
 
   def finalState(factory: Fac, troops: Vector[Troop], finalTurn: Int = GhostCellConstant.MAX_TURN): FactoryState = {
     var arrivals = troops
