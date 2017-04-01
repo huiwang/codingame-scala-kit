@@ -49,7 +49,7 @@ case class GhostCellPlayer(me: Int) extends GamePlayer[GhostCellGameState, Ghost
           .map(of => FactoryTimeline.finalState(of, nextTroops, state.directDist(front.id, of.id) + 1))
           .filter(fs => fs.owner == -me)
           .sortBy(fs => (state.factories(fs.id).production * -1, state.directDist(front.id, fs.id)))
-          .take(state.bombBudget(me))
+          .take(state.newBombBudget(me))
           .map(fs => BombAction(front.id, fs.id))
       }).getOrElse(Vector.empty)
     }

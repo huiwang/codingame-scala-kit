@@ -111,7 +111,7 @@ object GhostArena extends GameArena[GhostCellGameState, GhostCellAction] {
       troops = groupedTroops,
       bombs = bombs,
       turn = fromState.turn + 1,
-      bombBudget = BombBudget.computeBombBudget(actions, fromState, fromState.bombBudget)
+      oldBombBudget = fromState.newBombBudget
     )
   }
 

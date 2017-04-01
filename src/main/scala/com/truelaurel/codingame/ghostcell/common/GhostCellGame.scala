@@ -26,13 +26,18 @@ case class GhostCellGameState(factories: Vector[Fac],
                               troops: Vector[Troop],
                               bombs: Vector[Bomb],
                               turn: Int = 1,
-                              bombBudget: Map[Int, Int] = Map(1 -> 2, -1 -> 2),
+                              oldBombBudget: Map[Int, Int] = Map(1 -> 2, -1 -> 2),
                               graph: GhostGraph) {
 
   val facValue: Map[Int, Double] = factories.map(fac => {
     val passThroughCount = graph.passThroughSegments.count(segment => segment.contains(fac.id))
     fac.id -> (fac.production + 0.01 * Math.pow(passThroughCount, 0.5) + 0.1)
   }).toMap
+
+  val newBombBudget: Map[Int, Int] = for {
+    (playerId, bombBudget) <- oldBombBudget
+    used = bombs.count(b => fac(b.from).owner == playerId && b.observed == turn)
+  } yield playerId -> (bombBudget - used)
 
   def dist(from: Int, to: Int): Int = graph.itineraries(from)(to).distance
 

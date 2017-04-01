@@ -50,7 +50,7 @@ object Player extends App {
 
     bombObserved = bombObserved ++ bombs.map(b => b.id -> b.observed)
 
-    val state = GhostCellGameState(factories = factories, troops = troops, bombs = bombs, turn = turn, bombBudget = bombBudget, graph = ghostGraph)
+    val state = GhostCellGameState(factories = factories, troops = troops, bombs = bombs, turn = turn, oldBombBudget = bombBudget, graph = ghostGraph)
 
     System.err.println(predicted)
     System.err.println(state)
@@ -65,7 +65,7 @@ object Player extends App {
       println(actions.map(a => a.command()).mkString(";"))
     }
 
-    bombBudget = BombBudget.computeBombBudget(actions, state, bombBudget)
+    bombBudget = state.newBombBudget
 
     turn = turn + 1
   }
