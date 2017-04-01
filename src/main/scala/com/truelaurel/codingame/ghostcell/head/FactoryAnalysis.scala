@@ -1,15 +1,16 @@
 package com.truelaurel.codingame.ghostcell.head
 
-import com.truelaurel.codingame.ghostcell.common.{Fac, GhostCellGameState, MoveAction, Troop}
+import com.truelaurel.codingame.ghostcell.common._
 
-case class FactoryAnalysis(me : Int) {
+case class FactoryAnalysis(me: Int) {
 
   def movePlans(state: GhostCellGameState): Vector[MoveAction] = {
     val (sources, toLost) = state.factories.filter(_.owner == me).partition(
       mf => FactoryTimeline.finalState(mf, state.troops).owner == me)
     val sourceBudget = sources.map(mf => mf.id -> moveAvailable(mf, state)).toMap
     val increasable = increaseableSources(state)
-    val conquerable = state.factories.filter(fac => fac.owner != me) ++ toLost.filter(_.production > 0)
+    val conquerable = state.factories.filter(fac =>
+      if (noIncrease(state)) fac.owner != me && fac.production > 0 else fac.owner != me) ++ toLost.filter(_.production > 0)
     val conquerableToScoreRaw = conquerable.map(target => (target, evaluateFactoryConquer(target, sources, state, sourceBudget)))
     val increasableToScoreRaw = increasable.map(target => (target, evaluateFactoryInc(target, sources.filter(_.id != target.id), state, sourceBudget)))
     val targetToScoreSorted = (conquerableToScoreRaw ++ increasableToScoreRaw).sortBy(_._2).reverse
@@ -82,7 +83,8 @@ case class FactoryAnalysis(me : Int) {
 
   private def evaluateFactoryConquer(sink: Fac, sources: Vector[Fac],
                                      state: GhostCellGameState, availability: Map[Int, Int]) = {
-    val moves = planForConquer(sink, sources, Vector.empty, state, availability)
+    val sourcesSorted = sources.filter(_.id != sink.id).sortBy(src => state.dist(src.id, sink.id))
+    val moves = planForConquer(sink, sourcesSorted, Vector.empty, state, availability)
     val investments = moves.map(m => m.cyborgs * Math.pow(2, state.dist(m.from, m.to))).sum
     state.facValue(sink.id) / (1.0 + investments)
   }
@@ -90,7 +92,9 @@ case class FactoryAnalysis(me : Int) {
 
   private def evaluateFactoryInc(sink: Fac, sources: Vector[Fac],
                                  state: GhostCellGameState, availability: Map[Int, Int]) = {
-    val moves = planForInc(sink, sources, Vector.empty, state, availability)
+    val sourcesSorted = sources.filter(_.id != sink.id).sortBy(src => state.dist(src.id, sink.id))
+
+    val moves = planForInc(sink, sourcesSorted, Vector.empty, state, availability)
     val investments = (moves :+ MoveAction(sink.id, sink.id, sink.cyborgs)).map(m => m.cyborgs * Math.pow(2, state.dist(m.from, m.to))).sum
     state.facValue(sink.id) / (1.0 + investments)
   }

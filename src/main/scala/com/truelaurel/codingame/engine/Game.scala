@@ -36,12 +36,18 @@ object GameSimulator {
     (0 until round).foldLeft(from)((s, r) => arena.next(s, players.flatMap(_.reactTo(s))))
   }
 
-
   def evaluateOffline[S, A](games: Vector[S], arena: GameArena[S, A], players: Vector[GamePlayer[S, A]], round: Int = 200): Unit = {
-    val results = games.par.map(play(_, arena, players, round))
+    val results = games.par.map(g => {
+      play(g, arena, players, round)
+    })
 
     val wins = results.count {
       case WinKO | WinTech => true
+      case _ => false
+    }
+
+    val loss = results.count {
+      case LossKO | LossTech => true
       case _ => false
     }
 
@@ -55,7 +61,7 @@ object GameSimulator {
 
     val confidenceInterval = Math.sqrt(p * (1 - p) / games.size) * 100
 
-    println(s"${games.size} Games $wins Wins $draws Draws")
+    println(s"${games.size} Games $wins Wins $loss Loss $draws Draws")
     println(s"WinRate:$winRate%+-$confidenceInterval%")
 
   }

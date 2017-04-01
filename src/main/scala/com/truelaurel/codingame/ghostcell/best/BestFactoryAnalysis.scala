@@ -1,12 +1,12 @@
 package com.truelaurel.codingame.ghostcell.best
 
-import com.truelaurel.codingame.ghostcell.common.{Fac, GhostCellGameState, MoveAction, Troop}
+import com.truelaurel.codingame.ghostcell.common._
 
 case class BestFactoryAnalysis(me : Int) {
 
   def movePlans(state: GhostCellGameState): Vector[MoveAction] = {
     val (sources, toLost) = state.factories.filter(_.owner == me).partition(
-      mf => BestFactoryTimeline.finalState(mf, state.troops).owner == me)
+      mf => FactoryTimeline.finalState(mf, state.troops).owner == me)
     val sourceBudget = sources.map(mf => mf.id -> moveAvailable(mf, state)).toMap
     val increasable = increaseableSources(state)
     val conquerable = state.factories.filter(fac => fac.owner != me) ++ toLost.filter(_.production > 0)
@@ -44,7 +44,7 @@ case class BestFactoryAnalysis(me : Int) {
 
   def increaseableSources(state: GhostCellGameState): Vector[Fac] = {
     if (noIncrease(state)) Vector.empty else {
-      state.factories.filter(_.owner == me).filter(mf => BestFactoryTimeline.finalState(mf, state.troops).owner == me)
+      state.factories.filter(_.owner == me).filter(mf => FactoryTimeline.finalState(mf, state.troops).owner == me)
         .filter(fac => fac.production < 3).filter(fac => !mayExplode(fac, state))
     }
   }
@@ -82,7 +82,8 @@ case class BestFactoryAnalysis(me : Int) {
 
   private def evaluateFactoryConquer(sink: Fac, sources: Vector[Fac],
                                      state: GhostCellGameState, availability: Map[Int, Int]) = {
-    val moves = planForConquer(sink, sources, Vector.empty, state, availability)
+    val sourcesSorted = sources.filter(_.id != sink.id).sortBy(src => state.dist(src.id, sink.id))
+    val moves = planForConquer(sink, sourcesSorted, Vector.empty, state, availability)
     val investments = moves.map(m => m.cyborgs * Math.pow(2, state.dist(m.from, m.to))).sum
     state.facValue(sink.id) / (1.0 + investments)
   }
@@ -90,7 +91,8 @@ case class BestFactoryAnalysis(me : Int) {
 
   private def evaluateFactoryInc(sink: Fac, sources: Vector[Fac],
                                  state: GhostCellGameState, availability: Map[Int, Int]) = {
-    val moves = planForInc(sink, sources, Vector.empty, state, availability)
+    val sourcesSorted = sources.filter(_.id != sink.id).sortBy(src => state.dist(src.id, sink.id))
+    val moves = planForInc(sink, sourcesSorted, Vector.empty, state, availability)
     val investments = (moves :+ MoveAction(sink.id, sink.id, sink.cyborgs)).map(m => m.cyborgs * Math.pow(2, state.dist(m.from, m.to))).sum
     state.facValue(sink.id) / (1.0 + investments)
   }
@@ -127,7 +129,7 @@ case class BestFactoryAnalysis(me : Int) {
       src.cyborgs - lower
     } else {
       val middle = (lower + upper) / 2
-      if (BestFactoryTimeline.finalState(src.copy(cyborgs = middle), troops).owner == me) {
+      if (FactoryTimeline.finalState(src.copy(cyborgs = middle), troops).owner == me) {
         available(src, troops, lower, middle)
       } else {
         available(src, troops, middle + 1, upper)
@@ -157,7 +159,7 @@ case class BestFactoryAnalysis(me : Int) {
         to = to.id,
         cyborgs = middle,
         arrival = state.dist(from.id, to.id) + 1)
-      if (BestFactoryTimeline.finalState(to, troops :+ troop).owner == me) {
+      if (FactoryTimeline.finalState(to, troops :+ troop).owner == me) {
         conquer(to, from, troops, state, lower, middle)
       } else {
         conquer(to, from, troops, state, middle + 1, upper)
@@ -202,7 +204,7 @@ case class BestFactoryAnalysis(me : Int) {
         to = to.id,
         cyborgs = middle,
         arrival = state.dist(from.id, to.id) + 1)
-      val finalState = BestFactoryTimeline.finalState(to, troops :+ troop, troop.arrival)
+      val finalState = FactoryTimeline.finalState(to, troops :+ troop, troop.arrival)
       if (finalState.owner == me && finalState.cyborgs * me >= 10) {
         inc(to, from, troops, state, lower, middle)
       } else {

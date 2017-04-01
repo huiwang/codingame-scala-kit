@@ -46,7 +46,7 @@ case class BestGhostCellPlayer(me: Int) extends GamePlayer[GhostCellGameState, G
         state.factories.filter(_.owner == -me)
           .filter(fac => fac.production > 0 || fac.cyborgs > 5)
           .filter(fac => !state.bombs.filter(_.owner == me).exists(b => b.to == fac.id))
-          .map(of => BestFactoryTimeline.finalState(of, nextTroops, state.directDist(front.id, of.id) + 1))
+          .map(of => FactoryTimeline.finalState(of, nextTroops, state.directDist(front.id, of.id) + 1))
           .filter(fs => fs.owner == -me)
           .sortBy(fs => (state.factories(fs.id).production * -1, state.directDist(front.id, fs.id)))
           .take(state.newBombBudget(me))

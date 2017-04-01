@@ -1,7 +1,7 @@
 package com.truelaurel.codingame.ghostcell.head
 
 import com.truelaurel.codingame.ghostcell.common.{Fac, FactoryState, GhostCellConstant, Troop}
-import com.truelaurel.codingame.ghostcell.head.FactoryTimeline.finalState
+import com.truelaurel.codingame.ghostcell.common.FactoryTimeline.finalState
 import org.scalatest.{FlatSpec, Matchers}
 
 class FactoryTimelineSpec extends FlatSpec with Matchers {
