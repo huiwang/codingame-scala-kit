@@ -1,5 +1,6 @@
 package com.truelaurel.codingame.ghostcell.head
 
+import com.truelaurel.codingame.dichotomy.Dichotomy
 import com.truelaurel.codingame.ghostcell.common._
 
 case class FactoryAnalysis(me: Int) {
@@ -17,7 +18,7 @@ case class FactoryAnalysis(me: Int) {
     val targetsSorted = targetToScoreSorted.map(_._1)
     val initPlan: Vector[MoveAction] = Vector.empty
     val moves = targetsSorted.foldLeft(initPlan) {
-      case (totalMoves, sink) => {
+      case (totalMoves, sink) =>
         val sourcesSorted = sources.filter(_.id != sink.id).sortBy(src => state.dist(src.id, sink.id))
         if (conquerable.contains(sink)) {
           planForConquer(sink, sourcesSorted, totalMoves, state, sourceBudget)
@@ -26,7 +27,6 @@ case class FactoryAnalysis(me: Int) {
         } else {
           totalMoves
         }
-      }
     }
 
     val remainingMoves = (for {
@@ -127,18 +127,10 @@ case class FactoryAnalysis(me: Int) {
   }
 
   def available(src: Fac, troops: Vector[Troop], lower: Int, upper: Int): Int = {
-    if (lower == upper) {
-      src.cyborgs - lower
-    } else {
-      val middle = (lower + upper) / 2
-      if (FactoryTimeline.finalState(src.copy(cyborgs = middle), troops).owner == me) {
-        available(src, troops, lower, middle)
-      } else {
-        available(src, troops, middle + 1, upper)
-      }
-    }
+    src.cyborgs - Dichotomy.search(lower, upper, cyborgs => {
+      FactoryTimeline.finalState(src.copy(cyborgs = cyborgs), troops).owner == me
+    })
   }
-
 
   /**
     *
@@ -150,24 +142,16 @@ case class FactoryAnalysis(me: Int) {
   }
 
   def conquer(to: Fac, from: Fac, troops: Vector[Troop], state: GhostCellGameState,
-              lower: Int, upper: Int): Int = {
-    if (lower == upper) {
-      lower
-    } else {
-      val middle = (lower + upper) / 2
+              low: Int, high: Int): Int = {
+    Dichotomy.search(low, high, cyborgs => {
       val troop = Troop(id = Int.MaxValue,
         owner = from.owner,
         from = from.id,
         to = to.id,
-        cyborgs = middle,
+        cyborgs = cyborgs,
         arrival = state.dist(from.id, to.id) + 1)
-      if (FactoryTimeline.finalState(to, troops :+ troop).owner == me) {
-        conquer(to, from, troops, state, lower, middle)
-      } else {
-        conquer(to, from, troops, state, middle + 1, upper)
-      }
-    }
-
+      FactoryTimeline.finalState(to, troops :+ troop).owner == me
+    })
   }
 
   private def planForInc(sink: Fac, sources: Vector[Fac], moves: Vector[MoveAction],
@@ -196,23 +180,16 @@ case class FactoryAnalysis(me: Int) {
 
   def inc(to: Fac, from: Fac, troops: Vector[Troop], state: GhostCellGameState,
           lower: Int, upper: Int): Int = {
-    if (lower == upper) {
-      lower
-    } else {
-      val middle = (lower + upper) / 2
+    Dichotomy.search(lower, upper, cyborgs => {
       val troop = Troop(id = Int.MaxValue,
         owner = from.owner,
         from = from.id,
         to = to.id,
-        cyborgs = middle,
+        cyborgs = cyborgs,
         arrival = state.dist(from.id, to.id) + 1)
       val finalState = FactoryTimeline.finalState(to, troops :+ troop, troop.arrival)
-      if (finalState.owner == me && finalState.cyborgs * me >= 10) {
-        inc(to, from, troops, state, lower, middle)
-      } else {
-        inc(to, from, troops, state, middle + 1, upper)
-      }
-    }
+      finalState.owner == me && finalState.cyborgs * me >= 10
+    })
 
   }
 
