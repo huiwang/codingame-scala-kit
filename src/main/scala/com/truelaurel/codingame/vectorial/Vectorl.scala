@@ -17,9 +17,29 @@ case class Vectorl(x: Double, y: Double) {
 
   def perp = Vectorl(-y, x)
 
-  def perDotProduct(that : Vectorl) : Double = perp.dotProduct(that)
+  def rotateInDegree(degree: Double): Vectorl = rotateInRadian(Math.toRadians(degree))
 
-  def between(v1 : Vectorl, v2 : Vectorl) : Boolean = {
+  def rotateInRadian(radians: Double): Vectorl = {
+    val rotated = angleInRadian + radians
+    Vectorl(Math.cos(rotated), Math.sin(rotated)) * mag
+  }
+
+  def angleInRadianBetween(other: Vectorl): Double = {
+    val result = this.dotProduct(other) / (this.mag * other.mag)
+    if (result >= 1.0) 0 else Math.acos(result)
+  }
+
+  def angleInDegreeBetween(other: Vectorl): Double = {
+    Math.toDegrees(angleInRadianBetween(other))
+  }
+
+  private def angleInDegree: Double = Math.toDegrees(angleInRadian)
+
+  private def angleInRadian: Double = Math.atan2(y, x)
+
+  def perDotProduct(that: Vectorl): Double = perp.dotProduct(that)
+
+  def between(v1: Vectorl, v2: Vectorl): Boolean = {
     this.perDotProduct(v1) * this.perDotProduct(v2) < 0
   }
 
@@ -28,4 +48,5 @@ case class Vectorl(x: Double, y: Double) {
     case _ => false
   }
 
+  override def toString: String = s"Vectorl(${x.toInt}, ${y.toInt})"
 }

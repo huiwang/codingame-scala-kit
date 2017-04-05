@@ -9,9 +9,8 @@ import com.truelaurel.codingame.engine.GamePlayer
 case class StrikeBackPlayer(playerId: Int) extends GamePlayer[StrikeBackGameState, PodAction] {
 
   override def reactTo(state: StrikeBackGameState): Vector[PodAction] = {
-    state.pods(playerId).map(p => {
-      val nextCheckPoint = state.checkPoints(p.nextCheckPointId)
-      Thrust(nextCheckPoint.x, nextCheckPoint.y, 100)
+    state.podsOf(playerId).map(p => {
+      Thrust(state.checkPoints(p.nextCheckPointId).disk.p, 100)
     })
   }
 }
