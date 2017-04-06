@@ -7,7 +7,8 @@ object CSBConstant {
   val cpRadius = 200
   val podRadius = 400
   val axisX: Vectorl = Vectorl(1, 0)
-  val podIndices = (0 until 4).toVector
+  val podCount = 4
+  val podIndices: Vector[Int] = (0 until podCount).toVector
 }
 
 case class CheckPoint(disk: Disk)

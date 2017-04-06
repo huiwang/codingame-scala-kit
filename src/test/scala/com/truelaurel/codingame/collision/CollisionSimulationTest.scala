@@ -14,19 +14,21 @@ class CollisionSimulationTest extends FlatSpec with Matchers {
   it should "return the moved entities when no collision is possible" in {
     val e0 = Disk(Vectorl(3, 3), Vectorl(-1, 0), 1)
     val e1 = Disk(Vectorl(7, 3), Vectorl(1, 0), 1)
-    simulation.simulate(Vector(e0, e1)) should equal(List(DiskCollider.move(e0, 1),
-      DiskCollider.move(e1, 1)))
+    val (result, collision) = simulation.simulate(Vector(e0, e1))
+    result should equal(Vector(DiskCollider.move(e0, 1), DiskCollider.move(e1, 1)))
+    collision should equal(Vector.empty)
   }
 
   it should "return the bounced entities when collision takes place" in {
     val d1 = Disk(Vectorl(3, 3), Vectorl(10, 0), 1)
     val d2 = Disk(Vectorl(7, 3), Vectorl(-10, 0), 1)
-    val result = simulation.simulate(Vector(d1, d2))
+    val (result, collision) = simulation.simulate(Vector(d1, d2))
     val expected = Vector(Disk(Vectorl(-5, 3), Vectorl(-10, 0), 1), Disk(Vectorl(15, 3), Vectorl(10, 0), 1))
     result should equal(expected)
+    collision should equal(Vector(CollisionEvent(collisionTime = 0.1, id1 = 0, hits1 = 0, id2 = 1, hits2 = 0)))
   }
 
-  it should "handle multiple collisions" in {
+  it should "handle multiple disks" in {
     val d0 = Disk(Vectorl(-2, 3), Vectorl(1, 0), 1)
     val d1 = Disk(Vectorl(7, 3), Vectorl(-1, 0), 1)
     val d2 = Disk(Vectorl(5, 7), Vectorl(0, -1), 1)
@@ -35,9 +37,10 @@ class CollisionSimulationTest extends FlatSpec with Matchers {
     val d1Moved = Disk(Vectorl(3, 1), Vectorl(-1, -1), 1)
     val d2Moved = Disk(Vectorl(5, 5), Vectorl(0, 0), 1)
 
-    val result = new CollisionSimulation(DiskCollider, 4.0).simulate(Vector(d0, d1, d2))
+    val (result, collision) = new CollisionSimulation(DiskCollider, 4.0).simulate(Vector(d0, d1, d2))
 
-    result should equal(List(d0Moved, d1Moved, d2Moved))
+    result should equal(Vector(d0Moved, d1Moved, d2Moved))
+    collision should equal(Vector(CollisionEvent(collisionTime = 2.0, id1 = 1, hits1 = 0, id2 = 2, hits2 = 0)))
 
   }
 
@@ -54,12 +57,13 @@ class CollisionSimulationTest extends FlatSpec with Matchers {
     val leftWall = Wall(-3, topLeft, botLeft)
     val rightWall = Wall(-4, topRight, botRight)
 
-    val walls: List[Collidable] = topWall :: botWall :: leftWall :: rightWall :: Nil
-    val disk = Disk(Vectorl(10, 10), Vectorl(1, 1), 10, 1)
+    val walls: Vector[Collidable] = Vector(topWall, botWall, leftWall, rightWall)
+    val disk = Disk(Vectorl(15, 10), Vectorl(-10, 0), 10)
 
-    val result = diskWallSimul.simulate(disk +: walls.toVector)
+    val (result, collision) = diskWallSimul.simulate(disk +: walls)
 
-    result should equal(List(DiskCollider.move(disk, 1.0)) ::: walls)
+    result should equal(Disk(Vectorl(15, 10), Vectorl(10, 0), 10) +: walls)
+    collision should equal(Vector(CollisionEvent(collisionTime = 0.5, id1 = 0, hits1 = 0, id2 = 3, hits2 = 0)))
 
   }
 

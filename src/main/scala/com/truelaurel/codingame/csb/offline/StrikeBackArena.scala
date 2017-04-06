@@ -33,9 +33,10 @@ object StrikeBackArena extends GameArena[StrikeBackGameState, PodAction] {
       betweenPodAndCP =  collisionWithCp.filter(_.id1 == i)
       next = nextCp(fromState.nextCPs(i), betweenPodAndCP)
     } yield next
+
     StrikeBackGameState(
       fromState.checkPoints,
-      collidedPods.take(4).map(p => p.copy(v = p.v * 0.85)),
+      collidedPods.take(CSBConstant.podCount).map(p => p.copy(v = p.v * 0.85)),
       podsAndAngles.map(_._2),
       nextCps
     )
@@ -60,7 +61,8 @@ object StrikeBackArena extends GameArena[StrikeBackGameState, PodAction] {
 }
 
 case object DiskVirtualDiskCollider extends Collider[Disk] {
-  override def collideTime(c1: Disk, c2: Disk): Option[Double] = DiskCollider.collideTime(c1, c2)
+  override def collideTime(c1: Disk, c2: Disk): Option[Double] =
+    DiskCollider.collideTime(c1, c2)
 
   override def bounceOff(c1: Disk, c2: Disk): (Disk, Disk) = {
     if (c1.r == CSBConstant.cpRadius || c2.r == CSBConstant.cpRadius)

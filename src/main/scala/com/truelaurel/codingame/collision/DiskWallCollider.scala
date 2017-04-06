@@ -20,7 +20,8 @@ object DiskWallCollider extends Collider[Collidable] {
 
   private def wallDiskCollisionTime(d: Disk, w: Wall) = {
     if (towardWall(d, w)) {
-      val time = w.distTo(d.p) - d.r
+      val dist = w.distTo(d.p) - d.r
+      val time = if (w.isXSame) dist / d.v.x.abs else dist / d.v.y.abs
       val moved = DiskMover.move(d, time)
       if (w.inRange(moved.p)) Some(time) else None
     } else {
