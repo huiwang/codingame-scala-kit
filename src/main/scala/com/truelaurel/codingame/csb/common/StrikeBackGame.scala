@@ -3,20 +3,31 @@ package com.truelaurel.codingame.csb.common
 import com.truelaurel.codingame.collision.Disk
 import com.truelaurel.codingame.vectorial.Vectorl
 
+object CSBConstant {
+  val cpRadius = 200
+  val podRadius = 400
+  val axisX : Vectorl= Vectorl(1, 0)
+}
+
 case class CheckPoint(disk: Disk)
 
 case class Pod(disk: Disk, angle: Int, nextCheckPointId: Int) {
 }
 
-case class StrikeBackGameState(checkPoints: Vector[CheckPoint], pods: Vector[Pod]) {
+case class StrikeBackGameState(checkPoints: Vector[Disk],
+                               pods: Vector[Disk],
+                               angles: Vector[Vectorl],
+                               nextCP: Vector[Int]
+                              ) {
 
-  def podsOf(playerId: Int): Vector[Pod] = {
+  def podsOf(playerId: Int): Vector[Disk] = {
     if (playerId == 0) {
       pods.take(2)
     } else {
       pods.takeRight(2)
     }
   }
+
 }
 
 trait PodAction {

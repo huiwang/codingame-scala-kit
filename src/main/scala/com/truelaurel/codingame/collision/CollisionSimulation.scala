@@ -19,7 +19,7 @@ case class CollisionEvent(collisionTime: Double, id1: Int, hits1: Int, id2: Int,
   override def compare(that: CollisionEvent): Int = that.collisionTime.compare(collisionTime)
 }
 
-class CollisionSimulation[T](val collider: Collider[T], val duration: Double = 1.0) {
+class CollisionSimulation[T <: Collidable](val collider: Collider[T], val duration: Double = 1.0) {
 
   private val pq = new mutable.PriorityQueue[CollisionEvent]
   private val hits = new mutable.HashMap[Int, Int]()

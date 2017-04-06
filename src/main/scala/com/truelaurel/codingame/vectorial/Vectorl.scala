@@ -2,6 +2,12 @@ package com.truelaurel.codingame.vectorial
 
 import com.truelaurel.codingame.math.Mathl
 
+object Vectorls {
+  val origin = Vectorl(0, 0)
+  val axisX = Vectorl(1, 0)
+  val axisY = Vectorl(0, 1)
+}
+
 case class Vectorl(x: Double, y: Double) {
   lazy val mag2: Double = x * x + y * y
   lazy val mag: Double = Math.sqrt(mag2)
@@ -16,6 +22,18 @@ case class Vectorl(x: Double, y: Double) {
   def -(that: Vectorl) = Vectorl(x - that.x, y - that.y)
 
   def perp = Vectorl(-y, x)
+
+  def pivotTo(desired: Vectorl, maxDegree: Double): Vectorl = {
+    if (mag2 == 0 || angleInDegreeBetween(desired) <= maxDegree) {
+      desired
+    } else {
+      if (this.perDotProduct(desired) > 0) {
+        rotateInDegree(18)
+      } else {
+        rotateInDegree(-18)
+      }
+    }
+  }
 
   def rotateInDegree(degree: Double): Vectorl = rotateInRadian(Math.toRadians(degree))
 

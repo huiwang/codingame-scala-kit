@@ -6,11 +6,11 @@ import com.truelaurel.codingame.engine.GamePlayer
 /**
   * Created by hwang on 02/04/2017.
   */
-case class StrikeBackPlayer(playerId: Int) extends GamePlayer[StrikeBackGameState, PodAction] {
+case class StrikeBackPlayer(range: Vector[Int]) extends GamePlayer[StrikeBackGameState, PodAction] {
 
   override def reactTo(state: StrikeBackGameState): Vector[PodAction] = {
-    state.podsOf(playerId).map(p => {
-      Thrust(state.checkPoints(p.nextCheckPointId).disk.p, 100)
+    range.map(i => {
+      Thrust(state.checkPoints(i).p, 100)
     })
   }
 }

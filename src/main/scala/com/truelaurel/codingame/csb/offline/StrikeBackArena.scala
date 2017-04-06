@@ -10,48 +10,30 @@ import com.truelaurel.codingame.vectorial.Vectorl
   */
 object StrikeBackArena extends GameArena[StrikeBackGameState, PodAction] {
 
-  val aixX = Vectorl(1, 0)
-  private val simulation = new CollisionSimulation[Any](DiskVirtualDiskCollider)
+  private val simulation = new CollisionSimulation[Disk](DiskVirtualDiskCollider)
 
   override def next(fromState: StrikeBackGameState, actions: Vector[PodAction]): StrikeBackGameState = {
     val updatedPods = actions.indices.map(i => {
       val pod = fromState.pods(i)
+      val angle = fromState.angles(i)
       actions(i) match {
         case Thrust(target, thrust) =>
-          pod.copy(disk = pod.disk.copy(v = acceleratedVitess(pod, target, thrust)))
-        case Shield => pod
-        case Boost => pod
+          val pivoted = angle.pivotTo(target - pod.p, 18)
+          (pod.copy(v = pod.v + pivoted * thrust), pivoted)
+        case Shield => (pod, angle)
+        case Boost => (pod, angle)
       }
-    })
+    }).toVector
 
-
-    val collidables = updatedPods ++ fromState.checkPoints
-
-    val results = simulation.simulate(collidables.toVector)
-
-    val simulated = results.take(fromState.pods.size)
-    val pods = simulated.map {
-      case pod : Pod =>
-        pod
-      case _ => throw new IllegalArgumentException
-    }
-    StrikeBackGameState(fromState.checkPoints, pods.map(p => p.copy(disk = p.disk.copy(v = p.disk.v * 0.85))))
-  }
-
-  private def acceleratedVitess(pod: Pod, target: Vectorl, thrust: Int) = {
-    val position = pod.disk.p
-    val facing = aixX.rotateInDegree(pod.angle)
-    val desired = target - position
-    val pivoted = if (pod.angle == -1 || facing.angleInDegreeBetween(desired) <= 18) {
-      desired
-    } else {
-      if (facing.perDotProduct(desired) > 0) {
-        facing.rotateInDegree(18)
-      } else {
-        facing.rotateInDegree(-18)
-      }
-    }
-    pod.disk.v + pivoted.norm * thrust
+    val pods = updatedPods.map(_._1)
+    val angles: Vector[Vectorl] = updatedPods.map(_._2)
+    val simulated = simulation.simulate(pods ++ fromState.checkPoints).take(fromState.pods.size)
+    StrikeBackGameState(
+      fromState.checkPoints,
+      simulated.map(p => p.copy(v = p.v * 0.85)),
+      angles,
+      fromState.nextCP
+    )
   }
 
   override def judge(state: StrikeBackGameState): GameResult = {
@@ -59,24 +41,18 @@ object StrikeBackArena extends GameArena[StrikeBackGameState, PodAction] {
   }
 }
 
-case object DiskVirtualDiskCollider extends Collider[Any] {
-  override def collideTime(c1: Any, c2: Any): Option[Double] = (c1, c2) match {
-    case (d1: Pod, d2: Pod) => DiskCollider.collideTime(d1.disk, d2.disk)
-    case (d1: Pod, d2: CheckPoint) => DiskCollider.collideTime(d1.disk, d2.disk).filter(_ > 0)
-    case (d1: CheckPoint, d2: Pod) => DiskCollider.collideTime(d1.disk, d2.disk).filter(_ > 0)
-    case _ => None
+case object DiskVirtualDiskCollider extends Collider[Disk] {
+  override def collideTime(c1: Disk, c2: Disk): Option[Double] = DiskCollider.collideTime(c1, c2)
+
+  override def bounceOff(c1: Disk, c2: Disk): (Disk, Disk) = {
+    if (c1.r == CSBConstant.cpRadius || c2.r == CSBConstant.cpRadius)
+      (c1, c2) else DiskCollider.bounceOff(c1, c2)
   }
 
-  override def bounceOff(c1: Any, c2: Any): (Any, Any) = (c1, c2) match {
-    case (d1: Pod, d2: Pod) =>
-      val pair = DiskCollider.bounceOff(d1.disk, d2.disk)
-      (d1.copy(disk = pair._1), d2.copy(disk = pair._2))
-    case _ => (c1, c2)
-  }
-
-  override def move(collidable: Any, time: Double): Any = collidable match {
-    case d: Pod => d.copy(disk = DiskMover.move(d.disk, time))
-    case _ => collidable
+  override def move(collidable: Disk, time: Double): Disk = {
+    if (collidable.r == CSBConstant.cpRadius) collidable else {
+      DiskMover.move(collidable, time)
+    }
   }
 }
 
