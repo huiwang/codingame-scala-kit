@@ -6,7 +6,8 @@ import com.truelaurel.codingame.vectorial.Vectorl
 object CSBConstant {
   val cpRadius = 200
   val podRadius = 400
-  val axisX : Vectorl= Vectorl(1, 0)
+  val axisX: Vectorl = Vectorl(1, 0)
+  val podIndices = (0 until 4).toVector
 }
 
 case class CheckPoint(disk: Disk)
@@ -17,7 +18,7 @@ case class Pod(disk: Disk, angle: Int, nextCheckPointId: Int) {
 case class StrikeBackGameState(checkPoints: Vector[Disk],
                                pods: Vector[Disk],
                                angles: Vector[Vectorl],
-                               nextCP: Vector[Int]
+                               nextCPs: Vector[Int]
                               ) {
 
   def podsOf(playerId: Int): Vector[Disk] = {

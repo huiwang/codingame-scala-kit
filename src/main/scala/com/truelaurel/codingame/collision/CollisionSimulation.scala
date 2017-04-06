@@ -15,7 +15,7 @@ trait Collider[T] {
 }
 
 case class CollisionEvent(collisionTime: Double, id1: Int, hits1: Int, id2: Int, hits2: Int) extends Ordered[CollisionEvent] {
-
+  require(id1 < id2, "id1 must be less than id2")
   override def compare(that: CollisionEvent): Int = that.collisionTime.compare(collisionTime)
 }
 
@@ -24,8 +24,9 @@ class CollisionSimulation[T <: Collidable](val collider: Collider[T], val durati
   private val pq = new mutable.PriorityQueue[CollisionEvent]
   private val hits = new mutable.HashMap[Int, Int]()
   private val current = new mutable.HashMap[Int, T]()
+  private val collisions = new mutable.ListBuffer[CollisionEvent]()
 
-  def simulate(collidables: Vector[T]): Vector[T] = {
+  def simulate(collidables: Vector[T]): (Vector[T], Vector[CollisionEvent]) = {
     collidables.indices.foreach(i => current(i) = collidables(i))
     for (i <- collidables.indices) {
       for (j <- (i + 1) until collidables.size) {
@@ -36,6 +37,7 @@ class CollisionSimulation[T <: Collidable](val collider: Collider[T], val durati
     while (pq.nonEmpty) {
       val event = pq.dequeue()
       if (isEventValid(event) && event.collisionTime < duration) {
+        collisions.append(event)
         current.transform((_, c) => collider.move(c, event.collisionTime - lastCollisionTime))
         val (c1, c2) = collider.bounceOff(current(event.id1), current(event.id2))
         hits.put(event.id1, hits(event.id1) + 1)
@@ -48,11 +50,11 @@ class CollisionSimulation[T <: Collidable](val collider: Collider[T], val durati
       }
     }
     current.transform((_, c) => collider.move(c, duration - lastCollisionTime))
-    collidables.indices.map(i => current(i)).toVector
+    (collidables.indices.map(i => current(i)).toVector, collisions.toVector)
   }
 
   def predict(id1: Int, id2: Int, start: Double): Unit = {
-    collider.collideTime(current(id1), current(id2)).foreach(t => pq.enqueue(buildEvent(id1, id2, t + start)))
+    collider.collideTime(current(id1), current(id2)).foreach(t => pq.enqueue(buildEvent(id1.min(id2), id1.max(id2), t + start)))
   }
 
   def buildEvent(id1: Int, id2: Int, t: Double): CollisionEvent = {
