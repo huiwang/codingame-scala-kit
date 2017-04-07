@@ -1,5 +1,7 @@
 package com.truelaurel.codingame.collision
 
+import com.truelaurel.codingame.math.Mathl
+
 import scala.collection.mutable
 
 trait Collidable {
@@ -36,7 +38,7 @@ class CollisionSimulation[T <: Collidable](val collider: Collider[T], val durati
     var lastCollisionTime = 0.0
     while (pq.nonEmpty) {
       val event = pq.dequeue()
-      if (isEventValid(event) && event.collisionTime < duration) {
+      if (isEventValid(event) && event.collisionTime < duration && !Mathl.almostEqual(event.collisionTime, lastCollisionTime)) {
         collisions.append(event)
         current.transform((_, c) => collider.move(c, event.collisionTime - lastCollisionTime))
         val (c1, c2) = collider.bounceOff(current(event.id1), current(event.id2))

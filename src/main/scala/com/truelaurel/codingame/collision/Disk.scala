@@ -28,16 +28,13 @@ object DiskCollider extends Collider[Disk] {
 
   override def bounceOff(d1: Disk, d2: Disk): (Disk, Disk) = {
     val dr = d2.p - d1.p
-    val dist = d1.r + d2.r
     val dv = d2.v - d1.v
+    val drdr = dr.dotProduct(dr)
     val dvdr = dr.dotProduct(dv)
+    val massCoefficient = (d1.m + d2.m) / (d1.m * d2.m)
 
-    val force = 2 * d1.m * d2.m * dvdr / ((d1.m + d2.m) * dist)
-    val fx = force * (d2.p.x - d1.p.x) / dist
-    val fy = force * (d2.p.y - d1.p.y) / dist
-
-    (d1.copy(v = d1.v + Vectorl(fx / d1.m, fy / d1.m)),
-      d2.copy(v = d2.v - Vectorl(fx / d2.m, fy / d2.m)))
+    val impulse = dr * 2.0 * dvdr / (massCoefficient * drdr)
+    (d1.copy(v = d1.v + impulse / d1.m), d2.copy(v = d2.v - impulse / d2.m))
   }
 
   override def move(disk: Disk, time: Double): Disk = DiskMover.move(disk, time)

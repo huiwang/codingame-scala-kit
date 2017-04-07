@@ -16,16 +16,17 @@ object Player extends App {
   }).toVector
 
   val player = StrikeBackPlayer(Vector(0, 1))
-  var predicated: StrikeBackGameState = null
+  var predicated: StrikeBackGameState = _
   while (true) {
 
-    val pods = checkpointCount.until(checkpointCount + 4).map(i => {
+    val pods = CSBConstant.podIndices.map(i => {
       val Array(x, y, vx, vy, angle, nextcheckpointid) = StdIn.readLine().split(" ").map(_.toInt)
       (Disk(Vectorl(x, y), Vectorl(vx, vy), 400), angle, nextcheckpointid)
-    }).toVector
+    })
+
     val disks: Vector[Disk] = pods.map(_._1)
     val angles: Vector[Vectorl] = pods.map(_._2)
-      .map(angle => if (angle == -1) Vectorls.origin else Vectorls.axisX.rotateInDegree(angle))
+      .map(angle => if (angle == -1) Vectorls.origin else Vectorls.axisX.rotateInDegree(angle) * 10)
     val nextCheck: Vector[Int] = pods.map(_._3)
     val state = StrikeBackGameState(checkpoints, disks, angles, nextCheck)
     if (predicated != null) {

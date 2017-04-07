@@ -9,3 +9,8 @@ result.exists(r => r > 1)
 val map = Map(1->"a", 2 -> "b")
 
 map ++ Map(1 -> "c", 3 -> "d")
+
+1.2.round
+
+-1.4.floor
+

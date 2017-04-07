@@ -15,22 +15,24 @@ case class Vectorl(x: Double, y: Double) {
 
   def dotProduct(that: Vectorl): Double = x * that.x + y * that.y
 
-  def *(factor: Double) = Vectorl(x * factor, y * factor)
+  def *(factor: Double): Vectorl = Vectorl(x * factor, y * factor)
 
-  def +(that: Vectorl) = Vectorl(x + that.x, y + that.y)
+  def /(factor : Double): Vectorl = this * (1.0 / factor)
 
-  def -(that: Vectorl) = Vectorl(x - that.x, y - that.y)
+  def +(that: Vectorl): Vectorl = Vectorl(x + that.x, y + that.y)
+
+  def -(that: Vectorl): Vectorl = Vectorl(x - that.x, y - that.y)
 
   def perp = Vectorl(-y, x)
 
   def pivotTo(desired: Vectorl, maxDegree: Double): Vectorl = {
     if (mag2 == 0 || angleInDegreeBetween(desired) <= maxDegree) {
-      desired
+      desired.norm
     } else {
       if (this.perDotProduct(desired) > 0) {
-        rotateInDegree(18)
+        rotateInDegree(maxDegree).norm
       } else {
-        rotateInDegree(-18)
+        rotateInDegree(-maxDegree).norm
       }
     }
   }
@@ -60,6 +62,10 @@ case class Vectorl(x: Double, y: Double) {
   def between(v1: Vectorl, v2: Vectorl): Boolean = {
     this.perDotProduct(v1) * this.perDotProduct(v2) < 0
   }
+
+  def truncate = Vectorl(x.toInt, y.toInt)
+
+  def round = Vectorl(Mathl.halfUp(x), Mathl.halfUp(y))
 
   override def equals(o: Any): Boolean = o match {
     case that: Vectorl => Mathl.almostEqual(x, that.x) && Mathl.almostEqual(y, that.y)
