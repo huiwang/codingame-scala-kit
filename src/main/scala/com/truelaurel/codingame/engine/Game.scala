@@ -36,6 +36,10 @@ object GameSimulator {
     (0 until round).foldLeft(from)((s, r) => arena.next(s, players.flatMap(_.reactTo(s))))
   }
 
+  def singleTurn[S, A](from: S, arena: GameArena[S, A], players: Vector[GamePlayer[S, A]]): S = {
+    arena.next(from, players.flatMap(_.reactTo(from)))
+  }
+
   def evaluateOffline[S, A](games: Vector[S], arena: GameArena[S, A], players: Vector[GamePlayer[S, A]], round: Int = 200): Unit = {
     val results = games.par.map(g => {
       play(g, arena, players, round)

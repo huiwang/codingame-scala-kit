@@ -24,7 +24,6 @@ object StrikeBackArena extends GameArena[StrikeBackGameState, PodAction] {
 
     val collidables = podsAndAngles.map(_._1) ++ fromState.checkPoints
     val (collidedPods, collisions) = new CollisionSimulation[Disk](DiskVirtualDiskCollider).simulate(collidables)
-    System.err.println(collisions)
     val collisionWithCp = collisions.filter(e => collidables(e.id2).r == CSBConstant.cpRadius)
 
     val nextCps = for {
