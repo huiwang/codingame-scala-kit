@@ -72,5 +72,4 @@ case class Vectorl(x: Double, y: Double) {
     case _ => false
   }
 
-  override def toString: String = s"Vectorl(${x.toInt}, ${y.toInt})"
 }

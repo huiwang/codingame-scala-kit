@@ -11,17 +11,10 @@ object CSBConstant {
   val podIndices: Vector[Int] = (0 until podCount).toVector
 }
 
-case class CheckPoint(disk: Disk)
-
-case class Pod(disk: Disk, angle: Int, nextCheckPointId: Int) {
-}
-
 case class StrikeBackGameState(checkPoints: Vector[Disk],
                                pods: Vector[Disk],
                                angles: Vector[Vectorl],
-                               nextCPs: Vector[Int]
-                              ) {
-
+                               nextCPs: Vector[Int]) {
   def podsOf(playerId: Int): Vector[Disk] = {
     if (playerId == 0) {
       pods.take(2)

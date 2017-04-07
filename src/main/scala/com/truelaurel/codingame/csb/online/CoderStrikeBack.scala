@@ -1,5 +1,5 @@
 import com.truelaurel.codingame.collision.Disk
-import com.truelaurel.codingame.csb.common.{CSBConstant, CheckPoint, Pod, StrikeBackGameState}
+import com.truelaurel.codingame.csb.common.{CSBConstant, StrikeBackGameState}
 import com.truelaurel.codingame.csb.head.StrikeBackPlayer
 import com.truelaurel.codingame.csb.offline.StrikeBackArena
 import com.truelaurel.codingame.engine.GameSimulator
@@ -26,7 +26,7 @@ object Player extends App {
 
     val disks: Vector[Disk] = pods.map(_._1)
     val angles: Vector[Vectorl] = pods.map(_._2)
-      .map(angle => if (angle == -1) Vectorls.origin else Vectorls.axisX.rotateInDegree(angle) * 10)
+      .map(angle => if (angle == -1) Vectorls.origin else Vectorls.axisX.rotateInDegree(angle))
     val nextCheck: Vector[Int] = pods.map(_._3)
     val state = StrikeBackGameState(checkpoints, disks, angles, nextCheck)
     if (predicated != null) {

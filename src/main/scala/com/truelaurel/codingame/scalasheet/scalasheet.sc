@@ -12,5 +12,7 @@ map ++ Map(1 -> "c", 3 -> "d")
 
 1.2.round
 
--1.4.floor
+-1.4.toInt
+
+1.2.toInt
 

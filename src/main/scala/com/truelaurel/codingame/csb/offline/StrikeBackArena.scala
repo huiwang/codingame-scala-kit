@@ -36,17 +36,17 @@ object StrikeBackArena extends GameArena[StrikeBackGameState, PodAction] {
     StrikeBackGameState(
       fromState.checkPoints,
       collidedPods.take(CSBConstant.podCount).map(pod => pod.copy(v = (pod.v * 0.85).truncate, p = pod.p.round)),
-      podsAndAngles.map(_._2).map(_ * 10),
+      podsAndAngles.map(_._2),
       nextCps
     )
   }
 
-  def nextCp(current: Int, collisionsWithCP: Vector[CollisionEvent]): Int = {
-    if (collisionsWithCP.isEmpty) current
+  def nextCp(current: Int, betweenPodAndCP: Vector[CollisionEvent]): Int = {
+    if (betweenPodAndCP.isEmpty) current
     else {
-      val headCollision = collisionsWithCP.head
-      if (headCollision.id2 == current + 1) {
-        nextCp(current + 1, collisionsWithCP.tail)
+      val headCollision = betweenPodAndCP.head
+      if (headCollision.id2 == current + CSBConstant.podCount) {
+        nextCp(current + 1, betweenPodAndCP.tail)
       } else {
         current
       }
