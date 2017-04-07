@@ -1,8 +1,6 @@
 import com.truelaurel.codingame.collision.Disk
 import com.truelaurel.codingame.csb.common.{CSBConstant, StrikeBackGameState}
 import com.truelaurel.codingame.csb.head.StrikeBackPlayer
-import com.truelaurel.codingame.csb.offline.StrikeBackArena
-import com.truelaurel.codingame.engine.GameSimulator
 import com.truelaurel.codingame.vectorial.{Vectorl, Vectorls}
 
 import scala.io.StdIn
@@ -16,7 +14,6 @@ object Player extends App {
   }).toVector
 
   val player = StrikeBackPlayer(Vector(0, 1))
-  var predicated: StrikeBackGameState = _
   while (true) {
 
     val pods = CSBConstant.podIndices.map(i => {
@@ -29,13 +26,6 @@ object Player extends App {
       .map(angle => if (angle == -1) Vectorls.origin else Vectorls.axisX.rotateInDegree(angle))
     val nextCheck: Vector[Int] = pods.map(_._3)
     val state = StrikeBackGameState(checkpoints, disks, angles, nextCheck)
-    if (predicated != null) {
-      System.err.println(predicated)
-    }
-    System.err.println(state)
-    predicated = GameSimulator.simulate(1, state, StrikeBackArena, Vector(
-      StrikeBackPlayer(Vector(0, 1)), StrikeBackPlayer(Vector(2, 3))
-    ))
     val actions = player.reactTo(state)
     actions.foreach(a => println(a.command()))
   }
