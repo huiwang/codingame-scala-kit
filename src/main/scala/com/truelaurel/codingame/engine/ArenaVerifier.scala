@@ -29,22 +29,22 @@ abstract class ArenaVerifier[S, A] {
     * Gets my player. Usually, my player and other player shares the same implementation.
     * They just have different parameters to play the opposite roles.
     */
-  abstract def mePlayer(): GamePlayer[S, A]
+  def mePlayer(): GamePlayer[S, A]
 
-  abstract def otherPlayer(): GamePlayer[S, A]
+  def otherPlayer(): GamePlayer[S, A]
 
   /**
     * Get my arena which can predict the next game state
     */
-  abstract def arena(): GameArena[S, A]
+  def arena(): GameArena[S, A]
 
   /**
     * Read the game before the first turn
     */
-  abstract def preGame(): Unit
+  def preGame(): Unit
 
   /**
     * Reads the current state
     */
-  abstract def readState(): S
+  def readState(): S
 }
