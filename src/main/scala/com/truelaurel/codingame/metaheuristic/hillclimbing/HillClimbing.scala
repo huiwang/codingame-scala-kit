@@ -15,7 +15,7 @@ class HillClimbing(duration: Duration) {
   def search[S <: Solution](problem: Problem[S]): S = {
     var solution = problem.randomSolution()
     chrono.start()
-    while (!problem.isGoodEnough(solution) && !chrono.isRunOut) {
+    while (!chrono.outOfTime) {
       val tweaked = problem.tweakSolution(solution)
       solution = if (tweaked.quality() > solution.quality()) tweaked else solution
     }

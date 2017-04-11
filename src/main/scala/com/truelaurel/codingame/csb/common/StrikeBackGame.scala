@@ -26,17 +26,20 @@ case class StrikeBackGameState(checkPoints: Vector[Disk],
 }
 
 trait PodAction {
-  def command(): String
 }
 
 sealed case class Thrust(target: Vectorl, thrust: Int) extends PodAction {
-  override def command(): String = s"${target.x.toInt} ${target.y.toInt} $thrust"
+  override def toString: String = s"${target.x.toInt} ${target.y.toInt} $thrust"
+}
+
+sealed case class AngleThrust(position: Vectorl, angle: Vectorl, rotate: Int, thrust: Int) extends PodAction {
+  override def toString: String = Thrust(position + angle.rotateInDegree(rotate) * 1000, thrust).toString
 }
 
 case object Shield extends PodAction {
-  override def command(): String = "SHIELD"
+  override def toString: String = "SHIELD"
 }
 
 case object Boost extends PodAction {
-  override def command(): String = "BOOST"
+  override def toString: String = "BOOST"
 }

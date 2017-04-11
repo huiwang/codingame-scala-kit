@@ -17,6 +17,9 @@ object StrikeBackArena extends GameArena[StrikeBackGameState, PodAction] {
         case Thrust(target, thrust) =>
           val pivoted = angle.pivotTo(target - pod.p, 18.0)
           (pod.copy(v = pod.v + pivoted * thrust), pivoted)
+        case AngleThrust(_, _, rotate, thrust) =>
+          val rotated = angle.rotateInDegree(rotate)
+          (pod.copy(v = pod.v + rotated * thrust), rotated)
         case Shield => (pod, angle)
         case Boost => (pod, angle)
       }

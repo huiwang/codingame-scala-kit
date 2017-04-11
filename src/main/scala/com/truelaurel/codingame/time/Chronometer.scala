@@ -10,6 +10,6 @@ class Chronometer(duration: Duration) {
   private var startTime: Long = 0
 
   def start(): Unit = startTime = System.nanoTime()
-  def isRunOut: Boolean = (System.nanoTime() - startTime) > timeUnitInNano
+  def outOfTime: Boolean = (System.nanoTime() - startTime) > timeUnitInNano
 
 }

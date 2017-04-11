@@ -9,6 +9,4 @@ trait Problem[S <: Solution] {
 
   def tweakSolution(solution: S): S
 
-  def isGoodEnough(solution: S): Boolean
-
 }

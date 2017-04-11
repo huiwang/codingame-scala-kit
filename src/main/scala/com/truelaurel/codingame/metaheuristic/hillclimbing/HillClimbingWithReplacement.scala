@@ -17,7 +17,7 @@ class HillClimbingWithReplacement(duration: Duration)  {
     var solution = problem.randomSolution()
     var bestSolution = solution
     chrono.start()
-    while (!problem.isGoodEnough(solution) && !chrono.isRunOut) {
+    while (!chrono.outOfTime) {
       solution = problem.tweakSolution(solution)
       if (solution.quality() > bestSolution.quality()) {
         bestSolution = solution
