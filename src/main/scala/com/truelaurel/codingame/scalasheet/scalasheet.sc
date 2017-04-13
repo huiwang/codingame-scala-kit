@@ -16,3 +16,4 @@ map ++ Map(1 -> "c", 3 -> "d")
 
 1.2.toInt
 
+Vector(0, 1, 2, 3, 4, 5).slice(0, 2)

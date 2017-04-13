@@ -10,7 +10,7 @@ case class BestStrikeBackPlayer(range: Vector[Int]) extends GamePlayer[StrikeBac
 
   override def reactTo(state: StrikeBackGameState): Vector[PodAction] = {
     range.map(i => {
-      Thrust(state.checkPoints(state.nextCPs(i)).p, 100)
+      Thrust(state.checkPoints(state.nextCPs(i) % state.checkPoints.size).p, 100)
     })
   }
 }

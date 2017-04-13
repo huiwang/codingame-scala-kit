@@ -20,7 +20,7 @@ case class StrikeBackPlayer(range: Vector[Int],
                            ) extends GamePlayer[StrikeBackGameState, PodAction] {
 
   override def reactTo(state: StrikeBackGameState): Vector[PodAction] = {
-    val muToLambda = new MuToLambda(3, 1, Duration(90, TimeUnit.MILLISECONDS))
+    val muToLambda = new MuToLambda(100, 20, Duration(90, TimeUnit.MILLISECONDS))
     val solution = muToLambda.search(StrikeBackProblem(range, otherRange, BestStrikeBackPlayer(otherRange), state))
     solution.actions.take(2)
   }
@@ -32,7 +32,7 @@ case class StrikeBackProblem(myRange: Vector[Int],
                              state: StrikeBackGameState) extends Problem[StrikeBackSolution] {
 
   override def randomSolution(): StrikeBackSolution = {
-    val actions: Vector[PodAction] = (0 until 12).flatMap(_ => myRange.map(pod => {
+    val actions: Vector[PodAction] = (0 until 6).flatMap(_ => myRange.map(pod => {
       val podDisk = state.pods(pod)
       val podAngle = state.angles(pod)
       AngleThrust(podDisk.p, podAngle, generateRotate(), generateThrust())
@@ -51,7 +51,7 @@ case class StrikeBackProblem(myRange: Vector[Int],
   }
 
   override def tweakSolution(solution: StrikeBackSolution): StrikeBackSolution = {
-    solution.copy(actions = scala.util.Random.shuffle(solution.actions))
+    solution
   }
 
 }
@@ -62,18 +62,20 @@ case class StrikeBackSolution(myRange: Vector[Int],
                               other: GamePlayer[StrikeBackGameState, PodAction],
                               actions: Vector[PodAction]) extends Solution {
 
-  override def quality(): Double = {
-    val targetState = (0 until 6).foldLeft(state)((s, r) => StrikeBackArena.next(s,
-      actions.slice(r, r + 2) ++ other.reactTo(s)))
+  lazy val quality: Double = {
+    val targetState = (0 until 6).foldLeft(state)((s, r) => {
+      val podActions = actions.slice(r * 2, r * 2 + 2)
+      StrikeBackArena.next(s, podActions ++ other.reactTo(s))
+    })
     val myBest = myRange.maxBy(i => {
       val nextCP = targetState.nextCPs(i)
-      nextCP * 100.0 + (targetState.checkPoints(nextCP).p - targetState.pods(i).p).mag
+      nextCP * 100.0 - (targetState.checkPoints(nextCP).p - targetState.pods(i).p).mag
     })
     val otherBest = otherRange.maxBy(i => {
       val nextCP = targetState.nextCPs(i)
-      nextCP * 100.0 + (targetState.checkPoints(nextCP).p - targetState.pods(i).p).mag
+      nextCP * 100.0 - (targetState.checkPoints(nextCP % state.checkPoints.size).p - targetState.pods(i).p).mag
     })
-    myBest - otherBest
+    myBest
   }
 }
 

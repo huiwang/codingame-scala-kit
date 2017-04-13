@@ -2,7 +2,7 @@ package com.truelaurel.codingame.csb.offline
 
 import com.truelaurel.codingame.collision._
 import com.truelaurel.codingame.csb.common._
-import com.truelaurel.codingame.engine.{GameArena, GameResult}
+import com.truelaurel.codingame.engine.{Draw, GameArena, GameResult, GameSimulator}
 
 /**
   * Created by hwang on 02/04/2017.
@@ -10,6 +10,7 @@ import com.truelaurel.codingame.engine.{GameArena, GameResult}
 object StrikeBackArena extends GameArena[StrikeBackGameState, PodAction] {
 
   override def next(fromState: StrikeBackGameState, actions: Vector[PodAction]): StrikeBackGameState = {
+    require(actions.size == 4)
     val podsAndAngles = CSBConstant.podIndices.map(i => {
       val pod = fromState.pods(i)
       val angle = fromState.angles(i)
@@ -57,8 +58,9 @@ object StrikeBackArena extends GameArena[StrikeBackGameState, PodAction] {
 
 
   override def judge(state: StrikeBackGameState): GameResult = {
-    ???
+    Draw
   }
+
 }
 
 case object DiskVirtualDiskCollider extends Collider[Disk] {
