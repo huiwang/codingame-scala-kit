@@ -11,7 +11,7 @@ import scala.concurrent.duration.Duration
   * @param mu     number of parents selected
   * @param duration
   */
-class MuToLambda(lambda: Int, mu: Int, duration: Duration) {
+class MuPlusLambda(lambda: Int, mu: Int, duration: Duration) {
   require(lambda > 0)
   require(mu > 0 && mu < lambda)
 
@@ -27,7 +27,7 @@ class MuToLambda(lambda: Int, mu: Int, duration: Duration) {
       //truncation selection
       val greatest = parents.sortBy(_.quality()).takeRight(mu)
       bestSolution = greatest.last
-      parents = greatest.flatMap(s => tweakedRange.map(_ => problem.tweakSolution(s)))
+      parents = greatest ++ greatest.flatMap(s => tweakedRange.map(_ => problem.tweakSolution(s)))
     }
     bestSolution
   }

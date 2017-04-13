@@ -32,8 +32,8 @@ sealed case class Thrust(target: Vectorl, thrust: Int) extends PodAction {
   override def toString: String = s"${target.x.toInt} ${target.y.toInt} $thrust"
 }
 
-sealed case class AngleThrust(position: Vectorl, angle: Vectorl, rotate: Int, thrust: Int) extends PodAction {
-  override def toString: String = Thrust(position + angle.rotateInDegree(rotate) * 1000, thrust).toString
+sealed case class AngleThrust(position: Vectorl, angle: Vectorl, rotate: Double, thrust: Double) extends PodAction {
+  override def toString: String = Thrust(position + angle.rotateInDegree(rotate) * 100000, thrust.toInt).toString
 }
 
 case object Shield extends PodAction {

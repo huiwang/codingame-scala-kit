@@ -17,6 +17,7 @@ class TurnBasedPlayer[S, A](
     val turnReader = gameReader()
     while (true) {
       val state: S = turnReader()
+      System.err.println(state)
       myPlayer.reactTo(state).foreach(a => println(a))
     }
   }
