@@ -1,27 +1,28 @@
 package com.truelaurel.codingame.engine
 
-/**
-  * Verifies that local arena with the following steps:
-  * <ol>
-  * <li> Create a deterministic player and submit to arena
-  * <li> Play this player against the one in arena
-  * <li> Predict the next game state with the predictable players
-  * <li> Compare the predicted state and the actual state to make sure the arena is simulating the game correctly
-  * </ol>
-  */
+
+trait GameController[C, S, A] {
+  def readContext: C
+
+  def readState(turn: Int, context: C): S
+
+  def nextContext(context: C, state: S, actions: Vector[A]): C
+}
+
 class GameLoop[C, S, A](
-                         contextReader: () => C,
-                         stateReader: (Int, C) => S,
-                         contextEvolver: (C, S) => C,
+                         controller: GameController[C, S, A],
                          myPlayer: GamePlayer[S, A]
                        ) {
   def run(): Unit = {
-    val context = contextReader()
-    (0 until 200).foldLeft(context) {
+    val initContext = controller.readContext
+    (0 until 200).foldLeft(initContext) {
       case (c, turn) =>
-        val state = stateReader(turn, c)
-        myPlayer.reactTo(state).foreach(a => println(a))
-        contextEvolver(c, state)
+        val state = controller.readState(turn, c)
+        System.err.println(c)
+        System.err.println(state)
+        val actions = myPlayer.reactTo(state)
+        actions.foreach(a => println(a))
+        controller.nextContext(c, state, actions)
     }
   }
 
