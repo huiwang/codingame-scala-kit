@@ -1,24 +1,32 @@
 package com.truelaurel.codingame.caribbean.common
 
-import com.truelaurel.codingame.hexagons.Cube
+import com.truelaurel.codingame.hexagons.{Cube, Offset}
 
 /**
   * Created by hwang on 14/04/2017.
   */
 
-case class CaribbeanContext()
-
-case class Ship(id: Int, x: Int, y: Int, orientation: Int, speed: Int, rums: Int, owner: Int) {
-  lazy val front: Cube = Cube(x,y).neighbor(orientation)
-  lazy val back = Cube(x, y).neighbor((orientation + 3) % 6)
-  lazy val center = Cube(x, y)
+object CaribbeanConstants {
+  val width = 23
+  val hight = 21
 }
 
-case class Barrel(id: Int, x: Int, y: Int, rums: Int)
+case class CaribbeanContext(lastMine: Map[Int, Int], lastFire: Map[Int, Int])
 
-case class Ball(id: Int, x: Int, y: Int, owner: Int, land: Int)
+case class Ship(id: Int, position: Offset, orientation: Int, speed: Int, rums: Int, owner: Int) {
+  lazy val cube: Cube = position.toCube
+  lazy val center: Cube = cube
+  lazy val front: Cube = center.neighbor(orientation)
+  lazy val back: Cube = center.neighbor((orientation + 3) % 6)
+}
 
-case class Mine(id: Int, x: Int, y: Int)
+case class Barrel(id: Int, position: Offset, rums: Int) {
+  lazy val cube: Cube = position.toCube
+}
+
+case class Ball(id: Int, target: Offset, owner: Int, land: Int)
+
+case class Mine(id: Int, position: Offset)
 
 case class CaribbeanState(context: CaribbeanContext,
                           ships: Vector[Ship],
@@ -26,24 +34,41 @@ case class CaribbeanState(context: CaribbeanContext,
                           balls: Vector[Ball],
                           mines: Vector[Mine],
                           turn: Int) {
-  def shipsOf(playerId : Int): Vector[Ship] = ships.filter(_.owner == playerId)
+  def shipsOf(owner: Int): Vector[Ship] = ships.filter(_.owner == owner)
 }
 
 trait CaribbeanAction {
+  def shipId: Int
 }
 
-sealed case class Move(x: Int, y: Int) extends CaribbeanAction {
-  override def toString: String = s"MOVE $x $y"
+sealed case class Move(shipId: Int, offset: Offset) extends CaribbeanAction {
+  override def toString: String = s"MOVE ${offset.x} ${offset.y}"
 }
 
-object Slower extends CaribbeanAction {
+sealed case class Slower(shipId: Int) extends CaribbeanAction {
   override def toString: String = "SLOWER"
 }
 
-object Wait extends CaribbeanAction {
+sealed case class Faster(shipId: Int) extends CaribbeanAction {
+  override def toString: String = "FASTER"
+}
+
+sealed case class Port(shipId: Int) extends CaribbeanAction {
+  override def toString: String = "PORT"
+}
+
+sealed case class Starboard(shipId: Int) extends CaribbeanAction {
+  override def toString: String = "STARBOARD"
+}
+
+sealed case class Wait(shipId: Int) extends CaribbeanAction {
   override def toString: String = "WAIT"
 }
 
-sealed case class Fire(x :Int, y : Int) extends CaribbeanAction {
-  override def toString: String = s"FIRE $x $y"
+sealed case class Fire(shipId: Int, offset: Offset) extends CaribbeanAction {
+  override def toString: String = s"MOVE ${offset.x} ${offset.y}"
+}
+
+sealed case class MineAction(shipId: Int) extends CaribbeanAction {
+  override def toString: String = s"MINE"
 }

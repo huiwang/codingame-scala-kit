@@ -3,4 +3,4 @@
   * Use this sheet to test your ideas rapidly
   **/
 
-Vector(0, 1).zip(Vector("a", "b"))
+Map(1 -> 1, 3 -> 2) ++ Map(1 -> 2, 2 -> 1)
