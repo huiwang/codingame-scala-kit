@@ -26,7 +26,9 @@ case class Barrel(id: Int, position: Offset, rums: Int) {
 
 case class Ball(id: Int, target: Offset, owner: Int, land: Int)
 
-case class Mine(id: Int, position: Offset)
+case class Mine(id: Int, position: Offset) {
+  lazy val cube: Cube = position.toCube
+}
 
 case class CaribbeanState(context: CaribbeanContext,
                           ships: Vector[Ship],
