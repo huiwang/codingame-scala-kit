@@ -27,7 +27,11 @@ object CaribbeanController extends GameController[CaribbeanContext, CaribbeanSta
 
     val barrels = entities.filter(_._2 == "BARREL").map(e => Barrel(e._1, e._3, e._4, e._5))
 
-    CaribbeanState(context, ships, barrels, turn)
+    val balls = entities.filter(_._2 == "CANNONBALL").map(e => Ball(e._1, e._3, e._4, e._5, e._6))
+
+    val mines = entities.filter(_._2 == "MINE").map(e => Mine(e._1, e._3, e._4))
+
+    CaribbeanState(context, ships, barrels, balls, mines, turn)
   }
 
   override def nextContext(context: CaribbeanContext, state: CaribbeanState, actions: Vector[CaribbeanAction]): CaribbeanContext = {

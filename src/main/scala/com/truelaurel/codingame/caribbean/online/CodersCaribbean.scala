@@ -11,7 +11,7 @@ import scala.io.StdIn
   */
 object Player  {
 
-  val gameLoop = new GameLoop(CaribbeanController, CabribbeanPlayer(1))
+  val gameLoop = new GameLoop(CaribbeanController, CabribbeanPlayer(1, 0))
 
   def main(args: Array[String]): Unit = {
     gameLoop.run()
