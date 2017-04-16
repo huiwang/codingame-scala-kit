@@ -8,8 +8,6 @@ import com.truelaurel.codingame.engine.{GameArena, GameResult}
   */
 object CaribbeanArena extends GameArena[CaribbeanState, CaribbeanAction] {
   override def next(state: CaribbeanState, actions: Vector[CaribbeanAction]): CaribbeanState = {
-    System.err.println(actions)
-
     val movedBalls = state.balls.map(b => b.copy(land = b.land - 1))
     val shipMap = state.ships.map(s => s.id -> s).toMap
     val barrelMap = state.barrels.map(b => b.id -> b).toMap
@@ -100,13 +98,13 @@ object CaribbeanArena extends GameArena[CaribbeanState, CaribbeanAction] {
       ship <- shipsAfterShipBarrelCollision.values
       mine <- mines.values
       if shipsAfterShipBarrelCollision.values.exists(s => s.cubeSet.contains(mine.cube))
-      if CaribbeanConstants.cubeToNeighbors(mine.cube).toSet.intersect(ship.cubeSet).nonEmpty
+      if CaribbeanContext.cubeToNeighbors(mine.cube).toSet.intersect(ship.cubeSet).nonEmpty
     } yield (ship, mine)
 
     val damagedShips = (for {
       (ship, mine) <- shipMineCollision
     } yield ship.id -> ship.copy(rums = ship.rums -
-      (if (ship.cubeSet.contains(mine.cube)) CaribbeanConstants.highMineDamage else CaribbeanConstants.lowMineDamage))).toMap
+      (if (ship.cubeSet.contains(mine.cube)) CaribbeanContext.highMineDamage else CaribbeanContext.lowMineDamage))).toMap
 
     val shipsAfterShipMineCollision = shipsAfterShipBarrelCollision ++ damagedShips
 
@@ -122,7 +120,7 @@ object CaribbeanArena extends GameArena[CaribbeanState, CaribbeanAction] {
   def moveShip(ship: Ship, speed: Int): Ship = {
     if (ship.speed >= speed) {
       val nextShip = ship.copy(position = ship.bow.toOffset)
-      if (!CaribbeanConstants.cubes.contains(nextShip.center)) {
+      if (!CaribbeanContext.cubes.contains(nextShip.center)) {
         ship.copy(speed = 0)
       } else {
         nextShip

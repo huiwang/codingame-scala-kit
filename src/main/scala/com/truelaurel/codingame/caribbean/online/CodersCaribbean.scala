@@ -20,6 +20,6 @@ object Player {
     CaribbeanArena)
 
   def main(args: Array[String]): Unit = {
-    predictableGameLoop.run()
+    gameLoop.run()
   }
 }

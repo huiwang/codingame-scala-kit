@@ -6,7 +6,10 @@ import com.truelaurel.codingame.hexagons.{Cube, Offset}
   * Created by hwang on 14/04/2017.
   */
 
-object CaribbeanConstants {
+case class CaribbeanContext(lastMine: Map[Int, Int], lastFire: Map[Int, Int]) {
+}
+
+object CaribbeanContext {
   val highMineDamage = 25
   val lowMineDamage = 10
   val width = 23
@@ -21,9 +24,9 @@ object CaribbeanConstants {
     .map(cube =>
       cube -> (0 to 5).map(cube.neighbor).filter(cubes.contains).toVector)
     .toMap
-}
 
-case class CaribbeanContext(lastMine: Map[Int, Int], lastFire: Map[Int, Int])
+  def apply(): CaribbeanContext = CaribbeanContext(Map.empty, Map.empty)
+}
 
 case class Ship(id: Int, position: Offset, orientation: Int, speed: Int, rums: Int, owner: Int) {
   lazy val cube: Cube = position.toCube

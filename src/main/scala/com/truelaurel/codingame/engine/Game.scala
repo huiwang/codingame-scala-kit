@@ -33,7 +33,10 @@ object GameSimulator {
     * Simulate the game for n round with all players and a game engine
     */
   def simulate[S, A](round: Int, from: S, arena: GameArena[S, A], players: Vector[GamePlayer[S, A]]): S = {
-    (0 until round).foldLeft(from)((s, r) => arena.next(s, players.flatMap(_.reactTo(s))))
+    (0 until round).foldLeft(from)((s, r) => {
+      System.out.println("Round " + r)
+      arena.next(s, players.flatMap(_.reactTo(s)))
+    })
   }
 
   def singleTurn[S, A](from: S, arena: GameArena[S, A], players: Vector[GamePlayer[S, A]]): S = {

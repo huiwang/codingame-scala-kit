@@ -6,7 +6,9 @@ class GameLoop[C, S, A](
                          myPlayer: GamePlayer[S, A]
                        ) {
   def run(): Unit = {
+    val start = System.nanoTime()
     val initContext = controller.readContext
+    System.err.println("init " + (System.nanoTime() - start))
     (1 to 200).foldLeft(initContext) {
       case (c, turn) =>
         val state = controller.readState(turn, c)

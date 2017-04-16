@@ -12,7 +12,7 @@ import scala.io.StdIn
 object CaribbeanController extends GameController[CaribbeanContext, CaribbeanState, CaribbeanAction] {
 
   override def readContext: CaribbeanContext = {
-    CaribbeanContext(Map.empty, Map.empty)
+    CaribbeanContext()
   }
 
   override def readState(turn: Int, context: CaribbeanContext): CaribbeanState = {
