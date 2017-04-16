@@ -7,8 +7,20 @@ import com.truelaurel.codingame.hexagons.{Cube, Offset}
   */
 
 object CaribbeanConstants {
+  val highMineDamage = 25
+  val lowMineDamage = 10
   val width = 23
-  val hight = 21
+  val height = 21
+  val cubes: Vector[Cube] = (for {
+    x <- 0 until width
+    y <- 0 until height
+  } yield Offset(x, y).toCube).toVector
+
+
+  val cubeToNeighbors: Map[Cube, Vector[Cube]] = cubes
+    .map(cube =>
+      cube -> (0 to 5).map(cube.neighbor).filter(cubes.contains).toVector)
+    .toMap
 }
 
 case class CaribbeanContext(lastMine: Map[Int, Int], lastFire: Map[Int, Int])
@@ -16,8 +28,9 @@ case class CaribbeanContext(lastMine: Map[Int, Int], lastFire: Map[Int, Int])
 case class Ship(id: Int, position: Offset, orientation: Int, speed: Int, rums: Int, owner: Int) {
   lazy val cube: Cube = position.toCube
   lazy val center: Cube = cube
-  lazy val front: Cube = center.neighbor(orientation)
-  lazy val back: Cube = center.neighbor((orientation + 3) % 6)
+  lazy val bow: Cube = center.neighbor(orientation)
+  lazy val stern: Cube = center.neighbor((orientation + 3) % 6)
+  lazy val cubeSet = Set(center, bow, stern)
 }
 
 case class Barrel(id: Int, position: Offset, rums: Int) {
