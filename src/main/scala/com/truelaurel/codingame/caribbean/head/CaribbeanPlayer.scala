@@ -9,17 +9,20 @@ import scala.util.Random
   * Created by hwang on 14/04/2017.
   */
 case class CaribbeanPlayer(playerId: Int, otherPlayer: Int) extends GamePlayer[CaribbeanState, CaribbeanAction] {
-  val seed = 123849127234712L
+  val seed = 2
   val random = new Random(seed)
+  val indices = (1 to 200).map(_ => random.nextLong().abs % 7)
 
   override def reactTo(state: CaribbeanState): Vector[CaribbeanAction] = {
     state.shipsOf(playerId).map(ship => {
-      random.nextLong().abs % 5 match {
+      indices(state.turn - 1) match {
         case 0 => Faster(ship.id)
         case 1 => Slower(ship.id)
         case 2 => Port(ship.id)
         case 3 => Starboard(ship.id)
         case 4 => Wait(ship.id)
+        case 5 => Faster(ship.id)
+        case 6 => Faster(ship.id)
       }
     })
   }

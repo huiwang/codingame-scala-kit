@@ -14,9 +14,14 @@ class PredictableGameLoop[C, S, A](
       case (c, turn) =>
         val state = controller.readState(turn, c)
         if (predicated != null) {
-          System.err.println(predicated)
+          System.err.println("pre: " + predicated)
         }
-        System.err.println(state)
+        System.err.println("act: " + state)
+        if (predicated != null && predicated != state) {
+          System.err.println("wrong prediction")
+          System.err.println("pre vs act: " + predicated.toString.diff(state.toString))
+          System.err.println("act vs pre: " + state.toString.diff(predicated.toString))
+        }
         val actions = myPlayer.reactTo(state)
         predicated = GameSimulator.singleTurn(state, arena, Vector(myPlayer, otherPlayer))
         actions.foreach(a => println(a))

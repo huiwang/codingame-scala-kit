@@ -32,7 +32,7 @@ object CaribbeanController extends GameController[CaribbeanContext, CaribbeanSta
 
     val mines = entities.filter(_._2 == "MINE").map(e => Mine(e._1, Offset(e._3, e._4)))
 
-    CaribbeanState(context, ships, barrels, balls, mines, turn)
+    CaribbeanState(context, ships.sortBy(_.id), barrels, balls, mines, turn)
   }
 
   override def nextContext(context: CaribbeanContext, state: CaribbeanState, actions: Vector[CaribbeanAction]): CaribbeanContext = {
