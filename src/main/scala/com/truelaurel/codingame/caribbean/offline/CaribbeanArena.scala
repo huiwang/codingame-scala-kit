@@ -6,7 +6,7 @@ import com.truelaurel.codingame.engine.{GameArena, GameResult}
 /**
   * Created by hwang on 15/04/2017.
   */
-class CaribbeanArena extends GameArena[CaribbeanState, CaribbeanAction] {
+object CaribbeanArena extends GameArena[CaribbeanState, CaribbeanAction] {
   override def next(state: CaribbeanState, actions: Vector[CaribbeanAction]): CaribbeanState = {
     val movedBalls = state.balls.map(b => b.copy(land = b.land - 1))
     val shipMap = state.ships.map(s => s.id -> s).toMap
