@@ -11,6 +11,6 @@ object NoiseGenerators {
 
   def uniform(halfRange: Double, center : Double = 0): G = () => center + Mathl.randomBetween(-halfRange, halfRange)
 
-  def gaussian(mean: Double, variance: Double): G = () => mean + Math.sqrt(variance) * Mathl.random.nextGaussian()
+  def gaussian(mean: Double, stdDerivation: Double): G = () => mean + stdDerivation * Mathl.random.nextGaussian()
 
 }

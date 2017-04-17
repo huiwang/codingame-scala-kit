@@ -9,4 +9,6 @@ trait GameController[C, S, A] {
   def readState(turn: Int, context: C): S
 
   def nextContext(context: C, state: S, actions: Vector[A]): C
+
+  def warmup(player: GamePlayer[S, A]): Unit = {}
 }
