@@ -88,45 +88,46 @@ object CaribbeanArena extends GameArena[CaribbeanState, CaribbeanAction] {
                         mines: Map[Int, Mine]
                        ): (Map[Int, Ship], Map[Int, Barrel], Map[Int, Mine]) = {
     val cubeToBarrel: Map[Cube, Barrel] = barrels.values.map(b => b.cube -> b).toMap
+    val cubeToMine: Map[Cube, Mine] = mines.values.map(b => b.cube -> b).toMap
 
     val shipBarrelCollision = for {
       ship <- ships.values
       barrel <- CaribbeanContext.shipZone(ship).flatMap(cube => cubeToBarrel.get(cube))
     } yield (ship, barrel)
 
-    val increasedShips = (for {
-      (ship, barrel) <- shipBarrelCollision
-    } yield ship.id -> ship.copy(rums = 100.min(ship.rums + barrel.rums))).toMap
+    val shipsAfterShipBarrelCollision = shipBarrelCollision.foldLeft(ships) {
+      case (updatedShips, (ship, barrel)) => updatedShips.updated(ship.id, ship.copy(rums = 100.min(ship.rums + barrel.rums)))
+    }
 
-    val shipsAfterShipBarrelCollision = ships ++ increasedShips
-
-    val consumedBarrelsAfterMove = (for {
-      (ship, barrel) <- shipBarrelCollision
-    } yield barrel.id).toSet
-
-    val barrlesAfterShipMove = barrels.filterNot(e => consumedBarrelsAfterMove.contains(e._1))
+    val barrelsAfterShipMove = shipBarrelCollision.foldLeft(barrels) {
+      case (remaining, (_, barrel)) => remaining - barrel.id
+    }
 
     val shipMineCollision = for {
-      ship <- shipsAfterShipBarrelCollision.values
-      mine <- mines.values
-      if shipsAfterShipBarrelCollision.values.exists(s => CaribbeanContext.shipZone(s).contains(mine.cube))
-      if CaribbeanContext.cubeToNeighbors(mine.cube).intersect(CaribbeanContext.shipZone(ship)).nonEmpty
-    } yield (ship, mine)
+      ship <- ships.values
+      mine <- CaribbeanContext.shipZone(ship).flatMap(cube => cubeToMine.get(cube))
+      impacted = ships.values.filter(s => s == ship ||
+        CaribbeanContext.cubeToNeighbors(mine.cube).intersect(CaribbeanContext.shipZone(s)).nonEmpty)
+    } yield (mine, impacted)
 
-    val damagedShips = (for {
-      (ship, mine) <- shipMineCollision
-    } yield ship.id -> ship.copy(rums = ship.rums -
-      (if (CaribbeanContext.shipZone(ship).contains(mine.cube)) CaribbeanContext.highMineDamage else CaribbeanContext.lowMineDamage))).toMap
+    val shipsAfterShipMineCollision = shipMineCollision.foldLeft(shipsAfterShipBarrelCollision) {
+      case (updatedShips, (mine, impacted)) =>
+        impacted.foldLeft(updatedShips) {
+          case (updatedShips2, ship) => {
+            if (CaribbeanContext.shipZone(ship).contains(mine.cube)) {
+              updatedShips2.updated(ship.id, ship.copy(rums = ship.rums - CaribbeanContext.highMineDamage))
+            } else {
+              updatedShips2.updated(ship.id, ship.copy(rums = ship.rums - CaribbeanContext.lowMineDamage))
+            }
+          }
+        }
+    }
 
-    val shipsAfterShipMineCollision = shipsAfterShipBarrelCollision ++ damagedShips
+    val minesAfterShipMove = shipMineCollision.foldLeft(mines) {
+      case (remaining, (mine, _)) => remaining - mine.id
+    }
 
-    val consumedMinesAfterMove = (for {
-      (ship, mine) <- shipMineCollision
-    } yield mine.id).toSet
-
-    val minesAfterShipMove = mines.filterNot(e => consumedMinesAfterMove.contains(e._1))
-
-    (shipsAfterShipMineCollision, barrlesAfterShipMove, minesAfterShipMove)
+    (shipsAfterShipMineCollision, barrelsAfterShipMove, minesAfterShipMove)
   }
 
   def moveShip(ship: Ship, speed: Int): Ship = {

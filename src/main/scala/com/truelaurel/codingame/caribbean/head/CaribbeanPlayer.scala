@@ -19,9 +19,9 @@ case class CaribbeanPlayer(playerId: Int, otherPlayer: Int) extends GamePlayer[C
 
   override def reactTo(state: CaribbeanState): Vector[CaribbeanAction] = {
     val timeout = state.ships.size match {
-      case x if x <= 2 => 40
-      case x if x <= 4 => 35
-      case x if x <= 6 => 30
+      case x if x <= 2 => 45
+      case x if x <= 4 => 45
+      case x if x <= 6 => 35
     }
     val muToLambda = new MuPlusLambda(2, 4, Duration(timeout, TimeUnit.MILLISECONDS))
     val solution = muToLambda.search(CaribbeanProblem(playerId, otherPlayer,
@@ -54,21 +54,15 @@ case class CaribbeanProblem(me: Int,
 
 case class CaribbeanSolution(problem: CaribbeanProblem,
                              actions: Vector[Double]) extends Solution {
-  lazy val quality: Double = {
-    val myScore = computeScore(problem.me)
-    //val otherScore = computeScore(problem.other)
-    myScore
-  }
-
-  private def computeScore(owner: Int) = {
-    targetState.shipsOf(owner).map(ship => {
+  override def quality(): Double = {
+    targetState().shipsOf(problem.me).map(ship => {
       100000 * ship.rums +
         ship.speed +
         problem.state.barrels.map(b => b.rums * Math.pow(0.95, b.cube.distanceTo(ship.center))).sum
     }).sum
   }
 
-  lazy val targetState: CaribbeanState = {
+  def targetState(): CaribbeanState = {
     problem.rounds.foldLeft(problem.state)((s, r) => {
       val shipActions = actions.slice(r * problem.actionLength, (r + 1) * problem.actionLength)
       val adapted = adapt(s, shipActions)
