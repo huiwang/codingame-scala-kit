@@ -9,9 +9,13 @@ import com.truelaurel.codingame.hexagons.Cube
   */
 object CaribbeanArena extends GameArena[CaribbeanState, CaribbeanAction] {
   override def next(state: CaribbeanState, actions: Vector[CaribbeanAction]): CaribbeanState = {
+    val shipMap: Map[Int, Ship] = state.ships.map(s => s.id -> s).toMap
+    val barrelMap: Map[Int, Barrel] = state.barrels.map(b => b.id -> b).toMap
+    val mineMap: Map[Int, Mine] = state.mines.map(m => m.id -> m).toMap
+
     val movedBalls = state.balls.map(b => b.copy(land = b.land - 1))
 
-    val shipsAfterDecreasedRum = state.shipMap.mapValues(s => s.copy(rums = s.rums - 1)).filter(_._2.rums > 0)
+    val shipsAfterDecreasedRum = shipMap.mapValues(s => s.copy(rums = s.rums - 1)).filter(_._2.rums > 0)
     val actionByShip = actions.map(a => a.shipId -> a).toMap
 
     val shipsAfterSpeeding = shipsAfterDecreasedRum.mapValues(ship => {
@@ -25,7 +29,7 @@ object CaribbeanArena extends GameArena[CaribbeanState, CaribbeanAction] {
     val shipsAfterFirstMove = shipsAfterSpeeding.mapValues(s => moveShip(s, 1))
 
     val (shipsAfterFirstMoveImpact, barrelsAfterFirstMoveImpact, minesAfterFirstMoveImpact) =
-      reactToShips(shipsAfterDecreasedRum, shipsAfterFirstMove, state.barrelMap, state.mineMap)
+      reactToShips(shipsAfterDecreasedRum, shipsAfterFirstMove, barrelMap, mineMap)
 
     val shipsAfterSecondMove = shipsAfterFirstMoveImpact.mapValues(s => moveShip(s, 2))
 

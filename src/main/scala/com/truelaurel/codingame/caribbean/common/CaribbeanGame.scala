@@ -81,10 +81,6 @@ case class CaribbeanState(context: CaribbeanContext,
                           mines: Vector[Mine],
                           turn: Int) {
   def shipsOf(owner: Int): Vector[Ship] = ships.filter(_.owner == owner)
-
-  val shipMap: Map[Int, Ship] = ships.map(s => s.id -> s).toMap
-  val barrelMap: Map[Int, Barrel] = barrels.map(b => b.id -> b).toMap
-  val mineMap: Map[Int, Mine] = mines.map(m => m.id -> m).toMap
 }
 
 trait CaribbeanAction {

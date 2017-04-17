@@ -3,7 +3,6 @@ package com.truelaurel.codingame.metaheuristic.evolutionstrategy
 import com.truelaurel.codingame.metaheuristic.model.{Problem, Solution}
 import com.truelaurel.codingame.time.Chronometer
 
-import scala.collection.mutable
 import scala.concurrent.duration.Duration
 
 /**
@@ -21,14 +20,17 @@ class MuPlusLambda(mu: Int, lambda: Int, duration: Duration) {
   private val tweakedRange = 0 until lambda / mu
 
   def search[S <: Solution](problem: Problem[S]): S = {
+    chrono.start()
+    val time = System.nanoTime()
     var parents = parentsRange
       .map(_ => problem.randomSolution())
       .map(s => (s, s.quality()))
       .sortBy(_._2)
       .map(_._1)
+    System.err.println("simulInit elt: " + (System.nanoTime() - time) / 1000000 + "ms")
     var bestSolution = parents.last
-    chrono.start()
     while (!chrono.outOfTime) {
+      val time = System.nanoTime()
       //truncation selection
       val greatest = parents
         .map(s => (s, s.quality()))
@@ -37,6 +39,7 @@ class MuPlusLambda(mu: Int, lambda: Int, duration: Duration) {
         .takeRight(mu)
       bestSolution = greatest.last
       parents = greatest ++ greatest.flatMap(s => tweakedRange.map(_ => problem.tweakSolution(s)))
+      System.err.println("simulGen elt: " + (System.nanoTime() - time) / 1000000 + "ms")
     }
     bestSolution
   }

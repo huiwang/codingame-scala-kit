@@ -13,7 +13,7 @@ case class BestCabribbeanPlayer(playerId: Int, otherPlayer: Int) extends GamePla
   val random = new Random(seed)
   val indices = (1 to 200).map(_ => random.nextLong().abs % 7)
 
-  override def reactTo(state: CaribbeanState): Vector[CaribbeanAction] = {
+  override def reactTo(state: CaribbeanState, timeElapsed: Long): Vector[CaribbeanAction] = {
     state.shipsOf(playerId).map(ship => {
       indices(state.turn - 1) match {
         case 0 => Faster(ship.id)

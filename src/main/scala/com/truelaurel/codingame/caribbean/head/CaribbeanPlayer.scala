@@ -17,15 +17,11 @@ import scala.concurrent.duration.Duration
   */
 case class CaribbeanPlayer(playerId: Int, otherPlayer: Int) extends GamePlayer[CaribbeanState, CaribbeanAction] {
 
-  override def reactTo(state: CaribbeanState): Vector[CaribbeanAction] = {
-    val timeout = state.ships.size match {
-      case x if x <= 2 => 45
-      case x if x <= 4 => 45
-      case x if x <= 6 => 35
-    }
-    val muToLambda = new MuPlusLambda(2, 4, Duration(timeout, TimeUnit.MILLISECONDS))
-    val solution = muToLambda.search(CaribbeanProblem(playerId, otherPlayer,
-      BestCabribbeanPlayer(otherPlayer, playerId), state))
+  override def reactTo(state: CaribbeanState, timeElapsed: Long): Vector[CaribbeanAction] = {
+    val elapsed = timeElapsed / 1000000
+    System.err.println("beforeReact : " + elapsed)
+    val muToLambda = new MuPlusLambda(2, 4, Duration(45 - elapsed, TimeUnit.MILLISECONDS))
+    val solution = muToLambda.search(CaribbeanProblem(playerId, otherPlayer, BestCabribbeanPlayer(otherPlayer, playerId), state))
     solution.toActions
   }
 }
