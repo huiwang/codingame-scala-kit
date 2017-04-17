@@ -20,10 +20,12 @@ object CaribbeanContext {
     y <- 0 until height
   } yield Offset(x, y).toCube).toVector
 
+  val offsetToCube: Map[Offset, Cube] = cubes.map(cube => cube.toOffset -> cube).toMap
 
-  val cubeToNeighbors: Map[Cube, Vector[Cube]] = cubes
+
+  val cubeToNeighbors: Map[Cube, Set[Cube]] = cubes
     .map(cube =>
-      cube -> (0 to 5).map(cube.neighbor).filter(cubes.contains).toVector)
+      cube -> (0 to 5).map(cube.neighbor).filter(cubes.contains).toSet)
     .toMap
 
   val cubeToOrientationToZone: Map[Cube, Map[Int, Set[Cube]]] = {
@@ -34,25 +36,34 @@ object CaribbeanContext {
     ).toMap
   }
 
+  val cubeToOrientationToNeighbor: Map[Cube, Map[Int, Cube]] = {
+    cubes.map(cube =>
+      cube -> orientations.map(ori =>
+        ori -> cube.neighbor(ori)
+      ).toMap
+    ).toMap
+  }
+
   def shipZone(ship: Ship):Set[Cube] = cubeToOrientationToZone(ship.center)(ship.orientation)
 
   def apply(): CaribbeanContext = CaribbeanContext(Map.empty, Map.empty)
+
+  def toCube(offset: Offset): Cube = CaribbeanContext.offsetToCube.getOrElse(offset, offset.toCube)
 }
 
 case class Ship(id: Int, position: Offset, orientation: Int, speed: Int, rums: Int, owner: Int) {
-  lazy val cube: Cube = position.toCube
-  lazy val center: Cube = cube
-  lazy val bow: Cube = center.neighbor(orientation)
+  def center: Cube = CaribbeanContext.toCube(position)
+  def bow: Cube = CaribbeanContext.cubeToOrientationToNeighbor(center)(orientation)
 }
 
 case class Barrel(id: Int, position: Offset, rums: Int) {
-  lazy val cube: Cube = position.toCube
+  def cube: Cube = CaribbeanContext.toCube(position)
 }
 
 case class Ball(id: Int, target: Offset, owner: Int, land: Int)
 
 case class Mine(id: Int, position: Offset) {
-  lazy val cube: Cube = position.toCube
+  def cube: Cube = CaribbeanContext.toCube(position)
 }
 
 case class CaribbeanState(context: CaribbeanContext,

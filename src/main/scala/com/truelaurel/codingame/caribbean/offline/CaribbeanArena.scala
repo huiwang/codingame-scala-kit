@@ -99,7 +99,7 @@ object CaribbeanArena extends GameArena[CaribbeanState, CaribbeanAction] {
       ship <- shipsAfterShipBarrelCollision.values
       mine <- mines.values
       if shipsAfterShipBarrelCollision.values.exists(s => CaribbeanContext.shipZone(s).contains(mine.cube))
-      if CaribbeanContext.cubeToNeighbors(mine.cube).toSet.intersect(CaribbeanContext.shipZone(ship)).nonEmpty
+      if CaribbeanContext.cubeToNeighbors(mine.cube).intersect(CaribbeanContext.shipZone(ship)).nonEmpty
     } yield (ship, mine)
 
     val damagedShips = (for {

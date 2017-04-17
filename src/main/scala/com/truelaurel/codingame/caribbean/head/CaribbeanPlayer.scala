@@ -18,7 +18,7 @@ import scala.concurrent.duration.Duration
 case class CaribbeanPlayer(playerId: Int, otherPlayer: Int) extends GamePlayer[CaribbeanState, CaribbeanAction] {
 
   override def reactTo(state: CaribbeanState): Vector[CaribbeanAction] = {
-    val muToLambda = new MuPlusLambda(4, 2, Duration(40, TimeUnit.MILLISECONDS))
+    val muToLambda = new MuPlusLambda(4, 2, Duration(30, TimeUnit.MILLISECONDS))
     val solution = muToLambda.search(CaribbeanProblem(playerId, otherPlayer,
       BestCabribbeanPlayer(otherPlayer, playerId), state))
     solution.toActions
