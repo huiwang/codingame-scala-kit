@@ -19,13 +19,11 @@ case class CaribbeanPlayer(playerId: Int, otherPlayer: Int) extends GamePlayer[C
 
   override def reactTo(state: CaribbeanState): Vector[CaribbeanAction] = {
     val timeout = state.ships.size match {
-      case 2 => 40
-      case 3 => 35
-      case 4 => 35
-      case 5 => 30
-      case 6 => 30
+      case x if x <= 2 => 40
+      case x if x <= 4 => 35
+      case x if x <= 6 => 30
     }
-    val muToLambda = new MuPlusLambda(4, 2, Duration(timeout, TimeUnit.MILLISECONDS))
+    val muToLambda = new MuPlusLambda(2, 4, Duration(timeout, TimeUnit.MILLISECONDS))
     val solution = muToLambda.search(CaribbeanProblem(playerId, otherPlayer,
       BestCabribbeanPlayer(otherPlayer, playerId), state))
     solution.toActions

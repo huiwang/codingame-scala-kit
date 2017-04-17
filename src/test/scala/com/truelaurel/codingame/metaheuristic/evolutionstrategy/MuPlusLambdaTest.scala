@@ -15,7 +15,7 @@ class MuPlusLambdaTest extends FlatSpec with Matchers {
   behavior of "MuPlusLambdaTest"
 
   it should "search" in {
-    val lambda = new MuPlusLambda(6, 2, Duration(10, TimeUnit.MILLISECONDS))
+    val lambda = new MuPlusLambda(2, 6, Duration(10, TimeUnit.MILLISECONDS))
     val search = lambda.search(TestProblem())
     search.value should be(10)
   }
@@ -34,7 +34,8 @@ case class TestProblem() extends Problem[TestSolution] {
 }
 
 case class TestSolution(value: Int) extends Solution {
-  override def quality(): Double = {
+  lazy val quality: Double = {
+    System.err.println("quality called")
     value
   }
 }

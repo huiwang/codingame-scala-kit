@@ -21,7 +21,7 @@ case class StrikeBackPlayer(range: Vector[Int],
                            ) extends GamePlayer[StrikeBackGameState, PodAction] {
 
   override def reactTo(state: StrikeBackGameState): Vector[PodAction] = {
-    val muToLambda = new MuPlusLambda(100, 20, Duration(90, TimeUnit.MILLISECONDS))
+    val muToLambda = new MuPlusLambda(20, 100, Duration(90, TimeUnit.MILLISECONDS))
     val solution = muToLambda.search(StrikeBackProblem(range, otherRange, BestStrikeBackPlayer(otherRange), state))
     solution.adapt(state, solution.actions.take(2))
   }

@@ -12,24 +12,23 @@ import scala.concurrent.duration.Duration
   * @param mu     number of parents selected
   * @param duration
   */
-class MuPlusLambda(lambda: Int, mu: Int, duration: Duration) {
+class MuPlusLambda(mu: Int, lambda: Int, duration: Duration) {
   require(lambda > 0)
   require(mu > 0 && mu < lambda)
 
-  val chrono = new Chronometer(duration)
-  val parentsRange = 0 until lambda
-  val tweakedRange = 0 until lambda / mu
-  val qualitiesCache: mutable.Map[Solution, Double] = mutable.Map.empty
+  private val chrono = new Chronometer(duration)
+  private val parentsRange = 0 until lambda
+  private val tweakedRange = 0 until lambda / mu
 
   def search[S <: Solution](problem: Problem[S]): S = {
     var parents = parentsRange
       .map(_ => problem.randomSolution())
-      .sortBy(s => qualitiesCache.getOrElseUpdate(s, s.quality()))
+      .sortBy(_.quality())
     var bestSolution = parents.last
     chrono.start()
     while (!chrono.outOfTime) {
       //truncation selection
-      val greatest = parents.sortBy(s => qualitiesCache.getOrElseUpdate(s, s.quality())).takeRight(mu)
+      val greatest = parents.sortBy(_.quality()).takeRight(mu)
       bestSolution = greatest.last
       parents = greatest ++ greatest.flatMap(s => tweakedRange.map(_ => problem.tweakSolution(s)))
     }
