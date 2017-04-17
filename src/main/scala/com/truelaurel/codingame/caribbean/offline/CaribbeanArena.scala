@@ -45,6 +45,8 @@ object CaribbeanArena extends GameArena[CaribbeanState, CaribbeanAction] {
       reactToShips(shipsAfterSecondMoveImpact, shipsAfterRotation,
         barrelsAfterSecondMoveImpact, minesAfterSecondMoveImpact)
 
+
+
     state.copy(
       ships = state.ships.flatMap(s => shipsAfterRotationReact.get(s.id)),
       barrels = state.barrels.flatMap(b => barrelsAfterRotationReact.get(b.id)),
