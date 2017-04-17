@@ -35,7 +35,6 @@ case class TestProblem() extends Problem[TestSolution] {
 
 case class TestSolution(value: Int) extends Solution {
   lazy val quality: Double = {
-    System.err.println("quality called")
     value
   }
 }
