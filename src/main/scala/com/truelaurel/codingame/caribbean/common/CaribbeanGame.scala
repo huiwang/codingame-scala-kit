@@ -14,6 +14,7 @@ object CaribbeanContext {
   val lowMineDamage = 10
   val width = 23
   val height = 21
+  private val orientations = 0 until 6
   val cubes: Vector[Cube] = (for {
     x <- 0 until width
     y <- 0 until height
@@ -25,6 +26,16 @@ object CaribbeanContext {
       cube -> (0 to 5).map(cube.neighbor).filter(cubes.contains).toVector)
     .toMap
 
+  val cubeToOrientationToZone: Map[Cube, Map[Int, Set[Cube]]] = {
+    cubes.map(cube =>
+      cube -> orientations.map(ori =>
+        ori -> Set(cube, cube.neighbor(ori), cube.neighbor((ori + 3) % 6))
+      ).toMap
+    ).toMap
+  }
+
+  def shipZone(ship: Ship):Set[Cube] = cubeToOrientationToZone(ship.center)(ship.orientation)
+
   def apply(): CaribbeanContext = CaribbeanContext(Map.empty, Map.empty)
 }
 
@@ -32,8 +43,6 @@ case class Ship(id: Int, position: Offset, orientation: Int, speed: Int, rums: I
   lazy val cube: Cube = position.toCube
   lazy val center: Cube = cube
   lazy val bow: Cube = center.neighbor(orientation)
-  lazy val stern: Cube = center.neighbor((orientation + 3) % 6)
-  lazy val cubeSet = Set(center, bow, stern)
 }
 
 case class Barrel(id: Int, position: Offset, rums: Int) {
@@ -53,6 +62,10 @@ case class CaribbeanState(context: CaribbeanContext,
                           mines: Vector[Mine],
                           turn: Int) {
   def shipsOf(owner: Int): Vector[Ship] = ships.filter(_.owner == owner)
+
+  val shipMap: Map[Int, Ship] = ships.map(s => s.id -> s).toMap
+  val barrelMap: Map[Int, Barrel] = barrels.map(b => b.id -> b).toMap
+  val mineMap: Map[Int, Mine] = mines.map(m => m.id -> m).toMap
 }
 
 trait CaribbeanAction {
