@@ -46,11 +46,20 @@ object CaribbeanArena extends GameArena[CaribbeanState, CaribbeanAction] {
         barrelsAfterSecondMoveImpact, minesAfterSecondMoveImpact)
 
 
+    val (ballExplosions, remainingBalls) = movedBalls.partition(_.land == 0)
+
+    val shipsAfterExplosion = shipsAfterRotationReact.mapValues(ship => {
+      val dmgOnBow = ballExplosions.count(b => b.cube == ship.bow) * CaribbeanContext.lowBallDamage
+      val dmgOnStern = ballExplosions.count(b => b.cube == ship.stern) * CaribbeanContext.lowBallDamage
+      val dmgOnCenter = ballExplosions.count(b => b.cube == ship.center) * CaribbeanContext.highBallDamage
+      ship.copy(rums = ship.rums - dmgOnBow - dmgOnStern - dmgOnCenter)
+    })
 
     state.copy(
-      ships = state.ships.flatMap(s => shipsAfterRotationReact.get(s.id)),
+      ships = state.ships.flatMap(s => shipsAfterExplosion.get(s.id)).filter(_.rums > 0),
       barrels = state.barrels.flatMap(b => barrelsAfterRotationReact.get(b.id)),
       mines = state.mines.flatMap(m => minesAfterRotationReact.get(m.id)),
+      balls = remainingBalls,
       turn = state.turn + 1
     )
   }

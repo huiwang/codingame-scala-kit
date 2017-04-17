@@ -12,6 +12,8 @@ case class CaribbeanContext(lastMine: Map[Int, Int], lastFire: Map[Int, Int]) {
 object CaribbeanContext {
   val highMineDamage = 25
   val lowMineDamage = 10
+  val lowBallDamage = 25
+  val highBallDamage = 50
   val width = 23
   val height = 21
   private val orientations = 0 until 6
@@ -44,7 +46,7 @@ object CaribbeanContext {
     ).toMap
   }
 
-  def shipZone(ship: Ship):Set[Cube] = cubeToOrientationToZone(ship.center)(ship.orientation)
+  def shipZone(ship: Ship): Set[Cube] = cubeToOrientationToZone(ship.center)(ship.orientation)
 
   def apply(): CaribbeanContext = CaribbeanContext(Map.empty, Map.empty)
 
@@ -53,14 +55,20 @@ object CaribbeanContext {
 
 case class Ship(id: Int, position: Offset, orientation: Int, speed: Int, rums: Int, owner: Int) {
   def center: Cube = CaribbeanContext.toCube(position)
+
   def bow: Cube = CaribbeanContext.cubeToOrientationToNeighbor(center)(orientation)
+
+  def stern: Cube = CaribbeanContext.cubeToOrientationToNeighbor(center)((orientation + 3) % 6)
 }
 
 case class Barrel(id: Int, position: Offset, rums: Int) {
   def cube: Cube = CaribbeanContext.toCube(position)
 }
 
-case class Ball(id: Int, target: Offset, owner: Int, land: Int)
+case class Ball(id: Int, target: Offset, owner: Int, land: Int) {
+  def cube: Cube = CaribbeanContext.toCube(target)
+
+}
 
 case class Mine(id: Int, position: Offset) {
   def cube: Cube = CaribbeanContext.toCube(position)

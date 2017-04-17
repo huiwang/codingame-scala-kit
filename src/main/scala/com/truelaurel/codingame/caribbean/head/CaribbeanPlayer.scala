@@ -18,7 +18,14 @@ import scala.concurrent.duration.Duration
 case class CaribbeanPlayer(playerId: Int, otherPlayer: Int) extends GamePlayer[CaribbeanState, CaribbeanAction] {
 
   override def reactTo(state: CaribbeanState): Vector[CaribbeanAction] = {
-    val muToLambda = new MuPlusLambda(4, 2, Duration(30, TimeUnit.MILLISECONDS))
+    val timeout = state.ships.size match {
+      case 2 => 40
+      case 3 => 35
+      case 4 => 35
+      case 5 => 30
+      case 6 => 30
+    }
+    val muToLambda = new MuPlusLambda(4, 2, Duration(timeout, TimeUnit.MILLISECONDS))
     val solution = muToLambda.search(CaribbeanProblem(playerId, otherPlayer,
       BestCabribbeanPlayer(otherPlayer, playerId), state))
     solution.toActions
@@ -50,13 +57,16 @@ case class CaribbeanProblem(me: Int,
 case class CaribbeanSolution(problem: CaribbeanProblem,
                              actions: Vector[Double]) extends Solution {
   lazy val quality: Double = {
-    val sum = computeScore(problem.me)
-    sum
+    val myScore = computeScore(problem.me)
+    //val otherScore = computeScore(problem.other)
+    myScore
   }
 
   private def computeScore(owner: Int) = {
     targetState.shipsOf(owner).map(ship => {
-      10 * ship.rums + problem.state.barrels.map(b => b.rums * Math.pow(0.75, b.cube.distanceTo(ship.center))).sum
+      100000 * ship.rums +
+        ship.speed +
+        problem.state.barrels.map(b => b.rums * Math.pow(0.95, b.cube.distanceTo(ship.center))).sum
     }).sum
   }
 
