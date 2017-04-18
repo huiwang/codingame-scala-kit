@@ -28,7 +28,7 @@ object CaribbeanArena extends GameArena[CaribbeanState, CaribbeanAction] {
         val distance = ship.bow.distanceTo(targetCube)
         val lastFire = state.context.lastFire.getOrElse(shipId, -1)
         if (CaribbeanContext.cubes.contains(targetCube) && distance <= CaribbeanContext.fireMaxDistance && state.turn - lastFire >= 2) {
-          val travelTime = (1 + distance / 3.0.round).toInt
+          val travelTime = (1 + (distance / 3.0).round).toInt
           Some(Ball(-1, target, ship.owner, travelTime))
         } else None
       case _ => None

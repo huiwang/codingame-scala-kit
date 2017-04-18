@@ -63,7 +63,7 @@ case class CaribbeanSolution(problem: CaribbeanProblem,
       100000 * ship.rums
     }).sum
 
-    myScore
+    myScore - otherScore
   }
 
   def targetState(): CaribbeanState = {
@@ -80,10 +80,10 @@ case class CaribbeanSolution(problem: CaribbeanProblem,
       val shipId = myShips(i).id
       val x = shipActions(i)
       x match {
-        case _ if x > 7 => Port(shipId)
-        case _ if x > 4 => Starboard(shipId)
-        case _ if x > 1 => Faster(shipId)
-        case _ if x > 0.5 => Slower(shipId)
+        case _ if x > 8 => Port(shipId)
+        case _ if x > 6 => Starboard(shipId)
+        case _ if x > 4 => Faster(shipId)
+        case _ if x > 2 => Slower(shipId)
         case _ =>
           val ship = myShips(i)
           val targetMines = state.mines.filter(m => m.cube.distanceTo(ship.center) <= CaribbeanContext.fireMaxDistance).map(_.cube)

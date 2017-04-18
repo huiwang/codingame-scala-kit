@@ -178,4 +178,39 @@ class CaribbeanArenaTest extends FlatSpec with Matchers {
   }
 
 
+  it should "predict ball fire" in {
+    val state = CaribbeanState(
+      context = CaribbeanContext(),
+      ships = Vector(
+        Ship(0, Offset(7, 7), orientation = 0, speed = 0, rums = 60, owner = 1),
+        Ship(1, Offset(13, 7), orientation = 3, speed = 0, rums = 30, owner = 0)
+      ),
+      barrels = Vector(
+        Barrel(2, Offset(10, 7), 20)
+      ),
+      balls = Vector(
+        Ball(3, Offset(7, 7), 0, 2)
+      ),
+      mines = Vector(),
+      turn = 1
+    )
+
+    CaribbeanArena.next(state, Vector(Fire(0, Offset(13, 7)), Wait(1))) should be(
+      CaribbeanState(
+        context = CaribbeanContext(Map.empty, Map(0 -> 1)),
+        ships = Vector(
+          Ship(0, Offset(7, 7), orientation = 0, speed = 0, rums = 59, owner = 1),
+          Ship(1, Offset(13, 7), orientation = 3, speed = 0, rums = 29, owner = 0)
+        ),
+        barrels = Vector(
+          Barrel(2, Offset(10, 7), 20)
+        ),
+        balls = Vector(Ball(3, Offset(7, 7), 0, 1), Ball(-1, Offset(13, 7), 1, 3)),
+        mines = Vector.empty,
+        turn = 2
+      )
+    )
+  }
+
+
 }
