@@ -1,6 +1,7 @@
 package com.truelaurel.codingame.caribbean.offline
 
 import com.truelaurel.codingame.caribbean.common._
+import com.truelaurel.codingame.caribbean.online.CaribbeanController
 import com.truelaurel.codingame.engine.{GameArena, GameResult}
 import com.truelaurel.codingame.hexagons.Cube
 
@@ -16,7 +17,22 @@ object CaribbeanArena extends GameArena[CaribbeanState, CaribbeanAction] {
     val movedBalls = state.balls.map(b => b.copy(land = b.land - 1))
 
     val shipsAfterDecreasedRum = shipMap.mapValues(s => s.copy(rums = s.rums - 1)).filter(_._2.rums > 0)
+
+
     val actionByShip = actions.map(a => a.shipId -> a).toMap
+
+    val firedBalls = actionByShip.values.flatMap {
+      case Fire(shipId, target) =>
+        val ship = shipMap(shipId)
+        val targetCube = CaribbeanContext.toCube(target)
+        val distance = ship.bow.distanceTo(targetCube)
+        val lastFire = state.context.lastFire.getOrElse(shipId, -1)
+        if (CaribbeanContext.cubes.contains(targetCube) && distance <= CaribbeanContext.fireMaxDistance && state.turn - lastFire >= 2) {
+          val travelTime = (1 + distance / 3.0.round).toInt
+          Some(Ball(-1, target, ship.owner, travelTime))
+        } else None
+      case _ => None
+    }
 
     val shipsAfterSpeeding = shipsAfterDecreasedRum.mapValues(ship => {
       actionByShip(ship.id) match {
@@ -60,10 +76,11 @@ object CaribbeanArena extends GameArena[CaribbeanState, CaribbeanAction] {
     })
 
     state.copy(
+      context = CaribbeanController.nextContext(state.context, state, actions),
       ships = state.ships.flatMap(s => shipsAfterExplosion.get(s.id)).filter(_.rums > 0),
       barrels = state.barrels.flatMap(b => barrelsAfterRotationReact.get(b.id)),
       mines = state.mines.flatMap(m => minesAfterRotationReact.get(m.id)),
-      balls = remainingBalls,
+      balls = remainingBalls ++ firedBalls,
       turn = state.turn + 1
     )
   }

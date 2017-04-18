@@ -7,7 +7,7 @@ case class BestGhostCellPlayer(me: Int) extends GamePlayer[GhostCellGameState, G
 
   val factoryAnalysis = BestFactoryAnalysis(me)
 
-  override def reactTo(state: GhostCellGameState, timeElapsed: Long): Vector[GhostCellAction] = {
+  override def reactTo(state: GhostCellGameState): Vector[GhostCellAction] = {
     val attackPlan = factoryAnalysis.movePlans(state)
     val attackMoves = attackPlan.map(m => {
       m.copy(to = state.transferFac(m.from, m.to))

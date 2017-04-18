@@ -29,7 +29,7 @@ class MuPlusLambda(mu: Int, lambda: Int, duration: Duration) {
       .map(_._1)
     System.err.println("simulInit elt: " + (System.nanoTime() - time) / 1000000 + "ms")
     var bestSolution = parents.last
-    while (!chrono.outOfTime) {
+    while (!chrono.willOutOfTime) {
       val time = System.nanoTime()
       //truncation selection
       val greatest = parents

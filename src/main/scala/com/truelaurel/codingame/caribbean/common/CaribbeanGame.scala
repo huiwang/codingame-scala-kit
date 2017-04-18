@@ -14,6 +14,7 @@ object CaribbeanContext {
   val lowMineDamage = 10
   val lowBallDamage = 25
   val highBallDamage = 50
+  val fireMaxDistance = 10
   val width = 23
   val height = 21
   private val orientations = 0 until 6
@@ -112,7 +113,7 @@ sealed case class Wait(shipId: Int) extends CaribbeanAction {
 }
 
 sealed case class Fire(shipId: Int, offset: Offset) extends CaribbeanAction {
-  override def toString: String = s"MOVE ${offset.x} ${offset.y}"
+  override def toString: String = s"FIRE ${offset.x} ${offset.y}"
 }
 
 sealed case class MineAction(shipId: Int) extends CaribbeanAction {

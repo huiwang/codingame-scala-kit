@@ -18,6 +18,12 @@ object CaribbeanController extends GameController[CaribbeanContext, CaribbeanSta
   override def readState(turn: Int, context: CaribbeanContext): CaribbeanState = {
     val shipCount = StdIn.readInt()
 
+    val time = System.nanoTime()
+    val entities = for {
+      i <- 0 until StdIn.readInt()
+      line: String = StdIn.readLine()
+    } yield line
+
     var ships: Vector[Ship] = Vector.empty
 
     var barrels: Vector[Barrel] = Vector.empty
@@ -25,11 +31,6 @@ object CaribbeanController extends GameController[CaribbeanContext, CaribbeanSta
     var balls: Vector[Ball] = Vector.empty
 
     var mines: Vector[Mine] = Vector.empty
-
-    val entities = for {
-      i <- 0 until StdIn.readInt()
-      line: String = StdIn.readLine()
-    } yield line
 
     for {
       line <- entities
@@ -45,6 +46,7 @@ object CaribbeanController extends GameController[CaribbeanContext, CaribbeanSta
 
     CaribbeanState(context, ships, barrels, balls, mines, turn)
   }
+
 
   override def nextContext(context: CaribbeanContext, state: CaribbeanState, actions: Vector[CaribbeanAction]): CaribbeanContext = {
     val mines = actions.flatMap {

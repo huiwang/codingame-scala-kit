@@ -8,7 +8,7 @@ import com.truelaurel.codingame.engine.GamePlayer
   */
 case class BestStrikeBackPlayer(range: Vector[Int]) extends GamePlayer[StrikeBackGameState, PodAction] {
 
-  override def reactTo(state: StrikeBackGameState, timeElapsed: Long): Vector[PodAction] = {
+  override def reactTo(state: StrikeBackGameState): Vector[PodAction] = {
     range.map(i => {
       Thrust(state.checkPoints(state.nextCPs(i) % state.checkPoints.size).p, 100)
     })

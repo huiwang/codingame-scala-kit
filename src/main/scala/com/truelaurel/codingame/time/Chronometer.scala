@@ -10,19 +10,14 @@ class Chronometer(duration: Duration) {
   private var startTime: Long = 0
   private var elapsed: Double = 0
   private var count: Long = 0
-  private val margin = 2
+  private val margin: Double = 1.0
 
   def start(): Unit = startTime = System.nanoTime()
 
-  def outOfTime: Boolean = {
-    if (count != 0 && budget - elapsed < margin * elapsed / count) {
-      true
-    } else {
-      count += 1
-      elapsed = System.nanoTime() - startTime
-      elapsed > budget
-    }
-
+  def willOutOfTime: Boolean = {
+    count += 1
+    elapsed = System.nanoTime() - startTime
+    budget - elapsed < margin * elapsed / count
   }
 
 }

@@ -5,7 +5,7 @@ trait GameState[A] {
 }
 
 trait GamePlayer[S, A] {
-  def reactTo(state: S, timeElapsed: Long = 0): Vector[A]
+  def reactTo(state: S): Vector[A]
 }
 
 trait GameArena[S, A] {

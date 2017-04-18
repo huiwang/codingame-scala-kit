@@ -6,21 +6,21 @@ import com.truelaurel.codingame.caribbean.best.BestCabribbeanPlayer
 import com.truelaurel.codingame.caribbean.common._
 import com.truelaurel.codingame.caribbean.offline.CaribbeanArena
 import com.truelaurel.codingame.engine.GamePlayer
+import com.truelaurel.codingame.hexagons.Cube
 import com.truelaurel.codingame.metaheuristic.evolutionstrategy.MuPlusLambda
 import com.truelaurel.codingame.metaheuristic.model.{Problem, Solution}
 import com.truelaurel.codingame.metaheuristic.tweak.{BoundedVectorConvolution, NoiseGenerators}
 
 import scala.concurrent.duration.Duration
+import scala.util.Random
 
 /**
   * Created by hwang on 14/04/2017.
   */
 case class CaribbeanPlayer(playerId: Int, otherPlayer: Int) extends GamePlayer[CaribbeanState, CaribbeanAction] {
 
-  override def reactTo(state: CaribbeanState, timeElapsed: Long): Vector[CaribbeanAction] = {
-    val elapsed = timeElapsed / 1000000
-    System.err.println("beforeReact : " + elapsed)
-    val muToLambda = new MuPlusLambda(2, 4, Duration(45 - elapsed, TimeUnit.MILLISECONDS))
+  override def reactTo(state: CaribbeanState): Vector[CaribbeanAction] = {
+    val muToLambda = new MuPlusLambda(2, 4, Duration(45, TimeUnit.MILLISECONDS))
     val solution = muToLambda.search(CaribbeanProblem(playerId, otherPlayer, BestCabribbeanPlayer(otherPlayer, playerId), state))
     solution.toActions
   }
@@ -51,11 +51,19 @@ case class CaribbeanProblem(me: Int,
 case class CaribbeanSolution(problem: CaribbeanProblem,
                              actions: Vector[Double]) extends Solution {
   override def quality(): Double = {
-    targetState().shipsOf(problem.me).map(ship => {
+    val simulatedState = targetState()
+
+    val myScore = simulatedState.shipsOf(problem.me).map(ship => {
       100000 * ship.rums +
         ship.speed +
         problem.state.barrels.map(b => b.rums * Math.pow(0.95, b.cube.distanceTo(ship.center))).sum
     }).sum
+
+    val otherScore = simulatedState.shipsOf(problem.other).map(ship => {
+      100000 * ship.rums
+    }).sum
+
+    myScore
   }
 
   def targetState(): CaribbeanState = {
@@ -66,8 +74,8 @@ case class CaribbeanSolution(problem: CaribbeanProblem,
     })
   }
 
-  def adapt(s: CaribbeanState, shipActions: Vector[Double]): Vector[CaribbeanAction] = {
-    val myShips = s.shipsOf(problem.me)
+  def adapt(state: CaribbeanState, shipActions: Vector[Double]): Vector[CaribbeanAction] = {
+    val myShips = state.shipsOf(problem.me)
     myShips.indices.map(i => {
       val shipId = myShips(i).id
       val x = shipActions(i)
@@ -76,7 +84,16 @@ case class CaribbeanSolution(problem: CaribbeanProblem,
         case _ if x > 4 => Starboard(shipId)
         case _ if x > 1 => Faster(shipId)
         case _ if x > 0.5 => Slower(shipId)
-        case _ => Wait(shipId)
+        case _ =>
+          val ship = myShips(i)
+          val targetMines = state.mines.filter(m => m.cube.distanceTo(ship.center) <= CaribbeanContext.fireMaxDistance).map(_.cube)
+          val targetShips = state.ships.filter(s => s.owner != ship.owner && s.center.distanceTo(ship.center) <= CaribbeanContext.fireMaxDistance).map(_.center)
+          val targetBarrels = state.barrels.filter(b => b.cube.distanceTo(ship.center) <= CaribbeanContext.fireMaxDistance).map(_.cube)
+          val targets: Vector[Cube] = targetMines ++ targetShips ++ targetBarrels
+          if (targets.isEmpty) Wait(shipId) else {
+            val target = targets(Random.nextInt(targets.size))
+            Fire(shipId, target.toOffset)
+          }
       }
     }).toVector
   }
