@@ -30,7 +30,7 @@ case class CaribbeanProblem(me: Int,
                             otherPlayer: GamePlayer[CaribbeanState, CaribbeanAction],
                             state: CaribbeanState) extends Problem[CaribbeanSolution] {
 
-  private val convolution = new BoundedVectorConvolution(0.3, 0, 10)
+  private val convolution = new BoundedVectorConvolution(0.7, 0, 10)
   private val roundsToSimulate = 4
   val rounds: Range = 0 until roundsToSimulate
   val actionLength: Int = state.shipsOf(me).size
@@ -52,10 +52,13 @@ case class CaribbeanSolution(problem: CaribbeanProblem,
   override def quality(): Double = {
     val simulatedState = targetState()
 
-    val myScore = simulatedState.shipsOf(problem.me).map(ship => {
+    val myShips = simulatedState.shipsOf(problem.me)
+
+    val myScore = myShips.map(ship => {
       100000 * ship.rums +
-        ship.speed +
-        problem.state.barrels.map(b => b.rums * Math.pow(0.95, b.cube.distanceTo(ship.center))).sum
+        10 * ship.speed +
+        10 * problem.state.barrels.map(b => b.rums * Math.pow(0.95, b.cube.distanceTo(ship.center))).sum +
+        CaribbeanContext.cubeToNeighbors(ship.center).size
     }).sum
 
     val otherScore = simulatedState.shipsOf(problem.other).map(ship => {
@@ -79,14 +82,15 @@ case class CaribbeanSolution(problem: CaribbeanProblem,
       val shipId = myShips(i).id
       val x = shipActions(i)
       x match {
-        case _ if x > 8 => Port(shipId)
-        case _ if x > 6 => Starboard(shipId)
-        case _ if x > 4 => Faster(shipId)
-        case _ if x > 3 => Slower(shipId)
+        case _ if x > 7 => Port(shipId)
+        case _ if x > 4 => Starboard(shipId)
+        case _ if x > 2 => Faster(shipId)
+        case _ if x > 1 => Slower(shipId)
         case y =>
           val ship = myShips(i)
-          val targetShips = state.ships.filter(s => s.owner != ship.owner && s.center.distanceTo(ship.center) <= CaribbeanContext.fireMaxDistance).map(_.center)
-          val targets: Vector[Cube] = targetShips.flatMap(cube => CaribbeanContext.cubeToNeighbors(cube) + cube)
+          val targets: Vector[Cube] = state.ships
+            .filter(s => s.owner != ship.owner &&
+              s.center.distanceTo(ship.center) <= CaribbeanContext.fireMaxDistance).map(_.center)
           if (targets.isEmpty) Wait(shipId) else {
             val target = targets((y * 100).toInt % targets.size)
             Fire(shipId, target.toOffset)

@@ -6,3 +6,5 @@ import scala.util.Random
 
 "abc".diff("ab2")
 "ab2".diff("abc")
+
+Math.pow(0.95, 10)
