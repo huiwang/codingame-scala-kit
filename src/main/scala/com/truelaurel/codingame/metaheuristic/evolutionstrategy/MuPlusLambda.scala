@@ -21,16 +21,13 @@ class MuPlusLambda(mu: Int, lambda: Int, duration: Duration) {
 
   def search[S <: Solution](problem: Problem[S]): S = {
     chrono.start()
-    val time = System.nanoTime()
     var parents = parentsRange
       .map(_ => problem.randomSolution())
       .map(s => (s, s.quality()))
       .sortBy(_._2)
       .map(_._1)
-    System.err.println("simulInit elt: " + (System.nanoTime() - time) / 1000000 + "ms")
     var bestSolution = parents.last
     while (!chrono.willOutOfTime) {
-      val time = System.nanoTime()
       //truncation selection
       val greatest = parents
         .map(s => (s, s.quality()))
@@ -39,7 +36,6 @@ class MuPlusLambda(mu: Int, lambda: Int, duration: Duration) {
         .takeRight(mu)
       bestSolution = greatest.last
       parents = greatest ++ greatest.flatMap(s => tweakedRange.map(_ => problem.tweakSolution(s)))
-      System.err.println("simulGen elt: " + (System.nanoTime() - time) / 1000000 + "ms")
     }
     bestSolution
   }

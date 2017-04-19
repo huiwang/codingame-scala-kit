@@ -1,5 +1,7 @@
 package com.truelaurel.codingame.engine
 
+import java.util.concurrent.TimeUnit
+
 trait GameState[A] {
   def apply(action: A): GameState[A]
 }
@@ -44,9 +46,14 @@ object GameSimulator {
   }
 
   def evaluateOffline[S, A](games: Vector[S], arena: GameArena[S, A], players: Vector[GamePlayer[S, A]], round: Int = 200): Unit = {
-    val results = games.par.map(g => {
-      play(g, arena, players, round)
-    })
+    val time = System.nanoTime()
+    println(s"Simulate ${games.size} Games")
+    val results = games.zipWithIndex.par.map {
+      case (game, indice) =>
+        val result = play(game, arena, players, round)
+        println(s"Game $indice $result")
+        result
+    }
 
     val wins = results.count {
       case WinKO | WinTech => true
@@ -68,6 +75,7 @@ object GameSimulator {
 
     val confidenceInterval = Math.sqrt(p * (1 - p) / games.size) * 100
 
+    println("Battles elt: " + TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - time) + "s")
     println(s"${games.size} Games $wins Wins $loss Loss $draws Draws")
     println(s"WinRate:$winRate%+-$confidenceInterval%")
 

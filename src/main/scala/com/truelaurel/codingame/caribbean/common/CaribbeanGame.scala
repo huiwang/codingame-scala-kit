@@ -17,6 +17,8 @@ object CaribbeanContext {
   val fireMaxDistance = 10
   val width = 23
   val height = 21
+  val me = 1
+  val other = 0
   private val orientations = 0 until 6
   val cubes: Vector[Cube] = (for {
     x <- 0 until width

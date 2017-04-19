@@ -12,6 +12,7 @@ class GameLoop[C, S, A](
     (1 to 200).foldLeft(initContext) {
       case (c, turn) =>
         val state = controller.readState(turn, c)
+        System.err.println(state)
         val actions = myPlayer.reactTo(state)
         actions.foreach(a => println(a))
         val context = controller.nextContext(c, state, actions)

@@ -1,8 +1,7 @@
-package com.truelaurel.codingame.caribbean.head
+package com.truelaurel.codingame.caribbean.best
 
 import java.util.concurrent.TimeUnit
 
-import com.truelaurel.codingame.caribbean.best.WaitingCabribbeanPlayer
 import com.truelaurel.codingame.caribbean.common._
 import com.truelaurel.codingame.caribbean.offline.CaribbeanArena
 import com.truelaurel.codingame.engine.GamePlayer
@@ -16,19 +15,19 @@ import scala.concurrent.duration.Duration
 /**
   * Created by hwang on 14/04/2017.
   */
-case class CaribbeanPlayer(playerId: Int, otherPlayer: Int) extends GamePlayer[CaribbeanState, CaribbeanAction] {
+case class BestCaribbeanPlayer(playerId: Int, otherPlayer: Int) extends GamePlayer[CaribbeanState, CaribbeanAction] {
 
   override def reactTo(state: CaribbeanState): Vector[CaribbeanAction] = {
     val muToLambda = new MuPlusLambda(2, 4, Duration(45, TimeUnit.MILLISECONDS))
-    val solution = muToLambda.search(CaribbeanProblem(playerId, otherPlayer, WaitingCabribbeanPlayer(otherPlayer, playerId), state))
+    val solution = muToLambda.search(BestCaribbeanProblem(playerId, otherPlayer, WaitingCabribbeanPlayer(otherPlayer, playerId), state))
     solution.toActions
   }
 }
 
-case class CaribbeanProblem(me: Int,
-                            other: Int,
-                            otherPlayer: GamePlayer[CaribbeanState, CaribbeanAction],
-                            state: CaribbeanState) extends Problem[CaribbeanSolution] {
+case class BestCaribbeanProblem(me: Int,
+                                other: Int,
+                                otherPlayer: GamePlayer[CaribbeanState, CaribbeanAction],
+                                state: CaribbeanState) extends Problem[BestCaribbeanSolution] {
 
   private val convolution = new BoundedVectorConvolution(0.3, 0, 10)
   private val roundsToSimulate = 4
@@ -36,25 +35,25 @@ case class CaribbeanProblem(me: Int,
   val actionLength: Int = state.shipsOf(me).size
   val chromosome: Range = 0 until (roundsToSimulate * actionLength)
 
-  override def randomSolution(): CaribbeanSolution = {
-    CaribbeanSolution(this, chromosome.map(_ => NoiseGenerators.uniform(5, 5).apply()).toVector)
+  override def randomSolution(): BestCaribbeanSolution = {
+    BestCaribbeanSolution(this, chromosome.map(_ => NoiseGenerators.uniform(5, 5).apply()).toVector)
   }
 
-  override def tweakSolution(solution: CaribbeanSolution): CaribbeanSolution = {
+  override def tweakSolution(solution: BestCaribbeanSolution): BestCaribbeanSolution = {
     solution.copy(actions = convolution.tweak(solution.actions,
       NoiseGenerators.gaussian(mean = 0, stdDerivation = 2)))
   }
 
 }
 
-case class CaribbeanSolution(problem: CaribbeanProblem,
-                             actions: Vector[Double]) extends Solution {
+case class BestCaribbeanSolution(problem: BestCaribbeanProblem,
+                                 actions: Vector[Double]) extends Solution {
   override def quality(): Double = {
     val simulatedState = targetState()
 
     val myScore = simulatedState.shipsOf(problem.me).map(ship => {
       100000 * ship.rums +
-        26 * ship.speed +
+        ship.speed +
         problem.state.barrels.map(b => b.rums * Math.pow(0.95, b.cube.distanceTo(ship.center))).sum
     }).sum
 

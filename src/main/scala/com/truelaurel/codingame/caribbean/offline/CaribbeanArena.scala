@@ -1,9 +1,11 @@
 package com.truelaurel.codingame.caribbean.offline
 
+import com.truelaurel.codingame.caribbean.best.{BestCaribbeanPlayer, WaitingCabribbeanPlayer}
 import com.truelaurel.codingame.caribbean.common._
+import com.truelaurel.codingame.caribbean.head.CaribbeanPlayer
 import com.truelaurel.codingame.caribbean.online.CaribbeanController
-import com.truelaurel.codingame.engine.{GameArena, GameResult}
-import com.truelaurel.codingame.hexagons.Cube
+import com.truelaurel.codingame.engine._
+import com.truelaurel.codingame.hexagons.{Cube, Offset}
 
 /**
   * Created by hwang on 15/04/2017.
@@ -134,13 +136,12 @@ object CaribbeanArena extends GameArena[CaribbeanState, CaribbeanAction] {
     val shipsAfterShipMineCollision = shipMineCollision.foldLeft(shipsAfterShipBarrelCollision) {
       case (updatedShips, (mine, impacted)) =>
         impacted.foldLeft(updatedShips) {
-          case (updatedShips2, ship) => {
+          case (updatedShips2, ship) =>
             if (CaribbeanContext.shipZone(ship).contains(mine.cube)) {
               updatedShips2.updated(ship.id, ship.copy(rums = ship.rums - CaribbeanContext.highMineDamage))
             } else {
               updatedShips2.updated(ship.id, ship.copy(rums = ship.rums - CaribbeanContext.lowMineDamage))
             }
-          }
         }
     }
 
@@ -182,5 +183,26 @@ object CaribbeanArena extends GameArena[CaribbeanState, CaribbeanAction] {
   }
 
 
-  override def judge(state: CaribbeanState): GameResult = ???
+  override def judge(state: CaribbeanState): GameResult = {
+    val myShips = state.shipsOf(CaribbeanContext.me)
+    val otherShips = state.shipsOf(CaribbeanContext.other)
+    if (myShips.isEmpty && otherShips.isEmpty) {
+      Draw
+    } else if (myShips.isEmpty) {
+      LossKO
+    } else if (otherShips.isEmpty) {
+      WinKO
+    } else {
+      val myTotalRums = myShips.map(_.rums).sum
+      val otherTotalRums = otherShips.map(_.rums).sum
+      if (myTotalRums > otherTotalRums) {
+        WinTech
+      } else if (myTotalRums == otherTotalRums) {
+        LossTech
+      } else {
+        Draw
+      }
+    }
+  }
+
 }

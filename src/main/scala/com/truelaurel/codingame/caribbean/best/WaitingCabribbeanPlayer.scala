@@ -8,7 +8,7 @@ import scala.util.Random
 /**
   * Created by hwang on 14/04/2017.
   */
-case class BestCabribbeanPlayer(playerId: Int, otherPlayer: Int) extends GamePlayer[CaribbeanState, CaribbeanAction] {
+case class WaitingCabribbeanPlayer(playerId: Int, otherPlayer: Int) extends GamePlayer[CaribbeanState, CaribbeanAction] {
   private val seed = 1
   private val random = new Random(seed)
   private val indices = (1 to 200).map(_ => random.nextLong().abs % 7)
