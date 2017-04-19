@@ -18,7 +18,6 @@ object CaribbeanController extends GameController[CaribbeanContext, CaribbeanSta
   override def readState(turn: Int, context: CaribbeanContext): CaribbeanState = {
     val shipCount = StdIn.readInt()
 
-    val time = System.nanoTime()
     val entities = for {
       i <- 0 until StdIn.readInt()
       line: String = StdIn.readLine()

@@ -54,7 +54,7 @@ case class CaribbeanSolution(problem: CaribbeanProblem,
 
     val myScore = simulatedState.shipsOf(problem.me).map(ship => {
       100000 * ship.rums +
-        26 * ship.speed +
+        ship.speed +
         problem.state.barrels.map(b => b.rums * Math.pow(0.95, b.cube.distanceTo(ship.center))).sum
     }).sum
 

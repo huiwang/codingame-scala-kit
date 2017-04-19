@@ -1,11 +1,9 @@
 package com.truelaurel.codingame.caribbean.offline
 
-import com.truelaurel.codingame.caribbean.best.{BestCaribbeanPlayer, WaitingCabribbeanPlayer}
 import com.truelaurel.codingame.caribbean.common._
-import com.truelaurel.codingame.caribbean.head.CaribbeanPlayer
 import com.truelaurel.codingame.caribbean.online.CaribbeanController
 import com.truelaurel.codingame.engine._
-import com.truelaurel.codingame.hexagons.{Cube, Offset}
+import com.truelaurel.codingame.hexagons.Cube
 
 /**
   * Created by hwang on 15/04/2017.
@@ -19,7 +17,6 @@ object CaribbeanArena extends GameArena[CaribbeanState, CaribbeanAction] {
     val movedBalls = state.balls.map(b => b.copy(land = b.land - 1))
 
     val shipsAfterDecreasedRum = shipMap.mapValues(s => s.copy(rums = s.rums - 1)).filter(_._2.rums > 0)
-
 
     val actionByShip = actions.map(a => a.shipId -> a).toMap
 

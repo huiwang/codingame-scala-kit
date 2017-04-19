@@ -1,6 +1,7 @@
 package com.truelaurel.codingame.caribbean.offline
 
 import com.truelaurel.codingame.caribbean.common._
+import com.truelaurel.codingame.engine.{LossKO, WinTech}
 import com.truelaurel.codingame.hexagons.Offset
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -211,6 +212,46 @@ class CaribbeanArenaTest extends FlatSpec with Matchers {
       )
     )
   }
+
+  it should "judge game technical win/loss" in {
+    val state = CaribbeanState(
+      context = CaribbeanContext(),
+      ships = Vector(
+        Ship(0, Offset(7, 7), orientation = 0, speed = 0, rums = 60, owner = 1),
+        Ship(1, Offset(13, 7), orientation = 3, speed = 0, rums = 30, owner = 0)
+      ),
+      barrels = Vector(
+        Barrel(2, Offset(10, 7), 20)
+      ),
+      balls = Vector(
+        Ball(3, Offset(7, 7), 0, 2)
+      ),
+      mines = Vector(),
+      turn = 1
+    )
+
+    CaribbeanArena.judge(state) should be(WinTech)
+  }
+
+  it should "judge game ko win/loss" in {
+    val state = CaribbeanState(
+      context = CaribbeanContext(),
+      ships = Vector(
+        Ship(1, Offset(13, 7), orientation = 3, speed = 0, rums = 30, owner = 0)
+      ),
+      barrels = Vector(
+        Barrel(2, Offset(10, 7), 20)
+      ),
+      balls = Vector(
+        Ball(3, Offset(7, 7), 0, 2)
+      ),
+      mines = Vector(),
+      turn = 1
+    )
+
+    CaribbeanArena.judge(state) should be(LossKO)
+  }
+
 
 
 }
