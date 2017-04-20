@@ -10,6 +10,7 @@ import com.truelaurel.codingame.math.Mathl
 import com.truelaurel.codingame.metaheuristic.evolutionstrategy.MuPlusLambda
 import com.truelaurel.codingame.metaheuristic.model.{Problem, Solution}
 import com.truelaurel.codingame.metaheuristic.tweak.{BoundedVectorConvolution, NoiseGenerators}
+import com.truelaurel.codingame.time.Chronometer
 
 import scala.concurrent.duration.Duration
 
@@ -21,7 +22,7 @@ case class StrikeBackPlayer(range: Vector[Int],
                            ) extends GamePlayer[StrikeBackGameState, PodAction] {
 
   override def reactTo(state: StrikeBackGameState): Vector[PodAction] = {
-    val muToLambda = new MuPlusLambda(20, 100, Duration(90, TimeUnit.MILLISECONDS))
+    val muToLambda = new MuPlusLambda(20, 100, new Chronometer(Duration(90, TimeUnit.MILLISECONDS)))
     val solution = muToLambda.search(StrikeBackProblem(range, otherRange, BestStrikeBackPlayer(otherRange), state))
     solution.adapt(state, solution.actions.take(2))
   }

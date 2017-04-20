@@ -9,16 +9,19 @@ import com.truelaurel.codingame.hexagons.Cube
 import com.truelaurel.codingame.metaheuristic.evolutionstrategy.MuPlusLambda
 import com.truelaurel.codingame.metaheuristic.model.{Problem, Solution}
 import com.truelaurel.codingame.metaheuristic.tweak.{BoundedVectorConvolution, NoiseGenerators}
+import com.truelaurel.codingame.time.{Chronometer, Stopper}
 
 import scala.concurrent.duration.Duration
 
 /**
   * Created by hwang on 14/04/2017.
   */
-case class BestCaribbeanPlayer(playerId: Int, otherPlayer: Int) extends GamePlayer[CaribbeanState, CaribbeanAction] {
+case class BestCaribbeanPlayer(playerId: Int, otherPlayer: Int,
+                               stopper: Stopper = new Chronometer(Duration(45, TimeUnit.MILLISECONDS)))
+  extends GamePlayer[CaribbeanState, CaribbeanAction] {
 
   override def reactTo(state: CaribbeanState): Vector[CaribbeanAction] = {
-    val muToLambda = new MuPlusLambda(2, 4, Duration(45, TimeUnit.MILLISECONDS))
+    val muToLambda = new MuPlusLambda(2, 4, stopper)
     val solution = muToLambda.search(BestCaribbeanProblem(playerId, otherPlayer, WaitingCabribbeanPlayer(otherPlayer, playerId), state))
     solution.toActions
   }
