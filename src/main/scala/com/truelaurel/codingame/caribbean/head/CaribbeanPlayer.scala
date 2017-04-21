@@ -17,13 +17,28 @@ import scala.concurrent.duration.Duration
 /**
   * Created by hwang on 14/04/2017.
   */
-case class CaribbeanPlayer(playerId: Int, otherPlayer: Int,
-                           stopper: Stopper = new Chronometer(Duration(40, TimeUnit.MILLISECONDS))
+case class CaribbeanPlayer(me: Int, other: Int,
+                           stopper: Stopper = new Chronometer(Duration(38, TimeUnit.MILLISECONDS))
                           ) extends GamePlayer[CaribbeanState, CaribbeanAction] {
 
   override def reactTo(state: CaribbeanState): Vector[CaribbeanAction] = {
+    val myShips = state.shipsOf(me)
+    if (state.barrels.isEmpty && myShips.size > 1) {
+      val weakest = myShips.minBy(_.rums)
+      val closestToWeakest = myShips.filter(_.id != weakest.id).map(s => weakest.center.distanceTo(s.center)).min
+      if (closestToWeakest == 1) {
+        myShips.map(s => if (s.id == weakest.id) Fire(s.id, weakest.center.toOffset) else Wait(s.id))
+      } else {
+        simule(state)
+      }
+    } else {
+      simule(state)
+    }
+  }
+
+  private def simule(state: CaribbeanState) = {
     val muToLambda = new MuPlusLambda(2, 4, stopper)
-    val solution = muToLambda.search(CaribbeanProblem(playerId, otherPlayer, WaitingCabribbeanPlayer(otherPlayer, playerId), state))
+    val solution = muToLambda.search(CaribbeanProblem(me, other, WaitingCabribbeanPlayer(other, me), state))
     solution.toActions
   }
 }
@@ -33,7 +48,7 @@ case class CaribbeanProblem(me: Int,
                             otherPlayer: GamePlayer[CaribbeanState, CaribbeanAction],
                             state: CaribbeanState) extends Problem[CaribbeanSolution] {
 
-  private val convolution = new BoundedVectorConvolution(0.7, 0, 10)
+  private val convolution = new BoundedVectorConvolution(0.5, 0, 10)
   private val roundsToSimulate = 3
   val rounds: Range = 0 until roundsToSimulate
   val actionLength: Int = state.shipsOf(me).size
@@ -45,7 +60,7 @@ case class CaribbeanProblem(me: Int,
 
   override def tweakSolution(solution: CaribbeanSolution): CaribbeanSolution = {
     solution.copy(actions = convolution.tweak(solution.actions,
-      NoiseGenerators.gaussian(mean = 0, stdDerivation = 2)))
+      NoiseGenerators.gaussian(mean = 0, stdDerivation = 4)))
   }
 
 }
@@ -58,25 +73,22 @@ case class CaribbeanSolution(problem: CaribbeanProblem,
     val myShips = simulatedState.shipsOf(problem.me)
 
     val myScore = myShips.map(ship => {
-      100000 * ship.rums +
-        10 * ship.speed +
-        10 * simulatedState.barrels
-          .map(b => {
-            val angle = CaribbeanContext.angle(ship, b.cube)
-            val diff = (ship.orientation - angle).abs
-            val smallest = diff.min(6 - diff)
-            ship.center.distanceTo(b.cube) + smallest * 2
-            b.rums * Math.pow(0.95, angle)
-          })
-          .sum +
-        CaribbeanContext.neighbors(ship.center).size
+      val barrelsInSight = simulatedState.barrels.filter(b => {
+        val angle = CaribbeanContext.angle(ship, b.cube)
+        val diff = (ship.orientation - angle).abs
+        diff.min(6 - diff) <= 1
+      }).map(b => b.rums * Math.pow(0.5, b.cube.distanceTo(ship.center))).sum
+      ship.rums + 0.001 * barrelsInSight + 0.001 * CaribbeanContext.neighbors(ship.center).size
     }).sum
 
-    val otherScore = simulatedState.shipsOf(problem.other).map(ship => {
-      100000 * ship.rums
-    }).sum
-
-    myScore - otherScore
+    if (problem.state.barrels.isEmpty && myShips.size > 1 && myShips.exists(_.rums < 50)) {
+      myShips.map(ship => {
+        val shipValues = myShips.map(ms => {
+          ms.rums * Math.pow(0.5, ms.center.distanceTo(ship.center))
+        }).sum
+        ship.rums + 0.0001 * shipValues
+      }).sum
+    } else myScore
   }
 
   def targetState(): CaribbeanState = {
@@ -95,13 +107,15 @@ case class CaribbeanSolution(problem: CaribbeanProblem,
       x match {
         case _ if x > 7 => Port(shipId)
         case _ if x > 4 => Starboard(shipId)
-        case _ if x > 1 => Faster(shipId)
-        case _ if x > 0.01 => Slower(shipId)
+        case _ if x > 2 => Faster(shipId)
+        case _ if x > 0 => Slower(shipId)
         case y =>
           val ship = myShips(i)
           val targets: Vector[Cube] = state.ships
-            .filter(s => s.owner != ship.owner &&
-              s.center.distanceTo(ship.center) <= CaribbeanContext.fireMaxDistance).map(_.center)
+            .filter(s => s.id != ship.id
+              && (s.owner != problem.me || state.barrels.isEmpty)
+              && (s.rums < 50 || s.owner != problem.me)
+              && ship.center.distanceTo(s.center) <= CaribbeanContext.fireMaxDistance).map(_.center)
           if (targets.isEmpty) Wait(shipId) else {
             val target = targets((y * 100).toInt % targets.size)
             Fire(shipId, target.toOffset)

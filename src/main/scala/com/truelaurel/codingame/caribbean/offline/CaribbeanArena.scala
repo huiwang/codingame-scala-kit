@@ -102,7 +102,6 @@ object CaribbeanArena extends GameArena[CaribbeanState, CaribbeanAction] {
 
   }
 
-
   def reactShipsImpacts(ships: Map[Int, Ship],
                         barrels: Map[Int, Barrel],
                         mines: Map[Int, Mine]
@@ -123,23 +122,15 @@ object CaribbeanArena extends GameArena[CaribbeanState, CaribbeanAction] {
       case (remaining, (_, barrel)) => remaining - barrel.id
     }
 
+    //for performance issue we don't emulate low mine collision issue
     val shipMineCollision = for {
       ship <- ships.values
       mine <- CaribbeanContext.shipZone(ship).flatMap(cube => cubeToMine.get(cube))
-      impacted = ships.values.filter(s => s == ship ||
-        CaribbeanContext.neighbors(mine.cube).intersect(CaribbeanContext.shipZone(s)).nonEmpty)
-    } yield (mine, impacted)
+    } yield (mine, ship)
 
     val shipsAfterShipMineCollision = shipMineCollision.foldLeft(shipsAfterShipBarrelCollision) {
-      case (updatedShips, (mine, impacted)) =>
-        impacted.foldLeft(updatedShips) {
-          case (updatedShips2, ship) =>
-            if (CaribbeanContext.shipZone(ship).contains(mine.cube)) {
-              updatedShips2.updated(ship.id, ship.copy(rums = ship.rums - CaribbeanContext.highMineDamage))
-            } else {
-              updatedShips2.updated(ship.id, ship.copy(rums = ship.rums - CaribbeanContext.lowMineDamage))
-            }
-        }
+      case (updatedShips, (_, ship)) =>
+        updatedShips.updated(ship.id, ship.copy(rums = ship.rums - CaribbeanContext.highMineDamage))
     }
 
     val minesAfterShipMove = shipMineCollision.foldLeft(mines) {

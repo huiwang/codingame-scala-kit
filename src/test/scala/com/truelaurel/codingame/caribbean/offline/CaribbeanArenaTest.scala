@@ -98,7 +98,7 @@ class CaribbeanArenaTest extends FlatSpec with Matchers {
       CaribbeanState(
         context = CaribbeanContext(),
         ships = Vector(
-          Ship(0, Offset(9, 7), orientation = 0, speed = 2, rums = 19, owner = 1),
+          Ship(0, Offset(9, 7), orientation = 0, speed = 2, rums = 29, owner = 1),
           Ship(1, Offset(12, 8), orientation = 2, speed = 1, rums = 4, owner = 0)
         ),
         barrels = Vector(

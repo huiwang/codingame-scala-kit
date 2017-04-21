@@ -54,6 +54,18 @@ case class Ship(id: Int, position: Offset, orientation: Int, speed: Int, rums: I
   def bow: Cube = center.neighbor(orientation)
 
   def stern: Cube = center.neighbor((orientation + 3) % 6)
+
+  def nextBow: Cube = speed match {
+    case 0 => bow
+    case 1 => bow.neighbor(orientation)
+    case 2 => bow.neighbor(orientation).neighbor(orientation)
+  }
+
+  def nextCenter: Cube = speed match {
+    case 0 => center
+    case 1 => bow
+    case 2 => bow.neighbor(orientation)
+  }
 }
 
 case class Barrel(id: Int, position: Offset, rums: Int) {

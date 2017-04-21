@@ -7,6 +7,6 @@ import scala.util.Random
 "abc".diff("ab2")
 "ab2".diff("abc")
 
-Math.pow(0.95, 10)
+Math.pow(0.9, 3)
 
 (0 until 6).toVector(2)
