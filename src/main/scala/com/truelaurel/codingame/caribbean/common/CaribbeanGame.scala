@@ -11,6 +11,7 @@ case class CaribbeanContext(lastMine: Map[Int, Int], lastFire: Map[Int, Int]) {
 
 object CaribbeanContext {
   val highMineDamage = 25
+
   val lowMineDamage = 10
   val lowBallDamage = 25
   val highBallDamage = 50
@@ -19,49 +20,40 @@ object CaribbeanContext {
   val height = 21
   val me = 1
   val other = 0
-  private val orientations = 0 until 6
+  private val orientations = (0 until 6).toVector
   val cubes: Vector[Cube] = (for {
     x <- 0 until width
     y <- 0 until height
   } yield Offset(x, y).toCube).toVector
-
-  val offsetToCube: Map[Offset, Cube] = cubes.map(cube => cube.toOffset -> cube).toMap
-
-
-  val cubeToNeighbors: Map[Cube, Set[Cube]] = cubes
-    .map(cube =>
-      cube -> (0 to 5).map(cube.neighbor).filter(cubes.contains).toSet)
-    .toMap
-
-  val cubeToOrientationToZone: Map[Cube, Map[Int, Set[Cube]]] = {
-    cubes.map(cube =>
-      cube -> orientations.map(ori =>
+  private val cubeInfo: Map[Cube, (Set[Cube], Map[Int, Set[Cube]], Map[Cube, Double])] = cubes
+    .map(cube => {
+      val neighbors = (0 to 5).map(cube.neighbor).filter(cubes.contains).toSet
+      val oriToZone = orientations.map(ori =>
         ori -> Set(cube, cube.neighbor(ori), cube.neighbor((ori + 3) % 6))
       ).toMap
-    ).toMap
-  }
-
-  val cubeToOrientationToNeighbor: Map[Cube, Map[Int, Cube]] = {
-    cubes.map(cube =>
-      cube -> orientations.map(ori =>
-        ori -> cube.neighbor(ori)
+      val angles = cubes.map(ic => ic -> cube.toOffset.angle(ic.toOffset)
       ).toMap
-    ).toMap
-  }
+      cube -> (neighbors, oriToZone, angles)
+    })
+    .toMap
 
-  def shipZone(ship: Ship): Set[Cube] = cubeToOrientationToZone(ship.center)(ship.orientation)
+  def shipZone(ship: Ship): Set[Cube] = cubeInfo(ship.center)._2(ship.orientation)
 
   def apply(): CaribbeanContext = CaribbeanContext(Map.empty, Map.empty)
 
-  def toCube(offset: Offset): Cube = CaribbeanContext.offsetToCube.getOrElse(offset, offset.toCube)
+  def angle(ship: Ship, target: Cube): Double = cubeInfo(ship.center)._3(target)
+
+  def toCube(offset: Offset): Cube = offset.toCube
+
+  def neighbors(cube: Cube): Set[Cube] = cubeInfo(cube)._1
 }
 
 case class Ship(id: Int, position: Offset, orientation: Int, speed: Int, rums: Int, owner: Int) {
   def center: Cube = CaribbeanContext.toCube(position)
 
-  def bow: Cube = CaribbeanContext.cubeToOrientationToNeighbor(center)(orientation)
+  def bow: Cube = center.neighbor(orientation)
 
-  def stern: Cube = CaribbeanContext.cubeToOrientationToNeighbor(center)((orientation + 3) % 6)
+  def stern: Cube = center.neighbor((orientation + 3) % 6)
 }
 
 case class Barrel(id: Int, position: Offset, rums: Int) {

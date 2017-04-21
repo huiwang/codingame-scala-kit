@@ -127,7 +127,7 @@ object CaribbeanArena extends GameArena[CaribbeanState, CaribbeanAction] {
       ship <- ships.values
       mine <- CaribbeanContext.shipZone(ship).flatMap(cube => cubeToMine.get(cube))
       impacted = ships.values.filter(s => s == ship ||
-        CaribbeanContext.cubeToNeighbors(mine.cube).intersect(CaribbeanContext.shipZone(s)).nonEmpty)
+        CaribbeanContext.neighbors(mine.cube).intersect(CaribbeanContext.shipZone(s)).nonEmpty)
     } yield (mine, impacted)
 
     val shipsAfterShipMineCollision = shipMineCollision.foldLeft(shipsAfterShipBarrelCollision) {

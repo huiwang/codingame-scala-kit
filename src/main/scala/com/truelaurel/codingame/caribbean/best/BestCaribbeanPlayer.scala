@@ -88,7 +88,7 @@ case class BestCaribbeanSolution(problem: BestCaribbeanProblem,
         case y =>
           val ship = myShips(i)
           val targetShips = state.ships.filter(s => s.owner != ship.owner && s.center.distanceTo(ship.center) <= CaribbeanContext.fireMaxDistance).map(_.center)
-          val targets: Vector[Cube] = targetShips.flatMap(cube => CaribbeanContext.cubeToNeighbors(cube) + cube)
+          val targets: Vector[Cube] = targetShips.flatMap(cube => CaribbeanContext.neighbors(cube) + cube)
           if (targets.isEmpty) Wait(shipId) else {
             val target = targets((y * 100).toInt % targets.size)
             Fire(shipId, target.toOffset)

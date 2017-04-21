@@ -10,7 +10,7 @@ class Chronometer(duration: Duration) extends Stopper {
   private var startTime: Long = 0
   private var elapsed: Double = 0
   private var count: Long = 0
-  private val margin: Double = 1.0
+  private val margin: Double = 2.0
 
   override def start(): Unit = startTime = System.nanoTime()
 

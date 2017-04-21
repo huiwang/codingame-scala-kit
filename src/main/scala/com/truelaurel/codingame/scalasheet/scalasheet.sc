@@ -8,3 +8,5 @@ import scala.util.Random
 "ab2".diff("abc")
 
 Math.pow(0.95, 10)
+
+(0 until 6).toVector(2)
