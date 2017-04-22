@@ -88,7 +88,7 @@ case class CaribbeanSolution(problem: CaribbeanProblem,
       }).sum - otherScore
     } else {
       myShips.map(ship => {
-        val barrelValues = simulatedState.barrels
+        val barrelValues = simulatedState.barrels.values
           .map(b => b.rums * Math.pow(0.95, b.cube.distanceTo(ship.center))).sum
         val freeHex = CaribbeanContext.reachable(ship.center)
         ship.rums + 0.001 * barrelValues + 0.0001 * freeHex
@@ -116,10 +116,10 @@ case class CaribbeanSolution(problem: CaribbeanProblem,
         case _ if x > 6 || x < 4 => Slower(shipId)
         case y =>
           val ship = myShips(i)
-          val targets: Vector[Cube] = state.ships
+          val targets: Vector[Cube] = state.ships.values
             .filter(s => s.id != ship.id
               && (s.owner != problem.me)
-              && ship.nextCenter.distanceTo(s.center) <= CaribbeanContext.fireMaxDistance).map(_.nextCenter)
+              && ship.nextCenter.distanceTo(s.center) <= CaribbeanContext.fireMaxDistance).map(_.nextCenter).toVector
           if (targets.isEmpty) Wait(shipId) else {
             val target = targets((y * 100).toInt % targets.size)
             Fire(shipId, target.toOffset)

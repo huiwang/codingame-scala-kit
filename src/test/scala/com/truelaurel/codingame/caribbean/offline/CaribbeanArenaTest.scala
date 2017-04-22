@@ -18,13 +18,13 @@ class CaribbeanArenaTest extends FlatSpec with Matchers {
       ships = Vector(
         Ship(0, Offset(7, 7), orientation = 0, speed = 1, rums = 10, owner = 1),
         Ship(1, Offset(18, 7), orientation = 3, speed = 0, rums = 10, owner = 0)
-      ),
+      ).map(e => e.id -> e).toMap,
       barrels = Vector(
         Barrel(2, Offset(10, 7), 20),
         Barrel(3, Offset(14, 7), 20)
-      ),
-      balls = Vector.empty,
-      mines = Vector.empty,
+      ).map(e => e.id -> e).toMap,
+      balls = Map.empty,
+      mines = Map.empty,
       turn = 1
     )
 
@@ -34,12 +34,12 @@ class CaribbeanArenaTest extends FlatSpec with Matchers {
         ships = Vector(
           Ship(0, Offset(9, 7), orientation = 0, speed = 2, rums = 29, owner = 1),
           Ship(1, Offset(17, 7), orientation = 3, speed = 1, rums = 9, owner = 0)
-        ),
+        ).map(e => e.id -> e).toMap,
         barrels = Vector(
           Barrel(3, Offset(14, 7), 20)
-        ),
-        balls = Vector.empty,
-        mines = Vector.empty,
+        ).map(e => e.id -> e).toMap,
+        balls = Map.empty,
+        mines = Map.empty,
         turn = 2
       )
     )
@@ -51,13 +51,13 @@ class CaribbeanArenaTest extends FlatSpec with Matchers {
       ships = Vector(
         Ship(0, Offset(7, 7), orientation = 0, speed = 1, rums = 10, owner = 1),
         Ship(1, Offset(18, 7), orientation = 3, speed = 1, rums = 10, owner = 0)
-      ),
+      ).map(e => e.id -> e).toMap,
       barrels = Vector(
         Barrel(2, Offset(10, 7), 20),
         Barrel(3, Offset(17, 8), 20)
-      ),
-      balls = Vector.empty,
-      mines = Vector.empty,
+      ).map(e => e.id -> e).toMap,
+      balls = Map.empty,
+      mines = Map.empty,
       turn = 1
     )
 
@@ -67,10 +67,10 @@ class CaribbeanArenaTest extends FlatSpec with Matchers {
         ships = Vector(
           Ship(0, Offset(9, 7), orientation = 0, speed = 2, rums = 29, owner = 1),
           Ship(1, Offset(17, 7), orientation = 4, speed = 1, rums = 29, owner = 0)
-        ),
-        barrels = Vector.empty,
-        balls = Vector.empty,
-        mines = Vector.empty,
+        ).map(e => e.id -> e).toMap,
+        barrels = Map.empty,
+        balls = Map.empty,
+        mines = Map.empty,
         turn = 2
       )
     )
@@ -82,15 +82,15 @@ class CaribbeanArenaTest extends FlatSpec with Matchers {
       ships = Vector(
         Ship(0, Offset(7, 7), orientation = 0, speed = 1, rums = 30, owner = 1),
         Ship(1, Offset(13, 8), orientation = 3, speed = 1, rums = 30, owner = 0)
-      ),
+      ).map(e => e.id -> e).toMap,
       barrels = Vector(
         Barrel(2, Offset(16, 8), 20),
         Barrel(3, Offset(17, 8), 20)
-      ),
-      balls = Vector.empty,
+      ).map(e => e.id -> e).toMap,
+      balls = Map.empty,
       mines = Vector(
         Mine(4, Offset(11, 7))
-      ),
+      ).map(e => e.id -> e).toMap,
       turn = 1
     )
 
@@ -100,13 +100,13 @@ class CaribbeanArenaTest extends FlatSpec with Matchers {
         ships = Vector(
           Ship(0, Offset(9, 7), orientation = 0, speed = 2, rums = 29, owner = 1),
           Ship(1, Offset(12, 8), orientation = 2, speed = 1, rums = 4, owner = 0)
-        ),
+        ).map(e => e.id -> e).toMap,
         barrels = Vector(
           Barrel(2, Offset(16, 8), 20),
           Barrel(3, Offset(17, 8), 20)
-        ),
-        balls = Vector.empty,
-        mines = Vector.empty,
+        ).map(e => e.id -> e).toMap,
+        balls = Map.empty,
+        mines = Map.empty,
         turn = 2
       )
     )
@@ -118,12 +118,12 @@ class CaribbeanArenaTest extends FlatSpec with Matchers {
       ships = Vector(
         Ship(0, Offset(7, 7), orientation = 0, speed = 1, rums = 30, owner = 1),
         Ship(1, Offset(13, 7), orientation = 3, speed = 1, rums = 30, owner = 0)
-      ),
+      ).map(e => e.id -> e).toMap,
       barrels = Vector(
         Barrel(3, Offset(10, 7), 20)
-      ),
-      balls = Vector.empty,
-      mines = Vector(),
+      ).map(e => e.id -> e).toMap,
+      balls = Map.empty,
+      mines = Map.empty,
       turn = 1
     )
 
@@ -133,12 +133,12 @@ class CaribbeanArenaTest extends FlatSpec with Matchers {
         ships = Vector(
           Ship(0, Offset(8, 7), orientation = 0, speed = 0, rums = 29, owner = 1),
           Ship(1, Offset(12, 7), orientation = 3, speed = 0, rums = 29, owner = 0)
-        ),
+        ).map(e => e.id -> e).toMap,
         barrels = Vector(
           Barrel(3, Offset(10, 7), 20)
-        ),
-        balls = Vector.empty,
-        mines = Vector.empty,
+        ).map(e => e.id -> e).toMap,
+        balls = Map.empty,
+        mines = Map.empty,
         turn = 2
       )
     )
@@ -150,14 +150,14 @@ class CaribbeanArenaTest extends FlatSpec with Matchers {
       ships = Vector(
         Ship(0, Offset(7, 7), orientation = 0, speed = 0, rums = 60, owner = 1),
         Ship(1, Offset(13, 7), orientation = 3, speed = 0, rums = 30, owner = 0)
-      ),
+      ).map(e => e.id -> e).toMap,
       barrels = Vector(
         Barrel(2, Offset(10, 7), 20)
-      ),
+      ).map(e => e.id -> e).toMap,
       balls = Vector(
         Ball(3, Offset(7, 7), 0, 1)
-      ),
-      mines = Vector(),
+      ).map(e => e.id -> e).toMap,
+      mines = Map.empty,
       turn = 1
     )
 
@@ -167,12 +167,12 @@ class CaribbeanArenaTest extends FlatSpec with Matchers {
         ships = Vector(
           Ship(0, Offset(7, 7), orientation = 0, speed = 0, rums = 9, owner = 1),
           Ship(1, Offset(13, 7), orientation = 3, speed = 0, rums = 29, owner = 0)
-        ),
+        ).map(e => e.id -> e).toMap,
         barrels = Vector(
           Barrel(2, Offset(10, 7), 20)
-        ),
-        balls = Vector.empty,
-        mines = Vector.empty,
+        ).map(e => e.id -> e).toMap,
+        balls = Map.empty,
+        mines = Map.empty,
         turn = 2
       )
     )
@@ -185,14 +185,14 @@ class CaribbeanArenaTest extends FlatSpec with Matchers {
       ships = Vector(
         Ship(0, Offset(7, 7), orientation = 0, speed = 0, rums = 60, owner = 1),
         Ship(1, Offset(13, 7), orientation = 3, speed = 0, rums = 30, owner = 0)
-      ),
+      ).map(e => e.id -> e).toMap,
       barrels = Vector(
         Barrel(2, Offset(10, 7), 20)
-      ),
+      ).map(e => e.id -> e).toMap,
       balls = Vector(
         Ball(3, Offset(7, 7), 0, 2)
-      ),
-      mines = Vector(),
+      ).map(e => e.id -> e).toMap,
+      mines = Map.empty,
       turn = 1
     )
 
@@ -202,12 +202,12 @@ class CaribbeanArenaTest extends FlatSpec with Matchers {
         ships = Vector(
           Ship(0, Offset(7, 7), orientation = 0, speed = 0, rums = 59, owner = 1),
           Ship(1, Offset(13, 7), orientation = 3, speed = 0, rums = 29, owner = 0)
-        ),
+        ).map(e => e.id -> e).toMap,
         barrels = Vector(
           Barrel(2, Offset(10, 7), 20)
-        ),
-        balls = Vector(Ball(3, Offset(7, 7), 0, 1), Ball(-1, Offset(13, 7), 1, 3)),
-        mines = Vector.empty,
+        ).map(e => e.id -> e).toMap,
+        balls = Vector(Ball(3, Offset(7, 7), 0, 1), Ball(-1, Offset(13, 7), 1, 3)).map(e => e.id -> e).toMap,
+        mines = Map.empty,
         turn = 2
       )
     )
@@ -219,14 +219,14 @@ class CaribbeanArenaTest extends FlatSpec with Matchers {
       ships = Vector(
         Ship(0, Offset(7, 7), orientation = 0, speed = 0, rums = 60, owner = 1),
         Ship(1, Offset(13, 7), orientation = 3, speed = 0, rums = 30, owner = 0)
-      ),
+      ).map(e => e.id -> e).toMap,
       barrels = Vector(
         Barrel(2, Offset(10, 7), 20)
-      ),
+      ).map(e => e.id -> e).toMap,
       balls = Vector(
         Ball(3, Offset(7, 7), 0, 2)
-      ),
-      mines = Vector(),
+      ).map(e => e.id -> e).toMap,
+      mines = Map.empty,
       turn = 1
     )
 
@@ -238,14 +238,14 @@ class CaribbeanArenaTest extends FlatSpec with Matchers {
       context = CaribbeanContext(),
       ships = Vector(
         Ship(1, Offset(13, 7), orientation = 3, speed = 0, rums = 30, owner = 0)
-      ),
+      ).map(e => e.id -> e).toMap,
       barrels = Vector(
         Barrel(2, Offset(10, 7), 20)
-      ),
+      ).map(e => e.id -> e).toMap,
       balls = Vector(
         Ball(3, Offset(7, 7), 0, 2)
-      ),
-      mines = Vector(),
+      ).map(e => e.id -> e).toMap,
+      mines = Map.empty,
       turn = 1
     )
 

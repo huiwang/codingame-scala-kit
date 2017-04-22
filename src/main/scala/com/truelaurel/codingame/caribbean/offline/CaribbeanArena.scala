@@ -1,5 +1,7 @@
 package com.truelaurel.codingame.caribbean.offline
 
+import java.util.concurrent.atomic.AtomicInteger
+
 import com.truelaurel.codingame.caribbean.common._
 import com.truelaurel.codingame.caribbean.online.CaribbeanController
 import com.truelaurel.codingame.engine._
@@ -9,20 +11,20 @@ import com.truelaurel.codingame.hexagons.Cube
   * Created by hwang on 15/04/2017.
   */
 object CaribbeanArena extends GameArena[CaribbeanState, CaribbeanAction] {
+
+  val counter = new AtomicInteger()
+
   override def next(state: CaribbeanState, actions: Vector[CaribbeanAction]): CaribbeanState = {
-    val shipMap: Map[Int, Ship] = state.ships.map(s => s.id -> s).toMap
-    val barrelMap: Map[Int, Barrel] = state.barrels.map(b => b.id -> b).toMap
-    val mineMap: Map[Int, Mine] = state.mines.map(m => m.id -> m).toMap
 
-    val movedBalls = state.balls.map(b => b.copy(land = b.land - 1))
+    val movedBalls = state.balls.mapValues(b => b.copy(land = b.land - 1))
 
-    val shipsAfterDecreasedRum = shipMap.mapValues(s => s.copy(rums = s.rums - 1)).filter(_._2.rums > 0)
+    val shipsAfterDecreasedRum = state.ships.mapValues(s => s.copy(rums = s.rums - 1)).filter(_._2.rums > 0)
 
     val actionByShip = actions.map(a => a.shipId -> a).toMap
 
-    val firedBalls = actionByShip.values.flatMap {
-      case Fire(shipId, target) =>
-        val ship = shipMap(shipId)
+    val firedBalls = actionByShip.flatMap {
+      case (_, Fire(shipId, target)) =>
+        val ship = state.ships(shipId)
         val targetCube = CaribbeanContext.toCube(target)
         val distance = ship.bow.distanceTo(targetCube)
         val lastFire = state.context.lastFire.getOrElse(shipId, -1)
@@ -30,7 +32,8 @@ object CaribbeanArena extends GameArena[CaribbeanState, CaribbeanAction] {
           distance <= CaribbeanContext.fireMaxDistance &&
           state.turn - lastFire >= 2) {
           val travelTime = (1 + (distance / 3.0).round).toInt
-          Some(Ball(-1, target, ship.owner, travelTime))
+          val id = counter.getAndIncrement()
+          Some(id -> Ball(-1, target, ship.owner, travelTime))
         } else None
       case _ => None
     }
@@ -46,7 +49,7 @@ object CaribbeanArena extends GameArena[CaribbeanState, CaribbeanAction] {
     val shipsAfterFirstMove = shipsAfterSpeeding.mapValues(s => moveShip(s, 1))
 
     val (shipsAfterFirstMoveImpact, barrelsAfterFirstMoveImpact, minesAfterFirstMoveImpact) =
-      reactToShips(shipsAfterDecreasedRum, shipsAfterFirstMove, barrelMap, mineMap)
+      reactToShips(shipsAfterDecreasedRum, shipsAfterFirstMove, state.barrels, state.mines)
 
     val shipsAfterSecondMove = shipsAfterFirstMoveImpact.mapValues(s => moveShip(s, 2))
 
@@ -67,20 +70,20 @@ object CaribbeanArena extends GameArena[CaribbeanState, CaribbeanAction] {
         barrelsAfterSecondMoveImpact, minesAfterSecondMoveImpact)
 
 
-    val (ballExplosions, remainingBalls) = movedBalls.partition(_.land == 0)
+    val (ballExplosions, remainingBalls) = movedBalls.partition(_._2.land == 0)
 
     val shipsAfterExplosion = shipsAfterRotationReact.mapValues(ship => {
-      val dmgOnBow = ballExplosions.count(b => b.cube == ship.bow) * CaribbeanContext.lowBallDamage
-      val dmgOnStern = ballExplosions.count(b => b.cube == ship.stern) * CaribbeanContext.lowBallDamage
-      val dmgOnCenter = ballExplosions.count(b => b.cube == ship.center) * CaribbeanContext.highBallDamage
+      val dmgOnBow = ballExplosions.count(b => b._2.cube == ship.bow) * CaribbeanContext.lowBallDamage
+      val dmgOnStern = ballExplosions.count(b => b._2.cube == ship.stern) * CaribbeanContext.lowBallDamage
+      val dmgOnCenter = ballExplosions.count(b => b._2.cube == ship.center) * CaribbeanContext.highBallDamage
       ship.copy(rums = ship.rums - dmgOnBow - dmgOnStern - dmgOnCenter)
     })
 
     state.copy(
       context = CaribbeanController.nextContext(state.context, state, actions),
-      ships = state.ships.flatMap(s => shipsAfterExplosion.get(s.id)).filter(_.rums > 0),
-      barrels = state.barrels.flatMap(b => barrelsAfterRotationReact.get(b.id)),
-      mines = state.mines.flatMap(m => minesAfterRotationReact.get(m.id)),
+      ships = shipsAfterExplosion.filter(_._2.rums > 0),
+      barrels = barrelsAfterRotationReact,
+      mines = minesAfterRotationReact,
       balls = remainingBalls ++ firedBalls,
       turn = state.turn + 1
     )
@@ -169,7 +172,7 @@ object CaribbeanArena extends GameArena[CaribbeanState, CaribbeanAction] {
     shipOption.flatMap(ship => if (collisions.contains(ship)) None else Some(ship))
   }
 
-  def shipCollisions(ships: Vector[Ship]): Set[Int] = {
+  def  shipCollisions(ships: Vector[Ship]): Set[Int] = {
     ships.combinations(2).foldLeft(Set[Int]()) {
       case (collisions, shipPair) =>
         if (collided(shipPair.head, shipPair.last)) {
@@ -179,7 +182,7 @@ object CaribbeanArena extends GameArena[CaribbeanState, CaribbeanAction] {
   }
 
   def collided(one: Ship, other: Ship): Boolean = {
-    one.center.distanceTo(other.center) < 3 && one.zone.intersect(other.zone).nonEmpty
+    one.center.distanceTo(other.center) <3 && one.zone.intersect(other.zone).nonEmpty
   }
 
 

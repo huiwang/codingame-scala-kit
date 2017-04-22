@@ -3,3 +3,9 @@
 
 [info] Benchmark                     Mode  Cnt   Score   Error  Units
 [info] CaribbeanBenchmark.caribbean  avgt   10  54.277 ± 1.409  ms/op
+
+[info] Benchmark                     Mode  Cnt   Score   Error  Units
+[info] CaribbeanBenchmark.caribbean  avgt   10  50.786 ± 1.053  ms/op
+
+[info] Benchmark                     Mode  Cnt   Score   Error  Units
+[info] CaribbeanBenchmark.caribbean  avgt   10  47.541 ± 0.665  ms/op

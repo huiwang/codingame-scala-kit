@@ -17,6 +17,7 @@ class GameLoop[C, S, A](
         val time = System.nanoTime()
         val actions = myPlayer.reactTo(state)
         System.err.println("GameReact elt: " + (System.nanoTime() - time) / 1000000 + "ms")
+        System.err.println(actions)
         actions.foreach(a => println(a))
         val context = controller.nextContext(c, state, actions)
         context

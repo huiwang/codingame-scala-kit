@@ -85,12 +85,12 @@ case class Mine(id: Int, position: Offset) {
 }
 
 case class CaribbeanState(context: CaribbeanContext,
-                          ships: Vector[Ship],
-                          barrels: Vector[Barrel],
-                          balls: Vector[Ball],
-                          mines: Vector[Mine],
+                          ships: Map[Int, Ship],
+                          barrels: Map[Int, Barrel],
+                          balls: Map[Int, Ball],
+                          mines: Map[Int, Mine],
                           turn: Int) {
-  def shipsOf(owner: Int): Vector[Ship] = ships.filter(_.owner == owner)
+  def shipsOf(owner: Int): Vector[Ship] = ships.values.filter(_.owner == owner).toVector.sortBy(_.id)
 }
 
 trait CaribbeanAction {
