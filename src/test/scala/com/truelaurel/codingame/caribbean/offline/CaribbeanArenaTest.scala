@@ -12,6 +12,39 @@ class CaribbeanArenaTest extends FlatSpec with Matchers {
 
   behavior of "CaribbeanArenaTest"
 
+  it should "predict wait" in {
+    val state = CaribbeanState(
+      context = CaribbeanContext(),
+      ships = Vector(
+        Ship(0, Offset(7, 7), orientation = 0, speed = 0, rums = 10, owner = 1),
+        Ship(1, Offset(18, 7), orientation = 3, speed = 0, rums = 10, owner = 0)
+      ).map(e => e.id -> e).toMap,
+      barrels = Vector(
+        Barrel(2, Offset(10, 7), 20),
+        Barrel(3, Offset(14, 7), 20)
+      ).map(e => e.id -> e).toMap,
+      balls = Map.empty,
+      mines = Map.empty,
+      turn = 1
+    )
+
+    CaribbeanArena.next(state, Vector(Wait(0), Wait(1))) should be(
+      CaribbeanState(
+        context = CaribbeanContext(),
+        ships = Vector(
+          Ship(0, Offset(7, 7), orientation = 0, speed = 0, rums = 9, owner = 1),
+          Ship(1, Offset(18, 7), orientation = 3, speed = 0, rums = 9, owner = 0)
+        ).map(e => e.id -> e).toMap,
+        barrels = Vector(
+          Barrel(2, Offset(10, 7), 20),
+          Barrel(3, Offset(14, 7), 20)
+        ).map(e => e.id -> e).toMap,
+        balls = Map.empty,
+        mines = Map.empty,
+        turn = 2
+      ))
+  }
+
   it should "predict acceleration" in {
     val state = CaribbeanState(
       context = CaribbeanContext(),

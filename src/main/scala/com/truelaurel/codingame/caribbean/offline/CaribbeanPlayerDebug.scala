@@ -12,7 +12,7 @@ import com.truelaurel.codingame.time.CountStopper
 object CaribbeanPlayerDebug {
 
   def main(args: Array[String]): Unit = {
-    val state = CaribbeanState(CaribbeanContext(Map(),Map(1 -> 18, 3 -> 19)),Map(1 -> Ship(1,Offset(7,9),0,2,89,1), 3 -> Ship(3,Offset(12,4),1,1,93,1), 0 -> Ship(0,Offset(12,13),2,2,97,0), 2 -> Ship(2,Offset(20,13),1,2,98,0)),Map(14 -> Barrel(14,Offset(16,5),20), 16 -> Barrel(16,Offset(12,2),14), 27 -> Barrel(27,Offset(10,9),14), 31 -> Barrel(31,Offset(17,7),12)),Map(38 -> Ball(38,Offset(14,17),3,0), 39 -> Ball(39,Offset(10,9),0,3)),Map(5 -> Mine(5,Offset(4,12)), 4 -> Mine(4,Offset(4,8))),24)
+    val state = CaribbeanState(CaribbeanContext(Map(),Map(0 -> 31)),Map(0 -> Ship(0,Offset(16,14),2,0,90,1), 1 -> Ship(1,Offset(6,17),3,2,100,0)),Map(10 -> Barrel(10,Offset(14,6),18), 14 -> Barrel(14,Offset(4,7),19), 29 -> Barrel(29,Offset(15,15),15), 28 -> Barrel(28,Offset(15,5),15), 21 -> Barrel(21,Offset(16,2),10), 33 -> Barrel(33,Offset(20,5),13), 34 -> Barrel(34,Offset(20,15),13), 12 -> Barrel(12,Offset(6,3),11), 31 -> Barrel(31,Offset(20,3),12), 23 -> Barrel(23,Offset(7,1),11), 19 -> Barrel(19,Offset(3,6),13), 15 -> Barrel(15,Offset(4,13),19)),Map(),Map(3 -> Mine(3,Offset(13,17)), 44 -> Mine(44,Offset(13,19))),33)
 
     val player = CaribbeanPlayer(1, 0, new CountStopper(100))
     println(player.reactTo(state))

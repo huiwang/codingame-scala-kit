@@ -24,7 +24,8 @@ case class CaribbeanPlayer(me: Int, other: Int,
     val myShips = state.shipsOf(me)
     if (state.barrels.isEmpty && myShips.size > 1) {
       val weakest = myShips.minBy(_.rums)
-      val distance = myShips.filter(_.id != weakest.id).map(s => weakest.center.distanceTo(s.center)).min
+      val distance = myShips.filter(_.id != weakest.id).map(s =>
+        CollisionAnalysis.collisionTime(s, weakest.center)).min
       if (distance <= 3 && weakest.rums <= 50 && weakest.speed < 2) {
         myShips.map(s => if (s.id == weakest.id) Fire(s.id, CollisionAnalysis.hitMyself(weakest).toOffset) else Wait(s.id))
       } else {
@@ -47,7 +48,7 @@ case class CaribbeanProblem(me: Int,
                             otherPlayer: GamePlayer[CaribbeanState, CaribbeanAction],
                             state: CaribbeanState) extends Problem[CaribbeanSolution] {
 
-  private val convolution = new BoundedVectorConvolution(0.9, 0, 10)
+  private val convolution = new BoundedVectorConvolution(1.0, 0, 10)
   private val roundsToSimulate = 3
   val rounds: Range = 0 until roundsToSimulate
   val actionLength: Int = state.shipsOf(me).size
@@ -59,7 +60,7 @@ case class CaribbeanProblem(me: Int,
 
   override def tweakSolution(solution: CaribbeanSolution): CaribbeanSolution = {
     solution.copy(actions = convolution.tweak(solution.actions,
-      NoiseGenerators.gaussian(mean = 0, stdDerivation = 1)))
+      NoiseGenerators.gaussian(mean = 0, stdDerivation = 7)))
   }
 
 }
@@ -89,7 +90,7 @@ case class CaribbeanSolution(problem: CaribbeanProblem,
     } else {
       myShips.map(ship => {
         val barrelValues = simulatedState.barrels.values
-          .map(b => b.rums * Math.pow(0.95, b.cube.distanceTo(ship.center))).sum
+          .map(b => b.rums * Math.pow(0.95, CollisionAnalysis.collisionTime(ship, b.cube))).sum
         val freeHex = CaribbeanContext.reachable(ship.center)
         ship.rums + 0.001 * barrelValues + 0.0001 * freeHex
       }).sum - otherScore
