@@ -20,6 +20,7 @@ object CaribbeanContext {
   val height = 21
   val me = 1
   val other = 0
+  val maxRums = 150
   private val orientations = (0 until 6).toVector
   val cubes: Vector[Cube] = (for {
     x <- 0 until width

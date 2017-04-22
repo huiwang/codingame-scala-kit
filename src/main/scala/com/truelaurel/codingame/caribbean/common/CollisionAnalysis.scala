@@ -38,10 +38,4 @@ object CollisionAnalysis {
     case _ => throw new IllegalArgumentException("unknown speed")
   }
 
-  private def start(ship: Ship): Int = ship.speed match {
-    case 0 => 0
-    case 1 => 1
-    case 2 => 3
-    case _ => throw new IllegalArgumentException("unknown speed")
-  }
 }

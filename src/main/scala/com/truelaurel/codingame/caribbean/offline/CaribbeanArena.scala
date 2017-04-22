@@ -118,7 +118,8 @@ object CaribbeanArena extends GameArena[CaribbeanState, CaribbeanAction] {
     val shipBarrelCollision: Iterable[(Ship, Barrel)] = findShipBarrelCollision(ships, cubeToBarrel)
 
     val shipsAfterShipBarrelCollision = shipBarrelCollision.foldLeft(ships) {
-      case (updatedShips, (ship, barrel)) => updatedShips.updated(ship.id, ship.copy(rums = 110.min(ship.rums + barrel.rums)))
+      case (updatedShips, (ship, barrel)) => updatedShips.updated(ship.id, ship.copy(rums =
+        CaribbeanContext.maxRums.min(ship.rums + barrel.rums)))
     }
 
     val barrelsAfterShipMove = shipBarrelCollision.foldLeft(barrels) {
