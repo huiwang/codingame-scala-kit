@@ -6,7 +6,7 @@ import com.truelaurel.codingame.hexagons.{Cube, Offset}
   * Created by hwang on 14/04/2017.
   */
 
-case class CaribbeanContext(lastMine: Map[Int, Int], lastFire: Map[Int, Int]) {
+case class CaribbeanContext(mines: Map[Int, Mine], lastFire: Map[Int, Int]) {
 }
 
 object CaribbeanContext {
@@ -61,6 +61,8 @@ case class Ship(id: Int, position: Offset, orientation: Int, speed: Int, rums: I
 
   val stern: Cube = center.neighbor((orientation + 3) % 6)
 
+  def mine : Cube = stern.neighbor((orientation + 3) % 6)
+
   def nextBow: Cube = speed match {
     case 0 => bow
     case 1 => bow.neighbor(orientation)
@@ -72,6 +74,7 @@ case class Ship(id: Int, position: Offset, orientation: Int, speed: Int, rums: I
     case 1 => bow
     case 2 => bow.neighbor(orientation)
   }
+
 }
 
 case class Barrel(id: Int, position: Offset, rums: Int) {

@@ -129,7 +129,7 @@ class CaribbeanArenaTest extends FlatSpec with Matchers {
 
     CaribbeanArena.next(state, Vector(Faster(0), Starboard(1))) should be(
       CaribbeanState(
-        context = CaribbeanContext(),
+        context = CaribbeanContext(Map(4 -> Mine(4,Offset(11,7))),Map()),
         ships = Vector(
           Ship(0, Offset(9, 7), orientation = 0, speed = 2, rums = 29, owner = 1),
           Ship(1, Offset(12, 8), orientation = 2, speed = 1, rums = 4, owner = 0)

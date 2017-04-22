@@ -17,12 +17,13 @@ import scala.concurrent.duration.Duration
   * Created by hwang on 14/04/2017.
   */
 case class CaribbeanPlayer(me: Int, other: Int,
-                           stopper: Stopper = new Chronometer(Duration(46, TimeUnit.MILLISECONDS))
+                           stopper: Stopper = new Chronometer(Duration(45, TimeUnit.MILLISECONDS))
                           ) extends GamePlayer[CaribbeanState, CaribbeanAction] {
 
   override def reactTo(state: CaribbeanState): Vector[CaribbeanAction] = {
     val myShips = state.shipsOf(me)
-    if (state.barrels.isEmpty && myShips.size > 1) {
+
+    val result = if (state.barrels.isEmpty && myShips.size > 1) {
       val weakest = myShips.minBy(_.rums)
       val distance = myShips.filter(_.id != weakest.id).map(s =>
         CollisionAnalysis.collisionTime(s, weakest.center)).min
@@ -33,6 +34,13 @@ case class CaribbeanPlayer(me: Int, other: Int,
       }
     } else {
       simule(state)
+    }
+
+    val otherShips = state.shipsOf(other)
+    val mineable = myShips.find(ship => otherShips.exists(os => CollisionAnalysis.canMine(ship, os)))
+    if (mineable.isEmpty) result else {
+      val ship = mineable.get
+      result.map(r => if (r.shipId == ship.id) MineAction(ship.id) else r)
     }
   }
 
@@ -84,8 +92,7 @@ case class CaribbeanSolution(problem: CaribbeanProblem,
         val shipValues = myShips.map(ms => {
           ms.rums * Math.pow(0.5, ms.center.distanceTo(ship.center))
         }).sum
-        val freeHex = CaribbeanContext.reachable(ship.center)
-        ship.rums + 0.0001 * shipValues
+        ship.rums + 0.001 * shipValues
       }).sum - otherScore
     } else {
       myShips.map(ship => {
@@ -115,6 +122,7 @@ case class CaribbeanSolution(problem: CaribbeanProblem,
         case _ if x > 8 || x < 2 => Starboard(shipId)
         case _ if x > 7 || x < 3 => Faster(shipId)
         case _ if x > 6 || x < 4 => Slower(shipId)
+        //TODO Attack Barrel
         case y =>
           val ship = myShips(i)
           val targets: Vector[Cube] = state.ships.values

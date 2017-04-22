@@ -16,4 +16,10 @@ class CollisionAnalysisTest extends FlatSpec with Matchers {
     CollisionAnalysis.collisionTime(ship, Offset(9, 10).toCube) should be(1)
   }
 
+  it should "predict mine" in {
+    val my = Ship(1, Offset(11, 10), 0, 2, 10, 1)
+    val other = Ship(0, Offset(7, 10), 0, 2, 10, 1)
+    CollisionAnalysis.canMine(my, other) should be(true)
+  }
+
 }

@@ -24,10 +24,20 @@ object CollisionAnalysis {
     val angle = CaribbeanContext.angle(ship.center, cube)
     val diff = (ship.orientation - angle).abs
     val realDiff = diff.min(6 - diff)
-    if(realDiff == 0) {
+    if (realDiff == 0) {
       distance - 1
     } else {
       stop(ship) + realDiff + distance - 1
+    }
+  }
+
+  def canMine(one: Ship, other: Ship): Boolean = {
+    val center = other.nextCenter
+    if (CaribbeanContext.cubes.contains(center)) {
+      val nextOther = other.copy(position = center.toOffset)
+      nextOther.zone.contains(one.mine)
+    } else {
+      false
     }
   }
 
