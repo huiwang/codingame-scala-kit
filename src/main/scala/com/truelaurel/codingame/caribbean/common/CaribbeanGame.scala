@@ -29,10 +29,9 @@ object CaribbeanContext {
     .map(cube => {
       val neighbors = (0 to 5).map(cube.neighbor).filter(cubes.contains).toSet
       val oriToZone = orientations.map(ori =>
-        ori -> Set(cube, cube.neighbor(ori), cube.neighbor((ori + 3) % 6))
+        ori -> Set(cube.neighbor(ori), cube.neighbor((ori + 3) % 6))
       ).toMap
       val reachable = cubes.count(_.distanceTo(cube) <= 5)
-
       cube -> (neighbors, oriToZone, reachable)
     })
     .toMap
@@ -51,7 +50,9 @@ object CaribbeanContext {
 case class Ship(id: Int, position: Offset, orientation: Int, speed: Int, rums: Int, owner: Int) {
   val center: Cube = CaribbeanContext.toCube(position)
 
-  val zone: Set[Cube] = CaribbeanContext.shipZone(center, orientation)
+  val bowAndStern: Set[Cube] = CaribbeanContext.shipZone(center, orientation)
+
+  def zone: Set[Cube] = bowAndStern + center
 
   val bow: Cube = center.neighbor(orientation)
 

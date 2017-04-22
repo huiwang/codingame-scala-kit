@@ -139,7 +139,7 @@ object CaribbeanArena extends GameArena[CaribbeanState, CaribbeanAction] {
   private def findShipMineCollisions(ships: Map[Int, Ship], cubeToMine: Map[Cube, Mine]) = {
     val shipMineCollision = for {
       ship <- ships.values
-      shipZone <- ship.zone
+      shipZone <- ship.bowAndStern
       mine <- cubeToMine.get(shipZone)
     } yield (mine, ship)
     shipMineCollision
@@ -148,7 +148,7 @@ object CaribbeanArena extends GameArena[CaribbeanState, CaribbeanAction] {
   private def findShipBarrelCollision(ships: Map[Int, Ship], cubeToBarrel: Map[Cube, Barrel]) = {
     for {
       ship <- ships.values
-      shipCube <- ship.zone
+      shipCube <- ship.bowAndStern
       barrel <- cubeToBarrel.get(shipCube)
     } yield (ship, barrel)
   }
@@ -179,7 +179,7 @@ object CaribbeanArena extends GameArena[CaribbeanState, CaribbeanAction] {
   }
 
   def collided(one: Ship, other: Ship): Boolean = {
-    one.zone.intersect(other.zone).nonEmpty
+    one.center.distanceTo(other.center) < 3 && one.zone.intersect(other.zone).nonEmpty
   }
 
 
