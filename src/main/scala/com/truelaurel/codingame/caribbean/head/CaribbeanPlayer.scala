@@ -24,9 +24,9 @@ case class CaribbeanPlayer(me: Int, other: Int,
     val myShips = state.shipsOf(me)
     if (state.barrels.isEmpty && myShips.size > 1) {
       val weakest = myShips.minBy(_.rums)
-      val closestToWeakest = myShips.filter(_.id != weakest.id).map(s => weakest.center.distanceTo(s.center)).min
-      if (closestToWeakest <= 3) {
-        myShips.map(s => if (s.id == weakest.id) Fire(s.id, weakest.nextCenter.toOffset) else Wait(s.id))
+      val distance = myShips.filter(_.id != weakest.id).map(s => weakest.center.distanceTo(s.center)).min
+      if (distance <= 3 && weakest.rums <= 50 && weakest.speed < 2) {
+        myShips.map(s => if (s.id == weakest.id) Fire(s.id, CollisionAnalysis.hitMyself(weakest).toOffset) else Wait(s.id))
       } else {
         simule(state)
       }
