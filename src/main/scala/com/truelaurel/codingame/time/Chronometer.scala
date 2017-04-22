@@ -8,16 +8,27 @@ import scala.concurrent.duration.Duration
 class Chronometer(duration: Duration) extends Stopper {
   val budget: Long = duration.toNanos
   private var startTime: Long = 0
-  private var elapsed: Double = 0
-  private var count: Long = 0
-  private val margin: Double = 2.0
+  private var elapsed: Long = 0
+  private var maxTurnElapsed: Long = -1
 
-  override def start(): Unit = startTime = System.nanoTime()
+  override def start(): Unit = {
+    startTime = mark
+    maxTurnElapsed = -1
+    elapsed = 0
+  }
+
+  def mark: Long = {
+    System.nanoTime()
+  }
 
   override def willOutOfTime: Boolean = {
-    count += 1
-    elapsed = System.nanoTime() - startTime
-    budget - elapsed < margin * elapsed / count
+    val untilNow = mark - startTime
+    val currentTurnElapsed = untilNow - elapsed
+    maxTurnElapsed = Math.max(maxTurnElapsed, currentTurnElapsed)
+    val remaining = budget - untilNow
+    elapsed = untilNow
+    //System.err.println(s"remaining $remaining max $maxTurnElapsed")
+    remaining < maxTurnElapsed
   }
 
 }

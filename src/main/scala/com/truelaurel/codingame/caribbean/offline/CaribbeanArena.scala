@@ -26,7 +26,9 @@ object CaribbeanArena extends GameArena[CaribbeanState, CaribbeanAction] {
         val targetCube = CaribbeanContext.toCube(target)
         val distance = ship.bow.distanceTo(targetCube)
         val lastFire = state.context.lastFire.getOrElse(shipId, -1)
-        if (CaribbeanContext.cubes.contains(targetCube) && distance <= CaribbeanContext.fireMaxDistance && state.turn - lastFire >= 2) {
+        if (CaribbeanContext.cubes.contains(targetCube) &&
+          distance <= CaribbeanContext.fireMaxDistance &&
+          state.turn - lastFire >= 2) {
           val travelTime = (1 + (distance / 3.0).round).toInt
           Some(Ball(-1, target, ship.owner, travelTime))
         } else None
@@ -96,10 +98,11 @@ object CaribbeanArena extends GameArena[CaribbeanState, CaribbeanAction] {
 
   def reactToShipsAction(shipsBeforeAction: Map[Int, Ship],
                          shipsAfterAction: Map[Int, Ship]): Map[Int, Ship] = {
-    val collisions = shipCollisions(shipsAfterAction.values.toVector)
-    shipsBeforeAction.filterKeys(collisions).mapValues(_.copy(speed = 0)) ++
-      shipsAfterAction.filterNot(e => collisions.contains(e._1))
 
+    val collisions = shipCollisions(shipsAfterAction.values.toVector)
+    shipsAfterAction.mapValues(ship => {
+      if (collisions.contains(ship.id)) shipsBeforeAction(ship.id).copy(speed = 0) else ship
+    })
   }
 
   def reactShipsImpacts(ships: Map[Int, Ship],
@@ -109,10 +112,7 @@ object CaribbeanArena extends GameArena[CaribbeanState, CaribbeanAction] {
     val cubeToBarrel: Map[Cube, Barrel] = barrels.values.map(b => b.cube -> b).toMap
     val cubeToMine: Map[Cube, Mine] = mines.values.map(b => b.cube -> b).toMap
 
-    val shipBarrelCollision = for {
-      ship <- ships.values
-      barrel <- CaribbeanContext.shipZone(ship).flatMap(cube => cubeToBarrel.get(cube))
-    } yield (ship, barrel)
+    val shipBarrelCollision: Iterable[(Ship, Barrel)] = findShipBarrelCollision(ships, cubeToBarrel)
 
     val shipsAfterShipBarrelCollision = shipBarrelCollision.foldLeft(ships) {
       case (updatedShips, (ship, barrel)) => updatedShips.updated(ship.id, ship.copy(rums = 100.min(ship.rums + barrel.rums)))
@@ -122,11 +122,7 @@ object CaribbeanArena extends GameArena[CaribbeanState, CaribbeanAction] {
       case (remaining, (_, barrel)) => remaining - barrel.id
     }
 
-    //for performance issue we don't emulate low mine collision issue
-    val shipMineCollision = for {
-      ship <- ships.values
-      mine <- CaribbeanContext.shipZone(ship).flatMap(cube => cubeToMine.get(cube))
-    } yield (mine, ship)
+    val shipMineCollision: Iterable[(Mine, Ship)] = findShipMineCollisions(ships, cubeToMine)
 
     val shipsAfterShipMineCollision = shipMineCollision.foldLeft(shipsAfterShipBarrelCollision) {
       case (updatedShips, (_, ship)) =>
@@ -140,13 +136,29 @@ object CaribbeanArena extends GameArena[CaribbeanState, CaribbeanAction] {
     (shipsAfterShipMineCollision, barrelsAfterShipMove, minesAfterShipMove)
   }
 
+  private def findShipMineCollisions(ships: Map[Int, Ship], cubeToMine: Map[Cube, Mine]) = {
+    val shipMineCollision = for {
+      ship <- ships.values
+      shipZone <- ship.zone
+      mine <- cubeToMine.get(shipZone)
+    } yield (mine, ship)
+    shipMineCollision
+  }
+
+  private def findShipBarrelCollision(ships: Map[Int, Ship], cubeToBarrel: Map[Cube, Barrel]) = {
+    for {
+      ship <- ships.values
+      shipCube <- ship.zone
+      barrel <- cubeToBarrel.get(shipCube)
+    } yield (ship, barrel)
+  }
+
   def moveShip(ship: Ship, speed: Int): Ship = {
     if (ship.speed >= speed) {
-      val nextShip = ship.copy(position = ship.bow.toOffset)
-      if (!CaribbeanContext.cubes.contains(nextShip.center)) {
+      if (!CaribbeanContext.cubes.contains(ship.bow)) {
         ship.copy(speed = 0)
       } else {
-        nextShip
+        ship.copy(position = ship.bow.toOffset)
       }
     } else {
       ship
@@ -167,7 +179,7 @@ object CaribbeanArena extends GameArena[CaribbeanState, CaribbeanAction] {
   }
 
   def collided(one: Ship, other: Ship): Boolean = {
-    CaribbeanContext.shipZone(one).intersect(CaribbeanContext.shipZone(other)).nonEmpty
+    one.zone.intersect(other.zone).nonEmpty
   }
 
 

@@ -37,7 +37,7 @@ object CaribbeanContext {
     })
     .toMap
 
-  def shipZone(ship: Ship): Set[Cube] = cubeInfo(ship.center)._2(ship.orientation)
+  def shipZone(cube: Cube, orientation: Int): Set[Cube] = cubeInfo(cube)._2(orientation)
 
   def apply(): CaribbeanContext = CaribbeanContext(Map.empty, Map.empty)
 
@@ -49,11 +49,13 @@ object CaribbeanContext {
 }
 
 case class Ship(id: Int, position: Offset, orientation: Int, speed: Int, rums: Int, owner: Int) {
-  def center: Cube = CaribbeanContext.toCube(position)
+  val center: Cube = CaribbeanContext.toCube(position)
 
-  def bow: Cube = center.neighbor(orientation)
+  val zone: Set[Cube] = CaribbeanContext.shipZone(center, orientation)
 
-  def stern: Cube = center.neighbor((orientation + 3) % 6)
+  val bow: Cube = center.neighbor(orientation)
+
+  val stern: Cube = center.neighbor((orientation + 3) % 6)
 
   def nextBow: Cube = speed match {
     case 0 => bow

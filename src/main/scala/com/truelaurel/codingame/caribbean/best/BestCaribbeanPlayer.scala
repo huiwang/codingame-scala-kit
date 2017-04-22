@@ -22,7 +22,7 @@ case class BestCaribbeanPlayer(playerId: Int, otherPlayer: Int,
 
   override def reactTo(state: CaribbeanState): Vector[CaribbeanAction] = {
     val muToLambda = new MuPlusLambda(2, 4, stopper)
-    val solution = muToLambda.search(BestCaribbeanProblem(playerId, otherPlayer, WaitingCabribbeanPlayer(otherPlayer, playerId), state))
+    val solution = muToLambda.search(BestCaribbeanProblem(playerId, otherPlayer, FixedCabribbeanPlayer(otherPlayer, playerId), state))
     solution.toActions
   }
 }
