@@ -12,7 +12,7 @@ import com.truelaurel.codingame.hexagons.Cube
   */
 object CaribbeanArena extends GameArena[CaribbeanState, CaribbeanAction] {
 
-  val counter = new AtomicInteger()
+  val counter = new AtomicInteger(-1)
 
   override def next(state: CaribbeanState, actions: Vector[CaribbeanAction]): CaribbeanState = {
 
@@ -32,8 +32,8 @@ object CaribbeanArena extends GameArena[CaribbeanState, CaribbeanAction] {
           distance <= CaribbeanContext.fireMaxDistance &&
           state.turn - lastFire >= 2) {
           val travelTime = CollisionAnalysis.travelTime(distance)
-          val id = counter.getAndIncrement()
-          Some(id -> Ball(-1, target, ship.owner, travelTime))
+          val id = counter.getAndDecrement()
+          Some(id -> Ball(id, target, ship.owner, travelTime))
         } else None
       case _ => None
     }
