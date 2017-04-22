@@ -15,7 +15,9 @@ class BoundedVectorConvolution(noiseProbability: Double, min: Double, max: Doubl
           tweaked = noiseGenerator.apply() + elem
         } while (tweaked < min || tweaked > max)
         tweaked
-      } else elem
+      } else {
+        elem
+      }
     })
   }
 

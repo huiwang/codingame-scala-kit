@@ -31,7 +31,7 @@ object CaribbeanOfflineBattles {
 
     )
     GameSimulator.evaluateOffline(
-      games.flatMap(g => (0 until 2).map(_ => g)),
+      games.flatMap(g => (0 until 5).map(_ => g)),
       CaribbeanArena,
       Vector(CaribbeanPlayer(CaribbeanContext.me, CaribbeanContext.other), BestCaribbeanPlayer(CaribbeanContext.other, CaribbeanContext.me)),
       200
