@@ -114,6 +114,7 @@ case class CaribbeanSolution(problem: CaribbeanProblem,
 
   def adapt(state: CaribbeanState, shipActions: Vector[Double]): Vector[CaribbeanAction] = {
     val myShips = state.shipsOf(problem.me)
+    val otherShips = state.shipsOf(problem.other)
     myShips.indices.map(i => {
       val shipId = myShips(i).id
       val x = shipActions(i)
@@ -125,10 +126,9 @@ case class CaribbeanSolution(problem: CaribbeanProblem,
         //TODO Attack Barrel
         case y =>
           val ship = myShips(i)
-          val targets: Vector[Cube] = state.ships.values
-            .filter(s => s.id != ship.id
-              && (s.owner != problem.me)
-              && ship.nextCenter.distanceTo(s.center) <= CaribbeanContext.fireMaxDistance).map(_.nextCenter).toVector
+          val targets: Vector[Cube] = otherShips
+            .filter(s => ship.nextCenter.distanceTo(s.center) <= CaribbeanContext.fireMaxDistance)
+            .map(_.nextCenter)
           if (targets.isEmpty) Wait(shipId) else {
             val target = targets((y * 100).toInt % targets.size)
             Fire(shipId, target.toOffset)

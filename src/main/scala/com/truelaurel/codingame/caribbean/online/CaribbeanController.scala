@@ -47,7 +47,7 @@ object CaribbeanController extends GameController[CaribbeanContext, CaribbeanSta
       }
     }
 
-    CaribbeanState(context, ships, barrels, balls, mines ++ context.mines, turn)
+    CaribbeanState(context, ships, barrels, balls, mines, turn)
   }
 
 
@@ -57,9 +57,7 @@ object CaribbeanController extends GameController[CaribbeanContext, CaribbeanSta
       case _ => None
     }.toMap
 
-    //TODO record mines
-
-    CaribbeanContext(context.mines ++ state.mines, context.lastFire ++ fires)
+    CaribbeanContext(context.mines, context.lastFire ++ fires)
   }
 
   override def warmup(player: GamePlayer[CaribbeanState, CaribbeanAction]): Unit = {

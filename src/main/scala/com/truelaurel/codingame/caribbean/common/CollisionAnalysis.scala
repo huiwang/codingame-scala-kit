@@ -15,6 +15,12 @@ object CollisionAnalysis {
     }
   }
 
+  def hitCube(ship : Ship, cube: Cube, otherShips : Iterable[Ship]) : Boolean = {
+    val myDistance = ship.center.distanceTo(cube)
+    val time = travelTime(myDistance)
+    ???
+  }
+
   def travelTime(distance: Int): Int = {
     (1 + (distance / 3.0).round).toInt
   }
