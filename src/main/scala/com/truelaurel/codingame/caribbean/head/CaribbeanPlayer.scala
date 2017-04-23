@@ -99,7 +99,7 @@ case class CaribbeanSolution(problem: CaribbeanProblem,
         val barrelValues = simulatedState.barrels.values
           .map(b => b.rums * Math.pow(0.95, CollisionAnalysis.collisionTime(ship, b.cube))).sum
         val freeHex = CaribbeanContext.reachable(ship.center).size
-        ship.rums + 0.001 * barrelValues + 0.0001 * freeHex
+        ship.rums + 0.001 * barrelValues + 0.0001 * freeHex - 0.00001 * otherShips.size
       }).sum - otherScore
     }
   }
