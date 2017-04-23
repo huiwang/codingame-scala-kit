@@ -159,7 +159,7 @@ object CaribbeanArena extends GameArena[CaribbeanState, CaribbeanAction] {
 
   def moveShip(ship: Ship, speed: Int): Ship = {
     if (ship.speed >= speed) {
-      if (!CaribbeanContext.cubes.contains(ship.bow)) {
+      if (!CaribbeanContext.inside(ship.bow.toOffset)) {
         ship.copy(speed = 0)
       } else {
         ship.copy(position = ship.bow.toOffset)
@@ -173,7 +173,7 @@ object CaribbeanArena extends GameArena[CaribbeanState, CaribbeanAction] {
     shipOption.flatMap(ship => if (collisions.contains(ship)) None else Some(ship))
   }
 
-  def  shipCollisions(ships: Vector[Ship]): Set[Int] = {
+  def shipCollisions(ships: Vector[Ship]): Set[Int] = {
     ships.combinations(2).foldLeft(Set[Int]()) {
       case (collisions, shipPair) =>
         if (collided(shipPair.head, shipPair.last)) {
@@ -183,7 +183,7 @@ object CaribbeanArena extends GameArena[CaribbeanState, CaribbeanAction] {
   }
 
   def collided(one: Ship, other: Ship): Boolean = {
-    one.center.distanceTo(other.center) <3 && one.zone.intersect(other.zone).nonEmpty
+    one.center.distanceTo(other.center) < 3 && one.zone.intersect(other.zone).nonEmpty
   }
 
 

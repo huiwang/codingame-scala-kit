@@ -17,7 +17,7 @@ import scala.concurrent.duration.Duration
   * Created by hwang on 14/04/2017.
   */
 case class CaribbeanPlayer(me: Int, other: Int,
-                           stopper: Stopper = new Chronometer(Duration(45, TimeUnit.MILLISECONDS))
+                           stopper: Stopper = new Chronometer(Duration(47, TimeUnit.MILLISECONDS))
                           ) extends GamePlayer[CaribbeanState, CaribbeanAction] {
 
   override def reactTo(state: CaribbeanState): Vector[CaribbeanAction] = {

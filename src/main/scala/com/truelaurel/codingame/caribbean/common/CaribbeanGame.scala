@@ -48,6 +48,10 @@ object CaribbeanContext {
   def neighbors(cube: Cube): Set[Cube] = cubeInfo(cube)._1
 
   def angle(one: Cube, other: Cube) : Int = cubeInfo(one)._4(other)
+
+  def inside(offset: Offset) : Boolean = {
+    offset.x >= 0 && offset.x < width && offset.y >= 0 && offset.y < height
+  }
 }
 
 case class Ship(id: Int, position: Offset, orientation: Int, speed: Int, rums: Int, owner: Int) {
