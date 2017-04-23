@@ -30,10 +30,10 @@ case class CaribbeanPlayer(me: Int, other: Int,
       if (distance <= 3 && weakest.rums <= 50 && weakest.speed < 1) {
         myShips.map(s => if (s.id == weakest.id) Fire(s.id, CollisionAnalysis.hitMyself(weakest).toOffset) else Wait(s.id))
       } else {
-        simule(state)
+        simulate(state)
       }
     } else {
-      simule(state)
+      simulate(state)
     }
 
     val otherShips = state.shipsOf(other)
@@ -44,7 +44,7 @@ case class CaribbeanPlayer(me: Int, other: Int,
     }
   }
 
-  private def simule(state: CaribbeanState) = {
+  private def simulate(state: CaribbeanState) = {
     val muToLambda = new MuPlusLambda(1, 3, stopper)
     val solution = muToLambda.search(CaribbeanProblem(me, other, FixedCabribbeanPlayer(other, me), state))
     solution.toActions

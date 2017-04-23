@@ -22,20 +22,15 @@ object CaribbeanArena extends GameArena[CaribbeanState, CaribbeanAction] {
 
     val actionByShip = actions.map(a => a.shipId -> a).toMap
 
-    val firedBalls = actionByShip.flatMap {
+    val firedBalls = actionByShip.filter(_._2.isInstanceOf[Fire]).map {
       case (_, Fire(shipId, target)) =>
         val ship = state.ships(shipId)
         val targetCube = CaribbeanContext.toCube(target)
         val distance = ship.bow.distanceTo(targetCube)
-        val lastFire = state.context.lastFire.getOrElse(shipId, -1)
-        if (CaribbeanContext.inside(target) &&
-          distance <= CaribbeanContext.fireMaxDistance &&
-          state.turn - lastFire >= 2) {
-          val travelTime = CollisionAnalysis.travelTime(distance)
-          val id = counter.getAndDecrement()
-          Some(id -> Ball(id, target, ship.owner, travelTime))
-        } else None
-      case _ => None
+        val travelTime = CollisionAnalysis.travelTime(distance)
+        val id = counter.getAndDecrement()
+        id -> Ball(id, target, ship.owner, travelTime)
+      case _ => throw new IllegalStateException("Already filtered")
     }
 
     val shipsAfterSpeeding = shipsAfterDecreasedRum.mapValues(ship => {
@@ -169,10 +164,6 @@ object CaribbeanArena extends GameArena[CaribbeanState, CaribbeanAction] {
     }
   }
 
-  def checkCollision(shipOption: Option[Ship], collisions: Set[Ship]): Option[Ship] = {
-    shipOption.flatMap(ship => if (collisions.contains(ship)) None else Some(ship))
-  }
-
   def shipCollisions(ships: Vector[Ship]): Set[Int] = {
     ships.combinations(2).foldLeft(Set[Int]()) {
       case (collisions, shipPair) =>
@@ -183,7 +174,7 @@ object CaribbeanArena extends GameArena[CaribbeanState, CaribbeanAction] {
   }
 
   def collided(one: Ship, other: Ship): Boolean = {
-    one.center.distanceTo(other.center) < 3 && one.zone.intersect(other.zone).nonEmpty
+    one.center.distanceTo(other.center) < 3 && one.zone.exists(other.zone.contains)
   }
 
 

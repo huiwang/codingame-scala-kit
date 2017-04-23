@@ -52,12 +52,7 @@ object CaribbeanController extends GameController[CaribbeanContext, CaribbeanSta
 
 
   override def nextContext(context: CaribbeanContext, state: CaribbeanState, actions: Vector[CaribbeanAction]): CaribbeanContext = {
-    val fires = actions.flatMap {
-      case Fire(shipId, _) => Some(shipId -> state.turn)
-      case _ => None
-    }.toMap
-
-    CaribbeanContext(context.mines, context.lastFire ++ fires)
+    context
   }
 
   override def warmup(player: GamePlayer[CaribbeanState, CaribbeanAction]): Unit = {
