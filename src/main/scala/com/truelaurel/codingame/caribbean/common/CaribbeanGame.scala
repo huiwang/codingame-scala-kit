@@ -59,7 +59,7 @@ case class Ship(id: Int, position: Offset, orientation: Int, speed: Int, rums: I
 
   val bowAndStern: Set[Cube] = CaribbeanContext.shipZone(center, orientation)
 
-  def zone: Set[Cube] = bowAndStern + center
+  lazy val zone: Set[Cube] = bowAndStern + center
 
   val bow: Cube = center.neighbor(orientation)
 
@@ -77,6 +77,12 @@ case class Ship(id: Int, position: Offset, orientation: Int, speed: Int, rums: I
     case 0 => center
     case 1 => bow
     case 2 => bow.neighbor(orientation)
+  }
+
+  lazy val nextNextCenter: Cube = speed match {
+    case 0 => center
+    case 1 => nextBow
+    case 2 => nextCenter.neighbor(orientation).neighbor(orientation)
   }
 
 }
