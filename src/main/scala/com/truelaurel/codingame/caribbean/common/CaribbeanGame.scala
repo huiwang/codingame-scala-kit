@@ -26,13 +26,13 @@ object CaribbeanContext {
     x <- 0 until width
     y <- 0 until height
   } yield Offset(x, y).toCube).toVector
-  private val cubeInfo: Map[Cube, (Set[Cube], Map[Int, Set[Cube]], Int, Map[Cube, Int])] = cubes
+  private val cubeInfo: Map[Cube, (Set[Cube], Map[Int, Set[Cube]], Vector[Cube], Map[Cube, Int])] = cubes
     .map(cube => {
       val neighbors = (0 to 5).map(cube.neighbor).filter(cubes.contains).toSet
       val oriToZone = orientations.map(ori =>
         ori -> Set(cube.neighbor(ori), cube.neighbor((ori + 3) % 6))
       ).toMap
-      val reachable = cubes.count(_.distanceTo(cube) <= 5)
+      val reachable = cubes.filter(_.distanceTo(cube) <= 5)
       val angles = cubes.map(ic => ic -> cube.toOffset.angle(ic.toOffset).ceil.toInt).toMap
       cube -> (neighbors, oriToZone, reachable, angles)
     }).toMap
@@ -41,7 +41,7 @@ object CaribbeanContext {
 
   def apply(): CaribbeanContext = CaribbeanContext(Map.empty, Map.empty)
 
-  def reachable(cube: Cube): Int = cubeInfo(cube)._3
+  def reachable(cube: Cube): Vector[Cube] = cubeInfo(cube)._3
 
   def toCube(offset: Offset): Cube = offset.toCube
 

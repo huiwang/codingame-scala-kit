@@ -27,7 +27,7 @@ case class CaribbeanPlayer(me: Int, other: Int,
       val weakest = myShips.minBy(_.rums)
       val distance = myShips.filter(_.id != weakest.id).map(s =>
         CollisionAnalysis.collisionTime(s, weakest.center)).min
-      if (distance <= 3 && weakest.rums <= 50 && weakest.speed < 2) {
+      if (distance <= 3 && weakest.rums <= 50 && weakest.speed < 1) {
         myShips.map(s => if (s.id == weakest.id) Fire(s.id, CollisionAnalysis.hitMyself(weakest).toOffset) else Wait(s.id))
       } else {
         simule(state)
@@ -57,7 +57,7 @@ case class CaribbeanProblem(me: Int,
                             state: CaribbeanState) extends Problem[CaribbeanSolution] {
 
   private val convolution = new BoundedVectorConvolution(1.0, 0, 10)
-  private val roundsToSimulate = 4
+  private val roundsToSimulate = 3
   val rounds: Range = 0 until roundsToSimulate
   val actionLength: Int = state.shipsOf(me).size
   val chromosome: Range = 0 until (roundsToSimulate * actionLength)
@@ -98,7 +98,7 @@ case class CaribbeanSolution(problem: CaribbeanProblem,
       myShips.map(ship => {
         val barrelValues = simulatedState.barrels.values
           .map(b => b.rums * Math.pow(0.95, CollisionAnalysis.collisionTime(ship, b.cube))).sum
-        val freeHex = CaribbeanContext.reachable(ship.center)
+        val freeHex = CaribbeanContext.reachable(ship.center).size
         ship.rums + 0.001 * barrelValues + 0.0001 * freeHex
       }).sum - otherScore
     }
@@ -123,13 +123,13 @@ case class CaribbeanSolution(problem: CaribbeanProblem,
         case _ if x > 8 || x < 2 => Starboard(ship.id)
         case _ if x > 7 || x < 3 => if (ship.speed == 2) Port(ship.id) else Faster(ship.id)
         case _ if x > 6 || x < 4 => if (ship.speed == 0) Starboard(ship.id) else Slower(ship.id)
-        //TODO Attack Barrel
         case y =>
-          val ship = myShips(i)
           val targets: Vector[Cube] = otherShips
-            .filter(s => ship.nextCenter.distanceTo(s.center) <= CaribbeanContext.fireMaxDistance)
+            .filter(s => ship.nextCenter.distanceTo(s.bow) <= CaribbeanContext.fireMaxDistance)
             .map(_.nextCenter)
-          if (targets.isEmpty) Wait(ship.id) else {
+          if (targets.isEmpty) {
+            if (y > 5) Port(ship.id) else Starboard(ship.id)
+          } else {
             val target = targets((y * 100).toInt % targets.size)
             Fire(ship.id, target.toOffset)
           }

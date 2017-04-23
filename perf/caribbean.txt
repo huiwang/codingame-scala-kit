@@ -1,3 +1,5 @@
+# Three rounds
+
 [info] Benchmark                     Mode  Cnt   Score   Error  Units
 [info] CaribbeanBenchmark.caribbean  avgt   10  55.816 ± 1.463  ms/op
 
@@ -15,3 +17,8 @@
 
 [info] Benchmark                     Mode  Cnt   Score   Error  Units
 [info] CaribbeanBenchmark.caribbean  avgt   10  36.720 ± 0.775  ms/op
+
+# Four rounds
+
+[info] Benchmark                     Mode  Cnt   Score   Error  Units
+[info] CaribbeanBenchmark.caribbean  avgt   10  49.649 ± 2.577  ms/op

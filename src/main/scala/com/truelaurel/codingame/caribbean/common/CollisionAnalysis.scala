@@ -1,6 +1,6 @@
 package com.truelaurel.codingame.caribbean.common
 
-import com.truelaurel.codingame.hexagons.{Cube, Offset}
+import com.truelaurel.codingame.hexagons.Cube
 
 /**
   * Created by hwang on 22/04/2017.
@@ -13,12 +13,6 @@ object CollisionAnalysis {
       case 1 => ship.nextBow
       case 2 => throw new IllegalStateException("unable to hit myself")
     }
-  }
-
-  def hitCube(ship: Ship, cube: Cube, otherShips: Iterable[Ship]): Boolean = {
-    val myDistance = ship.center.distanceTo(cube)
-    val time = travelTime(myDistance)
-    ???
   }
 
   def travelTime(distance: Int): Int = {

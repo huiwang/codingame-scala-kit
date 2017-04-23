@@ -82,14 +82,14 @@ case class BestCaribbeanSolution(problem: BestCaribbeanProblem,
         val shipValues = myShips.map(ms => {
           ms.rums * Math.pow(0.5, ms.center.distanceTo(ship.center))
         }).sum
-        val freeHex = CaribbeanContext.reachable(ship.center)
+        val freeHex = CaribbeanContext.reachable(ship.center).size
         ship.rums + 0.0001 * shipValues
       }).sum - otherScore
     } else {
       myShips.map(ship => {
         val barrelValues = simulatedState.barrels.values
           .map(b => b.rums * Math.pow(0.95, b.cube.distanceTo(ship.center))).sum
-        val freeHex = CaribbeanContext.reachable(ship.center)
+        val freeHex = CaribbeanContext.reachable(ship.center).size
         ship.rums + 0.001 * barrelValues + 0.0001 * freeHex
       }).sum - otherScore
     }
