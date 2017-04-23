@@ -22,7 +22,7 @@ object CaribbeanContext {
   val other = 0
   val maxRums = 150
   private val orientations = (0 until 6).toVector
-  val cubes: Vector[Cube] = (for {
+  private val cubes: Vector[Cube] = (for {
     x <- 0 until width
     y <- 0 until height
   } yield Offset(x, y).toCube).toVector

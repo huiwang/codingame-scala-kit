@@ -28,7 +28,7 @@ object CaribbeanArena extends GameArena[CaribbeanState, CaribbeanAction] {
         val targetCube = CaribbeanContext.toCube(target)
         val distance = ship.bow.distanceTo(targetCube)
         val lastFire = state.context.lastFire.getOrElse(shipId, -1)
-        if (CaribbeanContext.cubes.contains(targetCube) &&
+        if (CaribbeanContext.inside(target) &&
           distance <= CaribbeanContext.fireMaxDistance &&
           state.turn - lastFire >= 2) {
           val travelTime = CollisionAnalysis.travelTime(distance)

@@ -57,7 +57,7 @@ case class CaribbeanProblem(me: Int,
                             state: CaribbeanState) extends Problem[CaribbeanSolution] {
 
   private val convolution = new BoundedVectorConvolution(1.0, 0, 10)
-  private val roundsToSimulate = 3
+  private val roundsToSimulate = 4
   val rounds: Range = 0 until roundsToSimulate
   val actionLength: Int = state.shipsOf(me).size
   val chromosome: Range = 0 until (roundsToSimulate * actionLength)

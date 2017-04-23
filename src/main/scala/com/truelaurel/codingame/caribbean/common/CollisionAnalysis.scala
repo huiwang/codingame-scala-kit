@@ -15,7 +15,7 @@ object CollisionAnalysis {
     }
   }
 
-  def hitCube(ship : Ship, cube: Cube, otherShips : Iterable[Ship]) : Boolean = {
+  def hitCube(ship: Ship, cube: Cube, otherShips: Iterable[Ship]): Boolean = {
     val myDistance = ship.center.distanceTo(cube)
     val time = travelTime(myDistance)
     ???
@@ -39,7 +39,7 @@ object CollisionAnalysis {
 
   def canMine(one: Ship, other: Ship): Boolean = {
     val center = other.nextCenter
-    if (CaribbeanContext.cubes.contains(center)) {
+    if (CaribbeanContext.inside(center.toOffset)) {
       val nextOther = other.copy(position = center.toOffset)
       nextOther.zone.contains(one.mine)
     } else {
