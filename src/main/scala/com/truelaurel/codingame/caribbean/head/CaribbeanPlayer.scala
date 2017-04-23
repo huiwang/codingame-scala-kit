@@ -87,7 +87,7 @@ case class CaribbeanSolution(problem: CaribbeanProblem,
       ship.rums
     }).sum
 
-    if (problem.state.barrels.isEmpty && myShips.size > 1 && myShips.exists(_.rums < 50)) {
+    if (problem.state.barrels.isEmpty && myShips.size > 1 && myShips.exists(_.rums < 53)) {
       myShips.map(ship => {
         val shipValues = myShips.map(ms => {
           ms.rums * Math.pow(0.5, ms.center.distanceTo(ship.center))
@@ -116,22 +116,22 @@ case class CaribbeanSolution(problem: CaribbeanProblem,
     val myShips = state.shipsOf(problem.me)
     val otherShips = state.shipsOf(problem.other)
     myShips.indices.map(i => {
-      val shipId = myShips(i).id
+      val ship = myShips(i)
       val x = shipActions(i)
       x match {
-        case _ if x > 9 || x < 1 => Port(shipId)
-        case _ if x > 8 || x < 2 => Starboard(shipId)
-        case _ if x > 7 || x < 3 => Faster(shipId)
-        case _ if x > 6 || x < 4 => Slower(shipId)
+        case _ if x > 9 || x < 1 => Port(ship.id)
+        case _ if x > 8 || x < 2 => Starboard(ship.id)
+        case _ if x > 7 || x < 3 => if (ship.speed == 2) Port(ship.id) else Faster(ship.id)
+        case _ if x > 6 || x < 4 => if (ship.speed == 0) Starboard(ship.id) else Slower(ship.id)
         //TODO Attack Barrel
         case y =>
           val ship = myShips(i)
           val targets: Vector[Cube] = otherShips
             .filter(s => ship.nextCenter.distanceTo(s.center) <= CaribbeanContext.fireMaxDistance)
             .map(_.nextCenter)
-          if (targets.isEmpty) Wait(shipId) else {
+          if (targets.isEmpty) Wait(ship.id) else {
             val target = targets((y * 100).toInt % targets.size)
-            Fire(shipId, target.toOffset)
+            Fire(ship.id, target.toOffset)
           }
       }
     }).toVector
