@@ -125,7 +125,7 @@ case class CaribbeanSolution(problem: CaribbeanProblem,
         case _ if x > 6 || x < 4 => if (ship.speed == 0) Starboard(ship.id) else Slower(ship.id)
         case y =>
           val targets: Vector[Cube] = otherShips
-            .filter(s => ship.nextNextCenter.distanceTo(s.bow) <= CaribbeanContext.fireMaxDistance)
+            .filter(s => s.nextNextCenter.distanceTo(ship.bow) <= CaribbeanContext.fireMaxDistance)
             .map(_.nextNextCenter)
           if (targets.isEmpty) {
             if (y > 5) Port(ship.id) else Starboard(ship.id)
