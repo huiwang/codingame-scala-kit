@@ -27,7 +27,8 @@ case class CaribbeanPlayer(me: Int, other: Int,
       val weakest = myShips.minBy(_.rums)
       val distance = myShips.filter(_.id != weakest.id).map(s =>
         CollisionAnalysis.collisionTime(s, weakest.center)).min
-      if (distance <= 3 && weakest.rums <= 50 && weakest.speed < 1) {
+      if (distance <= 3 && weakest.rums <= 50 && weakest.speed < 2 &&
+        !state.balls.exists(e => e._2.land <= 2 && e._2.cube == weakest.center)) {
         myShips.map(s => if (s.id == weakest.id) Fire(s.id, CollisionAnalysis.hitMyself(weakest).toOffset) else Wait(s.id))
       } else {
         simulate(state)
@@ -99,7 +100,7 @@ case class CaribbeanSolution(problem: CaribbeanProblem,
         val barrelValues = simulatedState.barrels.values
           .map(b => b.rums * Math.pow(0.95, CollisionAnalysis.collisionTime(ship, b.cube))).sum
         val freeHex = CaribbeanContext.reachable(ship.center).size
-        ship.rums + 0.001 * barrelValues + 0.0001 * freeHex - 0.00001 * otherShips.size
+        ship.rums + 0.001 * barrelValues + 0.0001 * freeHex
       }).sum - otherScore
     }
   }
