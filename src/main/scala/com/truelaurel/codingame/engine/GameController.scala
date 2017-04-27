@@ -1,7 +1,9 @@
 package com.truelaurel.codingame.engine
 
 /**
-  * Created by hwang on 15/04/2017.
+  * The Game Controller reads init context and game turn.
+  * In the context, we can store information not included in the input, for example cool down on actions.
+  * It also provides a warmup method which can be implemented for perf-critical games.
   */
 trait GameController[C, S, A] {
   def readContext: C
