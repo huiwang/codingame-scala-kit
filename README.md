@@ -1,3 +1,6 @@
+# What's new?
+> 2017-04 [Debugging in CodinGame Scala Kit](http://truelaurel.com/2017/04/27/Debug-in-CodinGame-Scala-Kit/)
+
 # CodinGame Scala Kit
 I love Both CodinGame and Scala because they make programming fun.
 
@@ -66,6 +69,5 @@ The example Bot [Ghost in the Cell](https://www.codingame.com/multiplayer/bot-pr
     No, the Bundler only inlines imported source codes and doesn't adapt Java code to Scala. 
     If you prefer Java, I strongly recommend Manwe's great [Competitive Programming](https://github.com/Manwe56/competitive-programming) tools.
     
-# Next steps
-
-- Create Local Arena to evaluate Bot offline
+# More questions?
+Let's discuss it in the [CodinGame forum](https://www.codingame.com/forum/t/codingame-scala-kit/2645/1)!
