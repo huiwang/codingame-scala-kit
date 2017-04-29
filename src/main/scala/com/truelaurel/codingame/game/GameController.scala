@@ -1,4 +1,4 @@
-package com.truelaurel.codingame.engine
+package com.truelaurel.codingame.game
 
 /**
   * The Game Controller reads init context and game turn.

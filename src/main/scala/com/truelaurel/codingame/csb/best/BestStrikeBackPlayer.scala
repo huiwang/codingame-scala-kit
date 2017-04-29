@@ -1,7 +1,7 @@
 package com.truelaurel.codingame.csb.best
 
 import com.truelaurel.codingame.csb.model.{StrikeBackAction, StrikeBackState, Thrust}
-import com.truelaurel.codingame.engine.GamePlayer
+import com.truelaurel.codingame.game.GamePlayer
 
 /**
   * Created by hwang on 02/04/2017.

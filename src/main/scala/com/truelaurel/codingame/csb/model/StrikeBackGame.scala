@@ -15,7 +15,7 @@ object StrikeBackContext {
 }
 
 
-case class Pod(id : Int, position: Vectorl, speed: Vectorl, angle: Vectorl, goal: Int) {
+case class Pod(id : Int, position: Vectorl, speed: Vectorl, angle: Vectorl, goal: Int, mass : Double = 1.0) {
   val radius = 400
 }
 

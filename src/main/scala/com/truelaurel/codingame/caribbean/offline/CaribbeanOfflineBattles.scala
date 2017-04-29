@@ -3,7 +3,7 @@ package com.truelaurel.codingame.caribbean.offline
 import com.truelaurel.codingame.caribbean.best.BestCaribbeanPlayer
 import com.truelaurel.codingame.caribbean.common._
 import com.truelaurel.codingame.caribbean.head.CaribbeanPlayer
-import com.truelaurel.codingame.engine.GameSimulator
+import com.truelaurel.codingame.game.GameSimulator
 import com.truelaurel.codingame.hexagons.Offset
 
 /**

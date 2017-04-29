@@ -1,6 +1,6 @@
 package com.truelaurel.codingame.ghostcell.best
 
-import com.truelaurel.codingame.engine.GamePlayer
+import com.truelaurel.codingame.game.GamePlayer
 import com.truelaurel.codingame.ghostcell.common._
 
 case class BestGhostCellPlayer(me: Int) extends GamePlayer[GhostCellGameState, GhostCellAction] {

@@ -4,7 +4,7 @@ import java.util.concurrent.atomic.AtomicInteger
 
 import com.truelaurel.codingame.caribbean.common._
 import com.truelaurel.codingame.caribbean.online.CaribbeanController
-import com.truelaurel.codingame.engine._
+import com.truelaurel.codingame.game._
 import com.truelaurel.codingame.hexagons.Cube
 
 /**

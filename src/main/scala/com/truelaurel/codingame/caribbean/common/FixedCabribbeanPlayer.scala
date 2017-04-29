@@ -1,6 +1,6 @@
 package com.truelaurel.codingame.caribbean.common
 
-import com.truelaurel.codingame.engine.GamePlayer
+import com.truelaurel.codingame.game.GamePlayer
 
 /**
   * Created by hwang on 14/04/2017.

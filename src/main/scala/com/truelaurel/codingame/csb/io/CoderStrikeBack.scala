@@ -3,7 +3,7 @@ import com.truelaurel.codingame.csb.best.BestStrikeBackPlayer
 import com.truelaurel.codingame.csb.head.StrikeBackPlayer
 import com.truelaurel.codingame.csb.io.StrikeBackController
 import com.truelaurel.codingame.csb.model.StrikeBackContext
-import com.truelaurel.codingame.engine.{GameLoop, PredictableGameLoop}
+import com.truelaurel.codingame.game.{GameLoop, PredictableGameLoop}
 
 object Player {
 

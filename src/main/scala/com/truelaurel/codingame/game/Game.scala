@@ -1,4 +1,4 @@
-package com.truelaurel.codingame.engine
+package com.truelaurel.codingame.game
 
 import java.util.concurrent.TimeUnit
 

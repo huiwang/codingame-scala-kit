@@ -2,6 +2,7 @@ package com.truelaurel.codingame.csb.arena
 
 import com.truelaurel.codingame.collision.Collision
 import com.truelaurel.codingame.csb.model.{CheckPoint, Pod}
+import com.truelaurel.codingame.debug.Debugger
 
 
 object StrikeBackCollisionSimulation {
@@ -16,10 +17,15 @@ object StrikeBackCollisionSimulation {
     } yield (pod, cp, time)
 
     val podPodCollisions = for {
-      Vector(pod1, pod2) <- pods.combinations(2)
+      pod1 <- pods
+      pod2 <- pods
+      if pod1.id < pod2.id
       time <- Collision.collideTime(pod1.position, pod1.speed, pod1.radius, pod2.position, pod2.speed, pod2.radius)
       if time < duration
     } yield (pod1, pod2, time)
+
+    Debugger.debug(podCpCollisions)
+    Debugger.debug(podPodCollisions)
 
     if (podCpCollisions.isEmpty && podPodCollisions.isEmpty) {
       pods.map(movePod(_, duration))
@@ -45,7 +51,7 @@ object StrikeBackCollisionSimulation {
   }
 
   private def movePodPodCollision(pods: Vector[Pod], pod1: Pod, pod2: Pod, time: Double) = {
-    val (bouncedPod1, bouncedPod2) = boundOff(pod1, pod2, time)
+    val (bouncedPod1, bouncedPod2) = bounceOff(pod1, pod2, time)
     pods.map(p => p.id match {
       case pod1.id => bouncedPod1
       case pod2.id => bouncedPod2
@@ -53,12 +59,12 @@ object StrikeBackCollisionSimulation {
     })
   }
 
-  private def boundOff(pod1: Pod, pod2: Pod, time: Double) = {
+  private def bounceOff(pod1: Pod, pod2: Pod, time: Double) = {
     val movedPod1 = movePod(pod1, time)
     val movedPod2 = movePod(pod2, time)
     val (speed1, speed2) = Collision.bounceOffWithMinimumImpulse(
-      movedPod1.position, movedPod1.speed, movedPod1.radius,
-      movedPod2.position, movedPod2.speed, movedPod2.radius,
+      movedPod1.position, movedPod1.speed, movedPod1.mass,
+      movedPod2.position, movedPod2.speed, movedPod2.mass,
       120.0
     )
     val bouncedPod1 = movedPod1.copy(speed = speed1)

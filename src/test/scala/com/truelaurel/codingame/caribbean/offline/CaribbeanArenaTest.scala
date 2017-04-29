@@ -1,7 +1,7 @@
 package com.truelaurel.codingame.caribbean.offline
 
 import com.truelaurel.codingame.caribbean.common._
-import com.truelaurel.codingame.engine.{LossKO, WinTech}
+import com.truelaurel.codingame.game.{LossKO, WinTech}
 import com.truelaurel.codingame.hexagons.Offset
 import org.scalatest.{FlatSpec, Matchers}
 

@@ -3,7 +3,7 @@ package com.truelaurel.codingame.caribbean.online
 import com.truelaurel.codingame.caribbean.common.{FixedCabribbeanPlayer, _}
 import com.truelaurel.codingame.caribbean.head.CaribbeanPlayer
 import com.truelaurel.codingame.caribbean.offline.CaribbeanArena
-import com.truelaurel.codingame.engine.{GameController, GameLoop, PredictableGameLoop}
+import com.truelaurel.codingame.game.{GameController, GameLoop, PredictableGameLoop}
 
 import scala.io.StdIn
 

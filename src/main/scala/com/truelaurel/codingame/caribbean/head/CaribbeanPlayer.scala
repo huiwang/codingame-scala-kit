@@ -4,7 +4,7 @@ import java.util.concurrent.TimeUnit
 
 import com.truelaurel.codingame.caribbean.common.{FixedCabribbeanPlayer, _}
 import com.truelaurel.codingame.caribbean.offline.CaribbeanArena
-import com.truelaurel.codingame.engine.GamePlayer
+import com.truelaurel.codingame.game.GamePlayer
 import com.truelaurel.codingame.hexagons.Cube
 import com.truelaurel.codingame.metaheuristic.evolutionstrategy.MuPlusLambda
 import com.truelaurel.codingame.metaheuristic.model.{Problem, Solution}

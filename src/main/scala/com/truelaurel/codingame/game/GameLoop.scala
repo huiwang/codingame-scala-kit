@@ -1,4 +1,4 @@
-package com.truelaurel.codingame.engine
+package com.truelaurel.codingame.game
 
 
 class GameLoop[C, S, A](

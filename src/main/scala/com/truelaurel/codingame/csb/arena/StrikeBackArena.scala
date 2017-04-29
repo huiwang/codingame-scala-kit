@@ -1,7 +1,7 @@
 package com.truelaurel.codingame.csb.arena
 
 import com.truelaurel.codingame.csb.model._
-import com.truelaurel.codingame.engine.{Draw, GameArena, GameResult}
+import com.truelaurel.codingame.game.{Draw, GameArena, GameResult}
 
 /**
   * Created by hwang on 02/04/2017.
@@ -13,6 +13,9 @@ object StrikeBackArena extends GameArena[StrikeBackState, StrikeBackAction] {
       action <- actions
       pod = state.pods(action.id)
     } yield action match {
+      case Thrust(_, target, thrust) =>
+        val pivoted = pod.angle.pivotTo(target - pod.position, 18.0)
+        pod.copy(speed = pod.speed + pivoted * thrust)
       case AngleThrust(_, _, angle, rotate, thrust) =>
         val rotated = angle.rotateInDegree(rotate)
         pod.copy(speed = pod.speed + rotated * thrust, angle = rotated)

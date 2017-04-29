@@ -1,6 +1,6 @@
 package com.truelaurel.codingame.ghostcell.offline
 
-import com.truelaurel.codingame.engine.GameSimulator
+import com.truelaurel.codingame.game.GameSimulator
 import com.truelaurel.codingame.ghostcell.best.BestGhostCellPlayer
 import com.truelaurel.codingame.ghostcell.common.{Fac, GhostCellGameState, GhostGraph}
 import com.truelaurel.codingame.ghostcell.head.GhostCellPlayer

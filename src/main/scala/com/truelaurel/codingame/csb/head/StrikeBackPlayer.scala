@@ -5,7 +5,7 @@ import java.util.concurrent.TimeUnit
 import com.truelaurel.codingame.csb.arena.StrikeBackArena
 import com.truelaurel.codingame.csb.best.BestStrikeBackPlayer
 import com.truelaurel.codingame.csb.model.{AngleThrust, StrikeBackAction, StrikeBackContext, StrikeBackState}
-import com.truelaurel.codingame.engine.GamePlayer
+import com.truelaurel.codingame.game.GamePlayer
 import com.truelaurel.codingame.metaheuristic.evolutionstrategy.MuPlusLambda
 import com.truelaurel.codingame.metaheuristic.model.{Problem, Solution}
 import com.truelaurel.codingame.metaheuristic.tweak.{BoundedVectorConvolution, NoiseGenerators}

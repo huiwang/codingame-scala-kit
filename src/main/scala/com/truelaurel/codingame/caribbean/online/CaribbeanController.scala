@@ -1,7 +1,7 @@
 package com.truelaurel.codingame.caribbean.online
 
 import com.truelaurel.codingame.caribbean.common._
-import com.truelaurel.codingame.engine.{GameController, GamePlayer}
+import com.truelaurel.codingame.game.{GameController, GamePlayer}
 import com.truelaurel.codingame.hexagons.Offset
 
 import scala.io.StdIn

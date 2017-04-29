@@ -1,6 +1,6 @@
 package com.truelaurel.codingame.ghostcell.offline
 
-import com.truelaurel.codingame.engine._
+import com.truelaurel.codingame.game._
 import com.truelaurel.codingame.ghostcell.common._
 
 /**

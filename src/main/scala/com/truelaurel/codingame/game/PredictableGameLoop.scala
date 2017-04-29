@@ -1,4 +1,4 @@
-package com.truelaurel.codingame.engine
+package com.truelaurel.codingame.game
 
 class PredictableGameLoop[C, S, A](
                                     controller: GameController[C, S, A],

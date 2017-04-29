@@ -1,7 +1,7 @@
 package com.truelaurel.codingame.csb.io
 
 import com.truelaurel.codingame.csb.model._
-import com.truelaurel.codingame.engine.GameController
+import com.truelaurel.codingame.game.GameController
 import com.truelaurel.codingame.vectorial.{Vectorl, Vectorls}
 
 import scala.io.StdIn
