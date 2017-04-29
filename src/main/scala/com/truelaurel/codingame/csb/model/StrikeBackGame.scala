@@ -2,7 +2,7 @@ package com.truelaurel.codingame.csb.model
 
 import com.truelaurel.codingame.vectorial.{Vectorl, Vectorls}
 
-case class StrikeBackContext(checkPoints: Vector[CheckPoint])
+case class StrikeBackContext(checkPoints: Vector[CheckPoint], previousPods: Vector[Pod])
 
 object StrikeBackContext {
   val podCount = 4
@@ -12,11 +12,11 @@ object StrikeBackContext {
 }
 
 
-case class Pod(id : Int, position: Vectorl, speed: Vectorl, angle: Vectorl, goal: Int, mass : Double = 1.0) {
+case class Pod(id: Int, position: Vectorl, speed: Vectorl, angle: Vectorl, goal: Int, mass: Double = 1.0) {
   val radius = 400
 }
 
-case class CheckPoint(id : Int, position: Vectorl) {
+case class CheckPoint(id: Int, position: Vectorl) {
   val radius = 200
   val speed: Vectorl = Vectorls.origin
 }
@@ -31,7 +31,7 @@ case class StrikeBackState(checkPoints: Vector[CheckPoint],
     }
   }
 
-  def checkPoint(goal : Int) : Vectorl = checkPoints(goal % checkPoints.size).position
+  def checkPoint(goal: Int): Vectorl = checkPoints(goal % checkPoints.size).position
 
 }
 

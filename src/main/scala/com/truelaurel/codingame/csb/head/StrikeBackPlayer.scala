@@ -47,7 +47,8 @@ case class StrikeBackProblem(me: Int,
 case class StrikeBackSolution(problem: StrikeBackProblem,
                               actions: Vector[Double]) extends Solution {
   lazy val quality: Double = {
-    targetState.podsOf(problem.me).map(pod => {
+    val myPods = targetState.podsOf(problem.me)
+    myPods.map(pod => {
       pod.goal * 10000000.0 - (targetState.checkPoint(pod.goal) - pod.position).mag
     }).max
   }

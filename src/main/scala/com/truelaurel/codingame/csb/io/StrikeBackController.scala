@@ -15,7 +15,7 @@ object StrikeBackController extends GameController[StrikeBackContext, StrikeBack
       val Array(x, y) = StdIn.readLine().split(" ").map(_.toInt)
       CheckPoint(i, Vectorl(x, y))
     }).toVector
-    StrikeBackContext(checkPoints)
+    StrikeBackContext(checkPoints, Vector.empty)
   }
 
   override def readState(turn: Int, context: StrikeBackContext): StrikeBackState = {
@@ -26,14 +26,28 @@ object StrikeBackController extends GameController[StrikeBackContext, StrikeBack
       } else {
         Vectorls.axisX.rotateInDegree(angle)
       }
-      Pod(i, Vectorl(x, y), Vectorl(vx, vy), angleVec, goal)
+
+      val absoluteGoal =
+        if (context.previousPods.isEmpty) goal
+        else computeGoal(context.previousPods(i).goal, context.checkPoints.size, goal)
+      Pod(i, Vectorl(x, y), Vectorl(vx, vy), angleVec, absoluteGoal)
     })
     StrikeBackState(context.checkPoints, pods)
   }
 
+  def computeGoal(previousGoal: Int, cpCount: Int, currentGoal: Int): Int = {
+    if (currentGoal % cpCount < previousGoal % cpCount) {
+      cpCount * (previousGoal / cpCount + 1) + currentGoal
+    } else {
+      cpCount * (previousGoal / cpCount) + currentGoal
+    }
+  }
+
   override def nextContext(context: StrikeBackContext,
                            state: StrikeBackState,
-                           actions: Vector[StrikeBackAction]): StrikeBackContext = context
+                           actions: Vector[StrikeBackAction]): StrikeBackContext = {
+    context.copy(previousPods = state.pods)
+  }
 
 
 }
