@@ -4,7 +4,7 @@ import java.util.concurrent.TimeUnit
 
 import com.truelaurel.codingame.csb.arena.StrikeBackArena
 import com.truelaurel.codingame.csb.best.BestStrikeBackPlayer
-import com.truelaurel.codingame.csb.model.{AngleThrust, StrikeBackAction, StrikeBackContext, StrikeBackState}
+import com.truelaurel.codingame.csb.model._
 import com.truelaurel.codingame.game.GamePlayer
 import com.truelaurel.codingame.metaheuristic.evolutionstrategy.MuPlusLambda
 import com.truelaurel.codingame.metaheuristic.model.{Problem, Solution}
@@ -19,7 +19,7 @@ import scala.concurrent.duration.Duration
 case class StrikeBackPlayer(me: Int, other: Int) extends GamePlayer[StrikeBackState, StrikeBackAction] {
 
   override def reactTo(state: StrikeBackState): Vector[StrikeBackAction] = {
-    val muToLambda = new MuPlusLambda(20, 100, new Chronometer(Duration(90, TimeUnit.MILLISECONDS)))
+    val muToLambda = new MuPlusLambda(5, 10, new Chronometer(Duration(145, TimeUnit.MILLISECONDS)))
     val solution = muToLambda.search(StrikeBackProblem(me, other, BestStrikeBackPlayer(StrikeBackContext.other), state))
     solution.adapt(state, solution.actions.take(2))
   }
@@ -30,11 +30,11 @@ case class StrikeBackProblem(me: Int,
                              otherPlayer: GamePlayer[StrikeBackState, StrikeBackAction],
                              state: StrikeBackState) extends Problem[StrikeBackSolution] {
 
-  private val convolution = new BoundedVectorConvolution(0.3, -180, +180)
-  val pods = 2
-  val actionPerPod = 2
-  val rounds = 6
-  val actionLength = pods * actionPerPod
+  private val convolution = new BoundedVectorConvolution(0.9, -180, +180)
+  val pods: Int = 2
+  val actionPerPod: Int = 3
+  val rounds: Int = 6
+  val actionLength: Int = pods * actionPerPod
   val roundRange: Range = 0 until rounds
   val chromosome: Range = 0 until rounds * actionLength
 
@@ -43,7 +43,7 @@ case class StrikeBackProblem(me: Int,
   }
 
   override def tweakSolution(solution: StrikeBackSolution): StrikeBackSolution = {
-    solution.copy(actions = convolution.tweak(solution.actions, NoiseGenerators.uniform(180)))
+    solution.copy(actions = convolution.tweak(solution.actions, NoiseGenerators.gaussian(0, 500)))
   }
 
 }
@@ -72,12 +72,15 @@ case class StrikeBackSolution(problem: StrikeBackProblem,
     })
   }
 
-  def adapt(current: StrikeBackState, podActions: Vector[Double]): Vector[AngleThrust] = {
+  def adapt(current: StrikeBackState, podActions: Vector[Double]): Vector[StrikeBackAction] = {
     current.podsOf(problem.me).map(p => {
       val start = (p.id * problem.actionPerPod) % problem.actionLength
       val angle = actions(start)
       val thrust = actions(start + 1)
-      AngleThrust(p.id, p.position, p.angle, angle / 10, (thrust + 180) / 1.8)
+      val shield = actions(start + 2)
+      if (shield + 180 > 355) Shield(p.id, p.position, p.angle, angle / 10) else {
+        AngleThrust(p.id, p.position, p.angle, angle / 10, (thrust + 180) / 1.8)
+      }
     })
   }
 

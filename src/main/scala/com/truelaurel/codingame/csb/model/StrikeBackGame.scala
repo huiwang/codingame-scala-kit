@@ -2,13 +2,14 @@ package com.truelaurel.codingame.csb.model
 
 import com.truelaurel.codingame.vectorial.{Vectorl, Vectorls}
 
-case class StrikeBackContext(checkPoints: Vector[CheckPoint], previousPods: Vector[Pod])
+case class StrikeBackContext(checkPoints: Vector[CheckPoint], previousPods: Vector[Pod], shieldCoolDown: Vector[Int])
 
 object StrikeBackContext {
   val podCount = 4
   val podIndices: Vector[Int] = (0 until podCount).toVector
   val me = 0
   val other = 1
+  val shieldCd = 3
 }
 
 
@@ -21,7 +22,7 @@ case class CheckPoint(id: Int, position: Vectorl) {
   val speed: Vectorl = Vectorls.origin
 }
 
-case class StrikeBackState(checkPoints: Vector[CheckPoint],
+case class StrikeBackState(context: StrikeBackContext,
                            pods: Vector[Pod]) {
   def podsOf(playerId: Int): Vector[Pod] = {
     if (playerId == 0) {
@@ -31,7 +32,7 @@ case class StrikeBackState(checkPoints: Vector[CheckPoint],
     }
   }
 
-  def checkPoint(goal: Int): Vectorl = checkPoints(goal % checkPoints.size).position
+  def checkPoint(goal: Int): Vectorl = context.checkPoints(goal % context.checkPoints.size).position
 
 }
 
@@ -47,8 +48,9 @@ sealed case class AngleThrust(id: Int, position: Vectorl, angle: Vectorl, rotate
   override def toString: String = Thrust(id, position + angle.rotateInDegree(rotate) * 100000, thrust.toInt).toString
 }
 
-sealed case class Shield(id: Int) extends StrikeBackAction {
-  override def toString: String = "SHIELD"
+sealed case class Shield(id: Int, position: Vectorl, angle: Vectorl, rotate: Double) extends StrikeBackAction {
+  val target = position + angle.rotateInDegree(rotate) * 100000
+  override def toString: String = s"${target.x.toInt} ${target.y.toInt} SHIELD"
 }
 
 sealed case class Boost(id: Int) extends StrikeBackAction {

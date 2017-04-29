@@ -15,7 +15,7 @@ object StrikeBackController extends GameController[StrikeBackContext, StrikeBack
       val Array(x, y) = StdIn.readLine().split(" ").map(_.toInt)
       CheckPoint(i, Vectorl(x, y))
     }).toVector
-    StrikeBackContext(checkPoints, Vector.empty)
+    StrikeBackContext(checkPoints, Vector.empty, Vector(0, 0, 0, 0))
   }
 
   override def readState(turn: Int, context: StrikeBackContext): StrikeBackState = {
@@ -32,7 +32,7 @@ object StrikeBackController extends GameController[StrikeBackContext, StrikeBack
         else computeGoal(context.previousPods(i).goal, context.checkPoints.size, goal)
       Pod(i, Vectorl(x, y), Vectorl(vx, vy), angleVec, absoluteGoal)
     })
-    StrikeBackState(context.checkPoints, pods)
+    StrikeBackState(context, pods)
   }
 
   def computeGoal(previousGoal: Int, cpCount: Int, currentGoal: Int): Int = {
@@ -46,7 +46,11 @@ object StrikeBackController extends GameController[StrikeBackContext, StrikeBack
   override def nextContext(context: StrikeBackContext,
                            state: StrikeBackState,
                            actions: Vector[StrikeBackAction]): StrikeBackContext = {
-    context.copy(previousPods = state.pods)
+    val nextCd = actions.foldLeft(context.shieldCoolDown)((cd, a) => a match {
+      case Shield(_, _, _, _) => cd.updated(a.id, StrikeBackContext.shieldCd)
+      case _ => cd.updated(a.id, cd(a.id) - 1)
+    })
+    context.copy(previousPods = state.pods, shieldCoolDown = nextCd)
   }
 
 
