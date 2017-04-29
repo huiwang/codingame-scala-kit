@@ -20,7 +20,6 @@ object CGLogger {
     if (level <= current) {
       System.err.println(level)
     }
-
   }
 
 }
