@@ -1,7 +1,5 @@
 package com.truelaurel.codingame.logging
 
-import sun.plugin2.message.Message
-
 /**
   * Created by hwang on 29/04/2017.
   */
