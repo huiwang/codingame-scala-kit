@@ -1,7 +1,7 @@
 package com.truelaurel.codingame.csb.arena
 
-import com.truelaurel.codingame.collision.DiskCollider
-import com.truelaurel.codingame.csb.model.{StrikeBackContext, CheckPoint, Pod}
+import com.truelaurel.codingame.collision.Collision
+import com.truelaurel.codingame.csb.model.{CheckPoint, Pod}
 
 
 object StrikeBackCollisionSimulation {
@@ -11,13 +11,13 @@ object StrikeBackCollisionSimulation {
       pod <- pods
       cp <- checkPoints
       if pod.goal % checkPoints.size == cp.id
-      time <- DiskCollider.collideTime(pod.position, pod.speed, pod.radius, cp.position, cp.speed, cp.radius)
+      time <- Collision.collideTime(pod.position, pod.speed, pod.radius, cp.position, cp.speed, cp.radius)
       if time < duration
     } yield (pod, cp, time)
 
     val podPodCollisions = for {
       Vector(pod1, pod2) <- pods.combinations(2)
-      time <- DiskCollider.collideTime(pod1.position, pod1.speed, pod1.radius, pod2.position, pod2.speed, pod2.radius)
+      time <- Collision.collideTime(pod1.position, pod1.speed, pod1.radius, pod2.position, pod2.speed, pod2.radius)
       if time < duration
     } yield (pod1, pod2, time)
 
@@ -56,9 +56,10 @@ object StrikeBackCollisionSimulation {
   private def boundOff(pod1: Pod, pod2: Pod, time: Double) = {
     val movedPod1 = movePod(pod1, time)
     val movedPod2 = movePod(pod2, time)
-    val (speed1, speed2) = DiskCollider.bounceOff(
+    val (speed1, speed2) = Collision.bounceOffWithMinimumImpulse(
       movedPod1.position, movedPod1.speed, movedPod1.radius,
-      movedPod2.position, movedPod2.speed, movedPod2.radius
+      movedPod2.position, movedPod2.speed, movedPod2.radius,
+      120.0
     )
     val bouncedPod1 = movedPod1.copy(speed = speed1)
     val bouncedPod2 = movedPod2.copy(speed = speed2)
@@ -66,11 +67,11 @@ object StrikeBackCollisionSimulation {
   }
 
   private def movePod(pod: Pod, duration: Double) = {
-    pod.copy(position = pod.position + pod.speed * duration)
+    pod.copy(position = pod.position + (pod.speed * duration))
   }
 
   private def movePodAndGoal(pod: Pod, duration: Double) = {
-    pod.copy(position = pod.position + pod.speed * duration, goal = pod.goal + 1)
+    pod.copy(position = pod.position + (pod.speed * duration), goal = pod.goal + 1)
   }
 
 }

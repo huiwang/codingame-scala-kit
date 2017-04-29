@@ -7,7 +7,7 @@ import scala.util.Random
   */
 object Mathl {
 
-  val random = new Random()
+  val random = new Random(62638886242411L)
 
   def halfUp(d: Double): Int = ((d.abs * 2 + 1) / 2).toInt * (if (d > 0) 1 else -1)
 

@@ -9,7 +9,7 @@ import org.scalatest.{FlatSpec, Matchers}
 class DiskTest extends FlatSpec with Matchers {
   val disk: Disk = Disk(p = Vectorl(2, 1), v = Vectorl(2, 3), r = 1)
 
-  val diskCollisionResolver = DiskCollider
+  val diskCollisionResolver = Collision
 
   behavior of "A disk"
 
