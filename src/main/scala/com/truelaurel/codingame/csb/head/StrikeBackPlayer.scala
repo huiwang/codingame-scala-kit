@@ -31,8 +31,12 @@ case class StrikeBackProblem(me: Int,
                              state: StrikeBackState) extends Problem[StrikeBackSolution] {
 
   private val convolution = new BoundedVectorConvolution(0.3, -180, +180)
-  val chromosome: Range = 0 until 12
-  val rounds: Range = 0 until 6
+  val pods = 2
+  val actionPerPod = 2
+  val rounds = 6
+  val actionLength = pods * actionPerPod
+  val roundRange: Range = 0 until rounds
+  val chromosome: Range = 0 until rounds * actionLength
 
   override def randomSolution(): StrikeBackSolution = {
     StrikeBackSolution(this, chromosome.map(_ => NoiseGenerators.uniform(180).apply()).toVector)
@@ -47,22 +51,34 @@ case class StrikeBackProblem(me: Int,
 case class StrikeBackSolution(problem: StrikeBackProblem,
                               actions: Vector[Double]) extends Solution {
   lazy val quality: Double = {
-    val myPods = targetState.podsOf(problem.me)
-    myPods.map(pod => {
-      pod.goal * 10000000.0 - (targetState.checkPoint(pod.goal) - pod.position).mag
-    }).max
+    val myPods = state.podsOf(problem.me).sortBy(_.goal)
+    val myDefense = myPods(0)
+    val myRacing = myPods(1)
+    val otherPods = state.podsOf(problem.other).sortBy(_.goal)
+    val otherDefense = otherPods(0)
+    val otherRacing = otherPods(1)
+
+    val racingScore = myRacing.goal * 10000000.0 - (state.checkPoint(myRacing.goal) - myRacing.position).mag
+    val defenseScore = myDefense.goal * 10000000.0 - (state.checkPoint(myDefense.goal) - myDefense.position).mag
+
+    racingScore + defenseScore
   }
 
-  lazy val targetState: StrikeBackState = {
-    problem.rounds.foldLeft(problem.state)((s, r) => {
-      val podActions = actions.slice(r * 2, r * 2 + 2)
+  lazy val state: StrikeBackState = {
+    problem.roundRange.foldLeft(problem.state)((s, r) => {
+      val podActions = actions.slice(r * problem.actionLength, r * problem.actionLength + problem.actionLength)
       val adapted = adapt(s, podActions)
       StrikeBackArena.next(s, adapted ++ problem.otherPlayer.reactTo(s))
     })
   }
 
-  def adapt(s: StrikeBackState, podActions: Vector[Double]): Vector[AngleThrust] = {
-    s.podsOf(problem.me).map(p => AngleThrust(p.id, p.position, p.angle, actions.head / 10, (actions.last + 180) / 1.8))
+  def adapt(current: StrikeBackState, podActions: Vector[Double]): Vector[AngleThrust] = {
+    current.podsOf(problem.me).map(p => {
+      val start = (p.id * problem.actionPerPod) % problem.actionLength
+      val angle = actions(start)
+      val thrust = actions(start + 1)
+      AngleThrust(p.id, p.position, p.angle, angle / 10, (thrust + 180) / 1.8)
+    })
   }
 
 }
