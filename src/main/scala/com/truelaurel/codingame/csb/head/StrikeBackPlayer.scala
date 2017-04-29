@@ -16,19 +16,17 @@ import scala.concurrent.duration.Duration
 /**
   * Created by hwang on 02/04/2017.
   */
-case class StrikeBackPlayer(range: Vector[Int],
-                            otherRange: Vector[Int]
-                           ) extends GamePlayer[StrikeBackState, StrikeBackAction] {
+case class StrikeBackPlayer(me: Int, other: Int) extends GamePlayer[StrikeBackState, StrikeBackAction] {
 
   override def reactTo(state: StrikeBackState): Vector[StrikeBackAction] = {
     val muToLambda = new MuPlusLambda(20, 100, new Chronometer(Duration(90, TimeUnit.MILLISECONDS)))
-    val solution = muToLambda.search(StrikeBackProblem(StrikeBackContext.me, otherRange, BestStrikeBackPlayer(StrikeBackContext.other), state))
+    val solution = muToLambda.search(StrikeBackProblem(me, other, BestStrikeBackPlayer(StrikeBackContext.other), state))
     solution.adapt(state, solution.actions.take(2))
   }
 }
 
 case class StrikeBackProblem(me: Int,
-                             otherRange: Vector[Int],
+                             other: Int,
                              otherPlayer: GamePlayer[StrikeBackState, StrikeBackAction],
                              state: StrikeBackState) extends Problem[StrikeBackSolution] {
 
@@ -66,7 +64,7 @@ case class StrikeBackSolution(problem: StrikeBackProblem,
 
   private def best(me: Int, targetState: StrikeBackState) = {
     targetState.podsOf(me).map(pod => {
-      pod.goal * 10000000.0 - (targetState.checkPoints(pod.goal % problem.state.checkPoints.size).position - pod.position).mag
+      pod.goal * 10000000.0 - (targetState.checkPoint(pod.goal) - pod.position).mag
     }).max
   }
 }

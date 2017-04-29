@@ -2,7 +2,7 @@ package com.truelaurel.codingame.csb.arena
 
 import com.truelaurel.codingame.collision.Collision
 import com.truelaurel.codingame.csb.model.{CheckPoint, Pod}
-import com.truelaurel.codingame.debug.Debugger
+import com.truelaurel.codingame.logging.CGLogger
 
 
 object StrikeBackCollisionSimulation {
@@ -24,8 +24,8 @@ object StrikeBackCollisionSimulation {
       if time < duration
     } yield (pod1, pod2, time)
 
-    Debugger.debug(podCpCollisions)
-    Debugger.debug(podPodCollisions)
+    CGLogger.debug(podCpCollisions)
+    CGLogger.debug(podPodCollisions)
 
     if (podCpCollisions.isEmpty && podPodCollisions.isEmpty) {
       pods.map(movePod(_, duration))

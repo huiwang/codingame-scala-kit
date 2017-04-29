@@ -9,7 +9,8 @@ object Player {
 
   private val gameLoop = new GameLoop(
     StrikeBackController,
-    StrikeBackPlayer(Vector(0, 1), Vector(2, 3))
+    StrikeBackPlayer(StrikeBackContext.me, StrikeBackContext.other),
+    turns = 800
   )
 
   private val predictable = new PredictableGameLoop(
@@ -20,7 +21,7 @@ object Player {
   )
 
   def main(args: Array[String]): Unit = {
-    predictable.run()
+    gameLoop.run()
   }
 
 }
