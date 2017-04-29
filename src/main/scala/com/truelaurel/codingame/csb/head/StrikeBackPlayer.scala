@@ -47,7 +47,9 @@ case class StrikeBackProblem(me: Int,
 case class StrikeBackSolution(problem: StrikeBackProblem,
                               actions: Vector[Double]) extends Solution {
   lazy val quality: Double = {
-    best(problem.me, targetState)
+    targetState.podsOf(problem.me).map(pod => {
+      pod.goal * 10000000.0 - (targetState.checkPoint(pod.goal) - pod.position).mag
+    }).max
   }
 
   lazy val targetState: StrikeBackState = {
@@ -62,9 +64,4 @@ case class StrikeBackSolution(problem: StrikeBackProblem,
     s.podsOf(problem.me).map(p => AngleThrust(p.id, p.position, p.angle, actions.head / 10, (actions.last + 180) / 1.8))
   }
 
-  private def best(me: Int, targetState: StrikeBackState) = {
-    targetState.podsOf(me).map(pod => {
-      pod.goal * 10000000.0 - (targetState.checkPoint(pod.goal) - pod.position).mag
-    }).max
-  }
 }
