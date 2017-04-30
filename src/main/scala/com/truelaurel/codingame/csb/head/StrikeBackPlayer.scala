@@ -39,17 +39,16 @@ case class StrikeBackProblem(me: Int,
   val actionLength: Int = pods * actionPerPod
   val roundRange: Range = 0 until rounds
   val chromosome: Range = 0 until rounds * actionLength
-  private val myRole = state.role(me)
-  val myOriDefenser: Pod = myRole(0)
-  val myOriRacer: Pod = myRole(1)
+  val Vector(myBlocker, myRacer) = state.role(me)
+  val Vector(_, otherRacer) = state.role(other)
+  val holdingGate = 6
+  private val blockerToRacerCollisionTime = PodAnalysis.podToPodCollisionTime(myBlocker, otherRacer)
+  val shouldBlock: Boolean = PodAnalysis.pivotTo(myBlocker, otherRacer) > 0 &&
+    blockerToRacerCollisionTime.getOrElse(Double.MaxValue) <= holdingGate
 
-  private val otherRole = state.role(me)
-  val otherOriDefenser: Pod = otherRole(0)
-  val otherOriRacer: Pod = otherRole(1)
-
-  val otherRacingToOtherGoal: Double = PodAnalysis.distanceToGoal(otherOriRacer, otherOriRacer, state)
-  val myDefenseToOtherGoal: Double = PodAnalysis.distanceToGoal(myOriDefenser, otherOriRacer, state)
-
+  val shouldPivot: Boolean =
+    PodAnalysis.podToOtherGoalDistance(myBlocker, otherRacer, state) < PodAnalysis.podToGoalDistance(otherRacer, state) &&
+      blockerToRacerCollisionTime.isEmpty
 
   override def randomSolution(): StrikeBackSolution = {
     StrikeBackSolution(this, chromosome.map(_ => NoiseGenerators.uniform(0.5, 0.5).apply()).toVector)
@@ -64,30 +63,49 @@ case class StrikeBackProblem(me: Int,
 case class StrikeBackSolution(problem: StrikeBackProblem,
                               actions: Vector[Double]) extends Solution {
   lazy val quality: Double = {
-    val myPods = state.role(problem.me)
-    val myDefense = myPods(0)
-    val myRacing = myPods(1)
-    val otherPods = state.role(problem.other)
-    val otherDefense = otherPods(0)
-    val otherRacing = otherPods(1)
 
-    val checkPointScore = Math.pow(2, myRacing.goal - problem.state.pods(myRacing.id).goal)
-    val toNextCheckPointScore = Math.pow(0.999, (state.checkPoint(myRacing.goal) - myRacing.position).mag)
-    val racingScore = checkPointScore + toNextCheckPointScore
+    val Vector(myBlocker, myRacer) = state.role(problem.me)
+    val Vector(_, otherRacer) = state.role(problem.other)
 
-    val towardOtherRacer = myDefense.angle.dotProduct((otherRacing.position - myDefense.position).norm)
-    val defenseScore = if (problem.myDefenseToOtherGoal < problem.otherRacingToOtherGoal) {
-      0.0001 * towardOtherRacer -
-        Math.pow(0.99, PodAnalysis.distanceToGoal(otherRacing, otherRacing, state)) +
-        0.1 * Math.pow(0.99, PodAnalysis.distanceToGoal(myDefense, otherRacing, state))
+    val myRacerCPBonus = computeCPScore(myRacer)
+    val myRacerGoalBonus = computeRacerGoalScore(myRacer)
+    val otherRacerCPMalus = computeCPScore(otherRacer)
+    val otherRacerGoalMalus = computeRacerGoalScore(otherRacer)
 
+    val myBlockerTowardOtherRacerBonus = PodAnalysis.pivotTo(myBlocker, otherRacer)
+    val myBlockerSpeedBonus = otherRacer.speed.norm.dotProduct(myBlocker.angle)
+    val myBlockerToOtherRacerDistanceBonus = approach(PodAnalysis.distance(myBlocker, otherRacer))
+    val myBlockerToOtherRacerCollisionBonus = Math.pow(0.99, PodAnalysis.podToPodCollisionTime(myBlocker, otherRacer).getOrElse(Double.MaxValue))
+    val myBlockerToOtherRacerGoalBonus = approach(PodAnalysis.podToOtherGoalDistance(myBlocker, otherRacer, state))
+    val myBlockerToOtherRacerNextGoalBonus = approach(PodAnalysis.podTodNextGoalDistance(myBlocker, problem.otherRacer.goal, state))
+
+    val myBlockerShieldBonus = state.context.shieldCoolDown(myBlocker.id)
+
+    val coolDownMalus = coolDownScore(myBlocker, myRacer)
+    val myRacerScore = 3.0 * (myRacerCPBonus + myRacerGoalBonus)
+    if (problem.shouldPivot) {
+      myRacerScore + myBlockerToOtherRacerGoalBonus + myBlockerTowardOtherRacerBonus
+    } else if (problem.shouldBlock) {
+      myRacerScore + myBlockerToOtherRacerCollisionBonus - otherRacerGoalMalus
     } else {
-      0.0001 * towardOtherRacer + Math.pow(0.999, 400.0.max(PodAnalysis.distanceToNextGoal(myDefense, problem.otherOriRacer.goal, state)))
+      myRacerScore + myBlockerToOtherRacerNextGoalBonus + 0.0001 * myBlockerTowardOtherRacerBonus
     }
+  }
 
-    val coolDownScore = -(state.context.shieldCoolDown(myDefense.id) + state.context.shieldCoolDown(myRacing.id))
+  private def computeRacerGoalScore(racer: Pod) = {
+    Math.pow(0.999, PodAnalysis.podToGoalDistance(racer, state))
+  }
 
-    racingScore + 0.5 * defenseScore + 0.00001 * coolDownScore
+  private def computeCPScore(racer: Pod) = {
+    Math.pow(2, racer.goal - problem.state.pods(racer.id).goal)
+  }
+
+  private def coolDownScore(blocker: Pod, racer: Pod) = {
+    state.context.shieldCoolDown(blocker.id) + state.context.shieldCoolDown(racer.id)
+  }
+
+  private def approach(distance: Double) = {
+    Math.pow(0.999, 400.0.max(distance))
   }
 
   lazy val state: StrikeBackState = {
@@ -110,7 +128,7 @@ case class StrikeBackSolution(problem: StrikeBackProblem,
       }
       val thrust = actions(start + 1)
       thrust match {
-        case x if x > 0.95 => Shield(p.id, p.position, p.angle, angle)
+        case x if x > 0.9 => Shield(p.id, p.position, p.angle, angle)
         case x if x > 0.5 => AngleThrust(p.id, p.position, p.angle, angle, 200)
         case x if x > 0.3 => AngleThrust(p.id, p.position, p.angle, angle, 100)
         case x if x > 0.1 => AngleThrust(p.id, p.position, p.angle, angle, 50)

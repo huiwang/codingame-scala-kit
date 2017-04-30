@@ -36,9 +36,7 @@ case class StrikeBackState(context: StrikeBackContext,
 
   //first is defenser and second is racer
   def role(playerId: Int): Vector[Pod] = podsOf(playerId)
-    .sortBy(p => (p.goal, -PodAnalysis.distanceToGoal(p, p, this)))
-
-  def checkPoint(goal: Int): Vectorl = context.checkPoints(goal % context.checkPoints.size).position
+    .sortBy(p => (p.goal, -PodAnalysis.podToGoalDistance(p, this)))
 
 }
 

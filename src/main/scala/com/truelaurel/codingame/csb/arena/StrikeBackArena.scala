@@ -30,7 +30,7 @@ object StrikeBackArena extends GameArena[StrikeBackState, StrikeBackAction] {
 
     val movedPods = StrikeBackCollisionSimulation.simulate(state.context.checkPoints, steeredPods, 1.0)
 
-    val slowed = movedPods.map(p => p.copy(speed = p.speed * .85))
+    val slowed = movedPods.map(p => p.copy(speed = p.speed * .85, mass = 1.0))
 
     StrikeBackState(StrikeBackController.nextContext(state.context, state, actions), slowed, state.turn + 1)
   }

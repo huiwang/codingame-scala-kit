@@ -21,7 +21,7 @@ object StrikeBackCollisionSimulation {
       pod1 <- pods
       pod2 <- pods
       if pod1.id < pod2.id
-      time <- PodAnalysis.collisionTime(pod1, pod2)
+      time <- PodAnalysis.podToPodCollisionTime(pod1, pod2)
       if time < duration
     } yield (pod1, pod2, time)
 
