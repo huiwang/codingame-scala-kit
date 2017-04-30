@@ -32,7 +32,7 @@ object StrikeBackController extends GameController[StrikeBackContext, StrikeBack
         else computeGoal(context.previousPods(i).goal, context.checkPoints.size, goal)
       Pod(i, Vectorl(x, y), Vectorl(vx, vy), angleVec, absoluteGoal)
     })
-    StrikeBackState(context, pods)
+    StrikeBackState(context, pods, turn)
   }
 
   def computeGoal(previousGoal: Int, cpCount: Int, currentGoal: Int): Int = {
@@ -48,7 +48,7 @@ object StrikeBackController extends GameController[StrikeBackContext, StrikeBack
                            actions: Vector[StrikeBackAction]): StrikeBackContext = {
     val nextCd = actions.foldLeft(context.shieldCoolDown)((cd, a) => a match {
       case Shield(_, _, _, _) => cd.updated(a.id, StrikeBackContext.shieldCd)
-      case _ => cd.updated(a.id, cd(a.id) - 1)
+      case _ => if (cd(a.id) == 0) cd else cd.updated(a.id, cd(a.id) - 1)
     })
     context.copy(previousPods = state.pods, shieldCoolDown = nextCd)
   }

@@ -1,5 +1,6 @@
 package com.truelaurel.codingame.csb.model
 
+import com.truelaurel.codingame.csb.analysis.PodAnalysis
 import com.truelaurel.codingame.vectorial.{Vectorl, Vectorls}
 
 case class StrikeBackContext(checkPoints: Vector[CheckPoint], previousPods: Vector[Pod], shieldCoolDown: Vector[Int])
@@ -23,7 +24,8 @@ case class CheckPoint(id: Int, position: Vectorl) {
 }
 
 case class StrikeBackState(context: StrikeBackContext,
-                           pods: Vector[Pod]) {
+                           pods: Vector[Pod],
+                           turn: Int) {
   def podsOf(playerId: Int): Vector[Pod] = {
     if (playerId == 0) {
       pods.take(2)
@@ -31,6 +33,10 @@ case class StrikeBackState(context: StrikeBackContext,
       pods.takeRight(2)
     }
   }
+
+  //first is defenser and second is racer
+  def role(playerId: Int): Vector[Pod] = podsOf(playerId)
+    .sortBy(p => (p.goal, -PodAnalysis.distanceToGoal(p, p, this)))
 
   def checkPoint(goal: Int): Vectorl = context.checkPoints(goal % context.checkPoints.size).position
 
@@ -50,6 +56,7 @@ sealed case class AngleThrust(id: Int, position: Vectorl, angle: Vectorl, rotate
 
 sealed case class Shield(id: Int, position: Vectorl, angle: Vectorl, rotate: Double) extends StrikeBackAction {
   val target = position + angle.rotateInDegree(rotate) * 100000
+
   override def toString: String = s"${target.x.toInt} ${target.y.toInt} SHIELD"
 }
 

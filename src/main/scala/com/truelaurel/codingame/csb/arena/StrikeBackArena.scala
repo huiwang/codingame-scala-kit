@@ -32,7 +32,7 @@ object StrikeBackArena extends GameArena[StrikeBackState, StrikeBackAction] {
 
     val slowed = movedPods.map(p => p.copy(speed = p.speed * .85))
 
-    StrikeBackState(StrikeBackController.nextContext(state.context, state, actions), slowed)
+    StrikeBackState(StrikeBackController.nextContext(state.context, state, actions), slowed, state.turn + 1)
   }
 
   override def judge(state: StrikeBackState): GameResult = {

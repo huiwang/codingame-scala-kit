@@ -9,6 +9,6 @@ import com.truelaurel.codingame.game.GamePlayer
 case class BestStrikeBackPlayer(player: Int) extends GamePlayer[StrikeBackState, StrikeBackAction] {
 
   override def reactTo(state: StrikeBackState): Vector[StrikeBackAction] = {
-    state.podsOf(player).map(pod => Thrust(pod.id, state.checkPoint(pod.goal), 100))
+    state.podsOf(player).map(pod => Thrust(pod.id, state.checkPoint(pod.goal), 200))
   }
 }
