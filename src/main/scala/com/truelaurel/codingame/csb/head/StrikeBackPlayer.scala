@@ -2,6 +2,8 @@ package com.truelaurel.codingame.csb.head
 
 import java.util.concurrent.TimeUnit
 
+import com.truelaurel.codingame.collision.Collision
+import com.truelaurel.codingame.csb.analysis.PodAnalysis
 import com.truelaurel.codingame.csb.arena.StrikeBackArena
 import com.truelaurel.codingame.csb.best.BestStrikeBackPlayer
 import com.truelaurel.codingame.csb.model._
@@ -59,7 +61,10 @@ case class StrikeBackSolution(problem: StrikeBackProblem,
     val otherRacing = otherPods(1)
 
     val racingScore = myRacing.goal * 10000000.0 - (state.checkPoint(myRacing.goal) - myRacing.position).mag
-    val defenseScore = myDefense.goal * 10000000.0 - (state.checkPoint(myDefense.goal) - myDefense.position).mag
+    val collisionScore = Math.pow(0.8, PodAnalysis.collisionTime(myDefense, otherRacing).getOrElse(Double.MaxValue))
+    val readyScore = (state.checkPoint(otherRacing.goal) - myDefense.position).mag
+    val blockingScore = (state.checkPoint(otherRacing.goal) - otherRacing.position).mag
+    val defenseScore = blockingScore + collisionScore - readyScore
 
     racingScore + defenseScore
   }
@@ -78,7 +83,7 @@ case class StrikeBackSolution(problem: StrikeBackProblem,
       val angle = actions(start)
       val thrust = actions(start + 1)
       val shield = actions(start + 2)
-      if (shield + 180 > 355) Shield(p.id, p.position, p.angle, angle / 10) else {
+      if (shield + 180 > 350) Shield(p.id, p.position, p.angle, angle / 10) else {
         AngleThrust(p.id, p.position, p.angle, angle / 10, (thrust + 180) / 1.8)
       }
     })
