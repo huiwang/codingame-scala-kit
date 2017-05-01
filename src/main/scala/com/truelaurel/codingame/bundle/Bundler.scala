@@ -10,8 +10,7 @@ import scala.io.Source
 class Bundler(val fileName: String,
               val srcFolder: String = "./src/main/scala",
               val destFolder: String = "./target",
-              val organization: String = "com.truelaurel"
-             ) {
+              val organization: String = "com.truelaurel") {
 
   val seenFiles: mutable.Set[File] = mutable.Set.empty
 
@@ -29,7 +28,6 @@ class Bundler(val fileName: String,
       .toFile
   }
 
-
   def transformFile(file: File): List[String] = {
     if (seenFiles.contains(file)) return Nil
     seenFiles.add(file)
@@ -37,11 +35,12 @@ class Bundler(val fileName: String,
     val withoutPackages = lines.filterNot(_.startsWith("package"))
     val (imports, body) = withoutPackages.partition(_.startsWith(s"import $organization"))
     val filesInSamePackage = transformFiles(file.getParentFile)
-    val filesFromImports = imports.flatMap(im => {
+    val (starImports, otherImports) = imports.partition(_.endsWith("_"))
+    val filesFromImports = otherImports.flatMap(im => {
       val folderFromImport = extractFolderFromImport(im)
       transformFiles(folderFromImport)
     })
-    filesInSamePackage ++ filesFromImports ++ body
+    starImports.distinct.map(_.replace(s"$organization.", "")) ++ filesInSamePackage ++ filesFromImports ++ body
   }
 
   private def readFile(file: File) = {
@@ -74,9 +73,7 @@ class Bundler(val fileName: String,
   }
 }
 
-object Bundler {
-  def main(args: Array[String]): Unit = {
-    if (args.length != 1) throw new IllegalArgumentException("Input file name must be provided")
-    new Bundler(args(0)).bundle()
-  }
+object Bundler extends App {
+  val file = args.headOption.getOrElse("GhostMain.scala")
+  new Bundler(file, organization = "com.tyrcho").bundle()
 }
