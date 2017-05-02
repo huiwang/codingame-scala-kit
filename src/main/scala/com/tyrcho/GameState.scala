@@ -1,6 +1,7 @@
 package com.tyrcho
 
 import CodinGameTemplate._
+import ai.scala.fp.IterableUtil._
 
 import scala.util.Random
 import Strategies._

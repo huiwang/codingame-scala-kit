@@ -1,6 +1,6 @@
 package com.tyrcho
 
-import com.tyrcho.CodinGameTemplate._
+import ai.scala.fp.IterableUtil._
 
 case class Grid(links: Vector[Link]) {
   val ids: Set[Int] = links.toSet[Link].flatMap(l => Set(l.factory1, l.factory2))
