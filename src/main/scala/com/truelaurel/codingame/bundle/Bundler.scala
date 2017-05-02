@@ -9,8 +9,7 @@ import scala.io.Source
 
 class Bundler(val fileName: String,
               val srcFolder: String = "./src/main/scala",
-              val destFolder: String = "./target",
-              val organization: String = "com.truelaurel"
+              val destFolder: String = "./target"
              ) {
 
   val seenFiles: mutable.Set[File] = mutable.Set.empty
@@ -33,17 +32,24 @@ class Bundler(val fileName: String,
   def transformFile(file: File): List[String] = {
     if (seenFiles.contains(file)) return Nil
     seenFiles.add(file)
-    val lines = readFile(file)
-    val withoutPackages = lines.filterNot(_.startsWith("package"))
-    val (imports, body) = withoutPackages.partition(_.startsWith(s"import $organization"))
     val filesInSamePackage = transformFiles(file.getParentFile)
-    val (starImports, otherImports) = imports.partition(_.endsWith("_"))
-    val filesFromImports = otherImports.flatMap(im => {
-      val folderFromImport = extractFolderFromImport(im)
-      transformFiles(folderFromImport)
-    })
-    starImports.distinct.map(_.replace(s"$organization.", "")) ++ filesInSamePackage ++ filesFromImports ++ body
+    filesInSamePackage ++ readFile(file).flatMap {
+      case l if l.startsWith("package") => Nil
+      case i if i.startsWith("import") => transformImport(i)
+      case b => List(b)
+    }
   }
+
+  private def transformImport(im: String): List[String] =
+    if (im.startsWith("import scala")) List(im)
+    else {
+      val Array(_, imported) = im.split(" ")
+      val isStarImport = im.endsWith("_")
+      val elements = imported.split("\\.")
+      val folder = elements.dropRight(if (isStarImport) 2 else 1).mkString(File.separator)
+      val importObj = if (isStarImport) List("import " + elements(elements.size - 2) + "._") else Nil
+      transformFiles(new File(srcFolder, folder)) ++ importObj
+    }
 
   private def readFile(file: File) = {
     try {
@@ -77,6 +83,5 @@ class Bundler(val fileName: String,
 
 object Bundler extends App {
   val fileName = args.headOption.getOrElse(throw new IllegalArgumentException("Input file name must be provided"))
-  val organisation = if (args.length > 1) args(1) else "com.truelaurel"
-  new Bundler(fileName, organization = organisation).bundle()
+  new Bundler(fileName).bundle()
 }
