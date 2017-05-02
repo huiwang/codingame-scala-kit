@@ -37,11 +37,12 @@ class Bundler(val fileName: String,
     val withoutPackages = lines.filterNot(_.startsWith("package"))
     val (imports, body) = withoutPackages.partition(_.startsWith(s"import $organization"))
     val filesInSamePackage = transformFiles(file.getParentFile)
-    val filesFromImports = imports.flatMap(im => {
+    val (starImports, otherImports) = imports.partition(_.endsWith("_"))
+    val filesFromImports = otherImports.flatMap(im => {
       val folderFromImport = extractFolderFromImport(im)
       transformFiles(folderFromImport)
     })
-    filesInSamePackage ++ filesFromImports ++ body
+    starImports.distinct.map(_.replace(s"$organization.", "")) ++ filesInSamePackage ++ filesFromImports ++ body
   }
 
   private def readFile(file: File) = {
