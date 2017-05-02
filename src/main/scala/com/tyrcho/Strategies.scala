@@ -1,5 +1,6 @@
 package com.tyrcho
 
+import ai.scala.fp.State
 import com.tyrcho.CodinGameTemplate._
 
 object Strategies {

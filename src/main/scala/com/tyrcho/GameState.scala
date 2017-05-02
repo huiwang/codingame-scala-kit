@@ -1,8 +1,11 @@
 package com.tyrcho
 
 import CodinGameTemplate._
+
 import scala.util.Random
 import Strategies._
+import ai.scala.fp.State
+
 import scala.collection.Seq
 import scala.collection.immutable.Stream.consWrapper
 
