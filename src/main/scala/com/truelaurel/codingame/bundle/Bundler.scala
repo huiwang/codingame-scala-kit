@@ -74,9 +74,8 @@ class Bundler(val fileName: String,
   }
 }
 
-object Bundler {
-  def main(args: Array[String]): Unit = {
-    if (args.length != 1) throw new IllegalArgumentException("Input file name must be provided")
-    new Bundler(args(0)).bundle()
-  }
+object Bundler extends App {
+  val fileName = args.headOption.getOrElse(throw new IllegalArgumentException("Input file name must be provided"))
+  val organisation = if (args.length > 1) args(1) else "com.truelaurel"
+  new Bundler(fileName, organization = organisation).bundle()
 }
