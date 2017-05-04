@@ -17,12 +17,14 @@ class Bundler(val fileName: String,
   def bundle() {
     val file = findFile()
     val content = transformFile(file)
-    val pw = new PrintWriter(new File(destFolder, fileName))
+    val destFile = new File(destFolder, fileName)
+    println(s"writing bundled file to $destFile")
+    val pw = new PrintWriter(destFile)
     try pw.write(strip2(content.filterNot(_.equals("")).mkString(System.lineSeparator()))) finally pw.close()
   }
 
   def findFile(): File = {
-    Files.find(Paths.get("."), Int.MaxValue, (path, attrs) => path.endsWith(fileName))
+    Files.find(Paths.get("."), Int.MaxValue, (path, _) => path.endsWith(fileName))
       .findAny()
       .orElseThrow(() => new IllegalArgumentException(s"$fileName not found"))
       .toFile
@@ -32,6 +34,7 @@ class Bundler(val fileName: String,
   def transformFile(file: File): List[String] = {
     if (seenFiles.contains(file)) return Nil
     seenFiles.add(file)
+    println(s"reading from $file")
     val filesInSamePackage = transformFiles(file.getParentFile)
     filesInSamePackage ++ readFile(file).flatMap {
       case l if l.startsWith("package") => Nil
@@ -40,16 +43,35 @@ class Bundler(val fileName: String,
     }
   }
 
-  private def transformImport(im: String): List[String] =
-    if (im.startsWith("import scala")) List(im)
+  val ignoredImports = Seq("scala", "java")
+
+  private def transformImport(im: String): List[String] = {
+    println(s"resolving import $im")
+    if (ignoredImports.exists(i => im.startsWith(s"import $i"))) List(im)
     else {
-      val Array(_, imported) = im.split(" ")
-      val isStarImport = im.endsWith("_")
+      val imported = im.split(" ").tail.mkString
+
       val elements = imported.split("\\.")
-      val folder = elements.dropRight(if (isStarImport) 2 else 1).mkString(File.separator)
-      val importObj = if (isStarImport) List("import " + elements(elements.size - 2) + "._") else Nil
-      transformFiles(new File(srcFolder, folder)) ++ importObj
+      val lastElt = elements(elements.size - 2)
+      val isStarImport = im.endsWith("_") &&  lastElt.head.isUpper
+      //      val folder = elements.dropRight(if (isStarImport) 2 else 1).mkString(File.separator)
+      val folder = folderFromImport(imported)
+      val importObj = if (isStarImport) List("import " + lastElt + "._") else Nil
+      transformFiles(folder) ++ importObj
     }
+  }
+
+  private def folderFromImport(im: String) = {
+    val sanitized = im.replaceAll("_", "").replaceAll("\\{.*\\}", "")
+    //TODO : could only import files listed in { cl1, cl2 }
+    val subfolder = sanitized.split("\\.").foldLeft(new File(srcFolder)) {
+      case (folder, pkg) =>
+        val f = new File(folder, pkg)
+        if (f.isDirectory) f else folder
+    }
+    println(s"$sanitized => $subfolder")
+    subfolder
+  }
 
   private def readFile(file: File) = {
     try {

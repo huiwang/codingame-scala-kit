@@ -4,7 +4,7 @@ import com.truelaurel.codingame.ghostcell.common._
 import com.truelaurel.codingame.ghostcell.head.GhostCellPlayer
 import com.truelaurel.codingame.graph.Edge
 
-object Player  {
+object Player extends App {
   val factoryCount = io.StdIn.readInt()
   val edgeCount = io.StdIn.readInt()
 
