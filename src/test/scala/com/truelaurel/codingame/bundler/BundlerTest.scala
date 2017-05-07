@@ -6,7 +6,7 @@ import com.truelaurel.codingame.bundle.Bundler
 import com.truelaurel.codingame.bundle.Bundler.args
 import com.truelaurel.codingame.caribbean.common.{CollisionAnalysis, Ship}
 import com.truelaurel.codingame.hexagons.Offset
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.{Assertion, FlatSpec, Matchers}
 
 import scala.io.Source
 
@@ -41,8 +41,8 @@ class BundlerTest extends FlatSpec with Matchers {
     checkOuput(startFile, expectedOutput)
   }
 
-  def checkOuput(startFile: String, shortName: String) = {
-    val expectedContent = Source.fromFile("src/test/resources/com/truelaurel/codingame/bundler/" + shortName).getLines().toList.mkString(System.lineSeparator)
+  def checkOuput(startFile: String, shortName: String): Unit = {
+    val expectedContent = Source.fromFile("src/test/resources/com/truelaurel/codingame/bundler/" + shortName).getLines.mkString("\n")
     val output = new Bundler(shortName).buildOutput
 
     output shouldBe expectedContent

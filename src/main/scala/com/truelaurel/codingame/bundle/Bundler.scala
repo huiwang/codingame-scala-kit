@@ -32,7 +32,7 @@ class Bundler(val fileName: String,
   def buildOutput: String = {
     val file = findFile(fileName)
     val content = transformFile(file)
-    strip2(content.filterNot("".==).mkString(System.lineSeparator))
+    strip2(content.filterNot("".==).mkString("\n"))
   }
 
   def transformFile(file: File): List[String] =
