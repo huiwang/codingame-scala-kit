@@ -7,15 +7,19 @@ import java.util.Objects
 import scala.collection.mutable
 import scala.io.Source
 
+
 class Bundler(val fileName: String,
               val srcFolder: String = "./src/main/scala",
               val destFolder: String = "./target"
              ) {
 
-  val seenFiles: mutable.Set[File] = mutable.Set.empty
+  import Bundler._
+
+  val ignoredImports = Seq("scala", "java")
+  val seenFiles = mutable.Set.empty[File]
 
   def bundle(): Unit = {
-    val file = findFile()
+    val file = findFile(fileName)
     val destFile = new File(destFolder, fileName)
     val pw = new PrintWriter(destFile)
     val outputFileContent = buildOutput
@@ -25,63 +29,72 @@ class Bundler(val fileName: String,
     } finally pw.close()
   }
 
-   def buildOutput: String = {
-     val file = findFile()
+  def buildOutput: String = {
+    val file = findFile(fileName)
     val content = transformFile(file)
     strip2(content.filterNot("".==).mkString(System.lineSeparator))
   }
 
-  def findFile(): File = {
-    Files.find(Paths.get("."), Int.MaxValue, (path, _) => path.endsWith(fileName))
-      .findAny()
-      .orElseThrow(() => new IllegalArgumentException(s"$fileName not found"))
-      .toFile
-  }
+  def transformFile(file: File): List[String] =
+    if (seenFiles.contains(file)) Nil
+    else {
+      seenFiles.add(file)
+      val filesInSamePackage = transformFilesFromFolder(file.getParentFile)
+      val lines = readFile(file)
+      filesInSamePackage ++ transformContent(lines)
+    }
 
-
-  def transformFile(file: File): List[String] = {
-    if (seenFiles.contains(file)) return Nil
-    seenFiles.add(file)
-    println(s"reading from $file")
-    val filesInSamePackage = transformFiles(file.getParentFile)
-    filesInSamePackage ++ readFile(file).flatMap {
+  private def transformContent(lines: List[String]) = {
+    lines.flatMap {
       case l if l.startsWith("package") => Nil
       case i if i.startsWith("import") => transformImport(i)
       case b => List(b)
     }
   }
 
-  val ignoredImports = Seq("scala", "java")
-
   private def transformImport(im: String): List[String] = {
     println(s"resolving import $im")
     if (ignoredImports.exists(i => im.startsWith(s"import $i"))) List(im)
     else {
       val imported = im.split(" ").tail.mkString
-
       val elements = imported.split("\\.")
       val lastElt = elements(elements.size - 2)
       val isStarImport = im.endsWith("_") && lastElt.head.isUpper
-      //      val folder = elements.dropRight(if (isStarImport) 2 else 1).mkString(File.separator)
       val folder = folderFromImport(imported)
       val importObj = if (isStarImport) List("import " + lastElt + "._") else Nil
-      transformFiles(folder) ++ importObj
+      transformFilesFromFolder(folder) ++ importObj
     }
   }
 
   private def folderFromImport(im: String) = {
     val sanitized = im.replaceAll("_", "").replaceAll("\\{.*\\}", "")
     //TODO : could only import files listed in { cl1, cl2 }
-    val subfolder = sanitized.split("\\.").foldLeft(new File(srcFolder)) {
+    val subFolder = sanitized.split("\\.").foldLeft(new File(srcFolder)) {
       case (folder, pkg) =>
         val f = new File(folder, pkg)
         if (f.isDirectory) f else folder
     }
-    println(s"$sanitized => $subfolder")
-    subfolder
+    println(s"$sanitized => $subFolder")
+    subFolder
   }
 
-  private def readFile(file: File) = {
+
+  def extractFolderFromImport(im: String): File = {
+    new File(srcFolder, im.substring(im.indexOf(" ") + 1, im.lastIndexOf(".")).replace(".", File.separator))
+  }
+
+  def transformFilesFromFolder(folder: File): List[String] = {
+    filesInFolder(folder).flatMap(transformFile)
+  }
+
+}
+
+object Bundler extends App {
+  val fileName = args.headOption.getOrElse(throw new IllegalArgumentException("Input file name must be provided"))
+  new Bundler(fileName).bundle()
+
+  def readFile(file: File): List[String] = {
+    println(s"reading from $file")
     try {
       Source.fromFile(file).getLines().toList
     } catch {
@@ -92,16 +105,20 @@ class Bundler(val fileName: String,
     }
   }
 
-  def extractFolderFromImport(im: String): File = {
-    new File(srcFolder, im.substring(im.indexOf(" ") + 1, im.lastIndexOf(".")).replace(".", File.separator))
+  def findFile(fileName: String): File = {
+    Files.find(Paths.get("."), Int.MaxValue, (path, _) => path.endsWith(fileName))
+      .findAny()
+      .orElseThrow(() => new IllegalArgumentException(s"$fileName not found"))
+      .toFile
   }
 
-  def transformFiles(folder: File): List[String] = {
+  def filesInFolder(folder: File): List[File] = {
     Objects.requireNonNull(folder, "Folder should not be null")
-    val visibleFiles: Array[File] = folder.listFiles((pathname: File) => !pathname.getName.startsWith("."))
-    Objects.requireNonNull(visibleFiles, "visibleFiles should not be null in folder " + folder)
-    visibleFiles.filterNot(_.isDirectory).toList.flatMap(transformFile)
+    val files = folder.listFiles((pathname: File) => !pathname.getName.startsWith("."))
+    Objects.requireNonNull(files, "visibleFiles should not be null in folder " + folder)
+    files.filterNot(_.isDirectory).toList
   }
+
 
   def strip2(x: String, s: String = "/*", e: String = "*/"): String = {
     val a = x indexOf s
@@ -109,9 +126,4 @@ class Bundler(val fileName: String,
     if (a == -1 || b == -1) x
     else strip2(x.take(a) + x.drop(b + e.length), s, e)
   }
-}
-
-object Bundler extends App {
-  val fileName = args.headOption.getOrElse(throw new IllegalArgumentException("Input file name must be provided"))
-  new Bundler(fileName).bundle()
 }
