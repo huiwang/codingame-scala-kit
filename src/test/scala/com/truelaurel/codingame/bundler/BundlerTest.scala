@@ -1,12 +1,7 @@
 package com.truelaurel.codingame.bundler
 
-import java.io.File
-
-import com.truelaurel.codingame.bundle.Bundler
-import com.truelaurel.codingame.bundle.Bundler.args
-import com.truelaurel.codingame.caribbean.common.{CollisionAnalysis, Ship}
-import com.truelaurel.codingame.hexagons.Offset
-import org.scalatest.{Assertion, FlatSpec, Matchers}
+import com.truelaurel.codingame.bundle.{Bundler, BundlerIo}
+import org.scalatest.{FlatSpec, Matchers}
 
 import scala.io.Source
 
@@ -30,20 +25,20 @@ class BundlerTest extends FlatSpec with Matchers {
   }
 
   it should "have same output for GhostMain" in {
-    val startFile ="src/main/scala/com/tyrcho/GhostMain.scala"
+    val startFile = "src/main/scala/com/tyrcho/GhostMain.scala"
     val expectedOutput = "GhostMain.scala"
     checkOuput(startFile, expectedOutput)
   }
 
   it should "have same output for CoderStrikeBack" in {
-    val startFile ="src/main/scala/com/truelaurel/codingame/csb/io/CoderStrikeBack.scala"
+    val startFile = "src/main/scala/com/truelaurel/codingame/csb/io/CoderStrikeBack.scala"
     val expectedOutput = "CoderStrikeBack.scala"
     checkOuput(startFile, expectedOutput)
   }
 
-  def checkOuput(startFile: String, shortName: String): Unit = {
+  private def checkOuput(startFile: String, shortName: String): Unit = {
     val expectedContent = Source.fromFile("src/test/resources/com/truelaurel/codingame/bundler/" + shortName).getLines.mkString("\n")
-    val output = new Bundler(shortName).buildOutput
+    val output = new Bundler(shortName, BundlerIo).buildOutput
 
     output shouldBe expectedContent
   }

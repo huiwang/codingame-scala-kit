@@ -6,42 +6,39 @@ import java.util.Objects
 
 import scala.collection.mutable
 import scala.io.Source
+import scala.util.control.NonFatal
 
 
 class Bundler(val fileName: String,
+              io: BundlerIo,
               val srcFolder: String = "./src/main/scala",
               val destFolder: String = "./target"
              ) {
 
   import Bundler._
 
-  val ignoredImports = Seq("scala", "java")
   val seenFiles = mutable.Set.empty[File]
 
   def bundle(): Unit = {
-    val file = findFile(fileName)
-    val destFile = new File(destFolder, fileName)
-    val pw = new PrintWriter(destFile)
     val outputFileContent = buildOutput
-    try {
-      println(s"writing bundle for $file to $destFile")
-      pw.write(outputFileContent)
-    } finally pw.close()
+    val destFile = new File(destFolder, fileName)
+    io.save(destFile, outputFileContent)
   }
 
   def buildOutput: String = {
-    val file = findFile(fileName)
+    val file = io.findFile(fileName)
     val content = transformFile(file)
-    strip2(content.filterNot("".==).mkString("\n"))
+    stripComments(content.mkString("\n"))
   }
 
   def transformFile(file: File): List[String] =
     if (seenFiles.contains(file)) Nil
     else {
       seenFiles.add(file)
-      val filesInSamePackage = transformFilesFromFolder(file.getParentFile)
-      val lines = readFile(file)
-      filesInSamePackage ++ transformContent(lines)
+      val linesFromFilesInSamePackage = transformFilesFromFolder(file.getParentFile)
+      val fileLines = io.readFile(file)
+      val allLines = linesFromFilesInSamePackage ++ transformContent(fileLines)
+      allLines.filterNot("".==)
     }
 
   private def transformContent(lines: List[String]) =
@@ -55,13 +52,8 @@ class Bundler(val fileName: String,
     if (ignoredImports.exists(i => im.startsWith(s"import $i"))) None
     else {
       val imported = im.split(" ").tail.mkString
-      val sanitized = imported.replaceAll("_", "").replaceAll("\\{.*\\}", "")
-      //TODO : could only import files listed in { cl1, cl2 }
-      val subFolder = sanitized.split("\\.").foldLeft(new File(srcFolder)) {
-        case (folder, pkg) =>
-          val f = new File(folder, pkg)
-          if (f.isDirectory) f else folder
-      }
+      val packageElements = imported.replaceAll("_", "").replaceAll("\\{.*\\}", "").split("\\.")
+      val subFolder = io.findFolder(packageElements, new File(srcFolder))
       println(s"$imported => $subFolder")
       Some(subFolder)
     }
@@ -90,24 +82,44 @@ class Bundler(val fileName: String,
     new File(srcFolder, im.substring(im.indexOf(" ") + 1, im.lastIndexOf(".")).replace(".", File.separator))
 
   def transformFilesFromFolder(folder: File): List[String] =
-    filesInFolder(folder).flatMap(transformFile)
+    io.filesInFolder(folder).flatMap(transformFile)
 
 }
 
-object Bundler extends App {
+object BundlerMain extends App {
   val fileName = args.headOption.getOrElse(throw new IllegalArgumentException("Input file name must be provided"))
-  new Bundler(fileName).bundle()
+  new Bundler(fileName, BundlerIo).bundle()
+}
 
+trait BundlerIo {
   def readFile(file: File): List[String] = {
     println(s"reading from $file")
     try {
       Source.fromFile(file).getLines().toList
     } catch {
-      case e: Throwable =>
+      case NonFatal(e) =>
         println("Error while reading file " + file)
         e.printStackTrace()
         throw e
     }
+  }
+
+  def findFolder(packageElements: Array[String], rootFolder: File): File = {
+    packageElements.foldLeft(rootFolder) {
+      case (folder, pkg) =>
+        val f = new File(folder, pkg)
+        //TODO : could only import files listed in { cl1, cl2 }
+        if (f.isDirectory) f else folder
+    }
+  }
+
+  def save(destFile: File, content: String): Unit = {
+    val pw = new PrintWriter(destFile)
+    try {
+      println(s"writing to $destFile")
+      pw.write(content)
+    } finally pw.close()
+
   }
 
   def findFile(fileName: String): File = {
@@ -123,12 +135,17 @@ object Bundler extends App {
     Objects.requireNonNull(files, "visibleFiles should not be null in folder " + folder)
     files.filterNot(_.isDirectory).toList.sortBy(_.getAbsolutePath)
   }
+}
 
+object BundlerIo extends BundlerIo
 
-  def strip2(x: String, s: String = "/*", e: String = "*/"): String = {
+object Bundler {
+  val ignoredImports = Seq("scala", "java")
+
+  def stripComments(x: String, s: String = "/*", e: String = "*/"): String = {
     val a = x indexOf s
     val b = x indexOf(e, a + s.length)
     if (a == -1 || b == -1) x
-    else strip2(x.take(a) + x.drop(b + e.length), s, e)
+    else stripComments(x.take(a) + x.drop(b + e.length), s, e)
   }
 }
