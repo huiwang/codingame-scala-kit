@@ -18,14 +18,15 @@ class Bundler(val fileName: String,
     val file = findFile()
     val destFile = new File(destFolder, fileName)
     val pw = new PrintWriter(destFile)
-    val outputFileContent: String = buildOutput(file)
+    val outputFileContent = buildOutput
     try {
-      println(s"writing bundled file to $destFile")
+      println(s"writing bundle for $file to $destFile")
       pw.write(outputFileContent)
     } finally pw.close()
   }
 
-   def buildOutput(file: File): String = {
+   def buildOutput: String = {
+     val file = findFile()
     val content = transformFile(file)
     strip2(content.filterNot("".==).mkString(System.lineSeparator))
   }

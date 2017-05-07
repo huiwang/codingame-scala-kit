@@ -18,16 +18,34 @@ class BundlerTest extends FlatSpec with Matchers {
   behavior of "Bundler"
 
   it should "have same output for GhostInTheCell" in {
-    val startFile = "src/main/scala/com/truelaurel/codingame/ghostcell/online/GhostInTheCell.scala"
-    val expectedOutput = "GhostInTheCell.scala"
+    checkOuput(
+      "src/main/scala/com/truelaurel/codingame/ghostcell/online/GhostInTheCell.scala",
+      "GhostInTheCell.scala")
+  }
+
+  it should "have same output for CodersCaribbean" in {
+    val startFile = "src/main/scala/com/truelaurel/codingame/caribbean/online/CodersCaribbean.scala"
+    val expectedOutput = "CodersCaribbean.scala"
     checkOuput(startFile, expectedOutput)
   }
 
-  def checkOuput(fileName: String, expectedFileName: String) = {
-    val expected = Source.fromFile("src/test/resources/com/truelaurel/codingame/bundler/" + expectedFileName).getLines().toList.mkString(System.lineSeparator)
-    val output = new Bundler(fileName).buildOutput(new File(fileName))
+  it should "have same output for GhostMain" in {
+    val startFile ="src/main/scala/com/tyrcho/GhostMain.scala"
+    val expectedOutput = "GhostMain.scala"
+    checkOuput(startFile, expectedOutput)
+  }
 
-    output shouldBe expected
+  it should "have same output for CoderStrikeBack" in {
+    val startFile ="src/main/scala/com/truelaurel/codingame/csb/io/CoderStrikeBack.scala"
+    val expectedOutput = "CoderStrikeBack.scala"
+    checkOuput(startFile, expectedOutput)
+  }
+
+  def checkOuput(startFile: String, shortName: String) = {
+    val expectedContent = Source.fromFile("src/test/resources/com/truelaurel/codingame/bundler/" + shortName).getLines().toList.mkString(System.lineSeparator)
+    val output = new Bundler(shortName).buildOutput
+
+    output shouldBe expectedContent
   }
 
 
