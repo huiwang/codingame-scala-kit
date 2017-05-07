@@ -44,48 +44,53 @@ class Bundler(val fileName: String,
       filesInSamePackage ++ transformContent(lines)
     }
 
-  private def transformContent(lines: List[String]) = {
+  private def transformContent(lines: List[String]) =
     lines.flatMap {
       case l if l.startsWith("package") => Nil
       case i if i.startsWith("import") => transformImport(i)
       case b => List(b)
     }
-  }
 
-  private def transformImport(im: String): List[String] = {
-    println(s"resolving import $im")
-    if (ignoredImports.exists(i => im.startsWith(s"import $i"))) List(im)
+  private def folderFromImport(im: String): Option[File] =
+    if (ignoredImports.exists(i => im.startsWith(s"import $i"))) None
+    else {
+      val imported = im.split(" ").tail.mkString
+      val sanitized = imported.replaceAll("_", "").replaceAll("\\{.*\\}", "")
+      //TODO : could only import files listed in { cl1, cl2 }
+      val subFolder = sanitized.split("\\.").foldLeft(new File(srcFolder)) {
+        case (folder, pkg) =>
+          val f = new File(folder, pkg)
+          if (f.isDirectory) f else folder
+      }
+      println(s"$imported => $subFolder")
+      Some(subFolder)
+    }
+
+
+  private def importToLine(im: String): Option[String] =
+    if (ignoredImports.exists(i => im.startsWith(s"import $i")))
+      Some(im)
     else {
       val imported = im.split(" ").tail.mkString
       val elements = imported.split("\\.")
       val lastElt = elements(elements.size - 2)
       val isStarImport = im.endsWith("_") && lastElt.head.isUpper
-      val folder = folderFromImport(imported)
-      val importObj = if (isStarImport) List("import " + lastElt + "._") else Nil
-      transformFilesFromFolder(folder) ++ importObj
+      if (isStarImport) Some("import " + lastElt + "._")
+      else None
     }
+
+  private def transformImport(im: String): List[String] = {
+    println(s"resolving import $im")
+    val transformed = folderFromImport(im).toList.flatMap(transformFilesFromFolder)
+    val line = importToLine(im)
+    transformed ++ line
   }
 
-  private def folderFromImport(im: String) = {
-    val sanitized = im.replaceAll("_", "").replaceAll("\\{.*\\}", "")
-    //TODO : could only import files listed in { cl1, cl2 }
-    val subFolder = sanitized.split("\\.").foldLeft(new File(srcFolder)) {
-      case (folder, pkg) =>
-        val f = new File(folder, pkg)
-        if (f.isDirectory) f else folder
-    }
-    println(s"$sanitized => $subFolder")
-    subFolder
-  }
-
-
-  def extractFolderFromImport(im: String): File = {
+  def extractFolderFromImport(im: String): File =
     new File(srcFolder, im.substring(im.indexOf(" ") + 1, im.lastIndexOf(".")).replace(".", File.separator))
-  }
 
-  def transformFilesFromFolder(folder: File): List[String] = {
+  def transformFilesFromFolder(folder: File): List[String] =
     filesInFolder(folder).flatMap(transformFile)
-  }
 
 }
 
