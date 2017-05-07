@@ -121,7 +121,7 @@ object Bundler extends App {
     Objects.requireNonNull(folder, "Folder should not be null")
     val files = folder.listFiles((pathname: File) => !pathname.getName.startsWith("."))
     Objects.requireNonNull(files, "visibleFiles should not be null in folder " + folder)
-    files.filterNot(_.isDirectory).toList
+    files.filterNot(_.isDirectory).toList.sortBy(_.getAbsolutePath)
   }
 
 
