@@ -19,12 +19,12 @@ class BundlerTest extends FlatSpec with Matchers {
 
   it should "have same output for GhostInTheCell" in {
     val startFile = "src/main/scala/com/truelaurel/codingame/ghostcell/online/GhostInTheCell.scala"
-    val expectedOutput = "target/GhostInTheCell.scala"
+    val expectedOutput = "GhostInTheCell.scala"
     checkOuput(startFile, expectedOutput)
   }
 
   def checkOuput(fileName: String, expectedFileName: String) = {
-    val expected = Source.fromFile(expectedFileName).getLines().toList.mkString(System.lineSeparator)
+    val expected = Source.fromFile("src/test/resources/com/truelaurel/codingame/bundler/" + expectedFileName).getLines().toList.mkString(System.lineSeparator)
     val output = new Bundler(fileName).buildOutput(new File(fileName))
 
     output shouldBe expected
