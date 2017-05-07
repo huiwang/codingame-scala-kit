@@ -14,13 +14,20 @@ class Bundler(val fileName: String,
 
   val seenFiles: mutable.Set[File] = mutable.Set.empty
 
-  def bundle() {
+  def bundle(): Unit = {
     val file = findFile()
-    val content = transformFile(file)
     val destFile = new File(destFolder, fileName)
-    println(s"writing bundled file to $destFile")
     val pw = new PrintWriter(destFile)
-    try pw.write(strip2(content.filterNot(_.equals("")).mkString(System.lineSeparator()))) finally pw.close()
+    val outputFileContent: String = buildOutput(file)
+    try {
+      println(s"writing bundled file to $destFile")
+      pw.write(outputFileContent)
+    } finally pw.close()
+  }
+
+   def buildOutput(file: File): String = {
+    val content = transformFile(file)
+    strip2(content.filterNot("".==).mkString(System.lineSeparator))
   }
 
   def findFile(): File = {
@@ -53,7 +60,7 @@ class Bundler(val fileName: String,
 
       val elements = imported.split("\\.")
       val lastElt = elements(elements.size - 2)
-      val isStarImport = im.endsWith("_") &&  lastElt.head.isUpper
+      val isStarImport = im.endsWith("_") && lastElt.head.isUpper
       //      val folder = elements.dropRight(if (isStarImport) 2 else 1).mkString(File.separator)
       val folder = folderFromImport(imported)
       val importObj = if (isStarImport) List("import " + lastElt + "._") else Nil
