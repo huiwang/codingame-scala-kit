@@ -1,434 +1,3 @@
-class PredictableGameLoop[C, S, A](
-                                    controller: GameController[C, S, A],
-                                    myPlayer: GamePlayer[S, A],
-                                    otherPlayer: GamePlayer[S, A],
-                                    arena: GameArena[S, A]
-                                  ) {
-  var predicated: S = _
-  def run(): Unit = {
-    val initContext = controller.readContext
-    (1 to 200).foldLeft(initContext) {
-      case (c, turn) =>
-        val state = controller.readState(turn, c)
-        if (predicated != null) {
-          System.err.println("pre: " + predicated)
-        }
-        System.err.println("act: " + state)
-        if (predicated != null && predicated != state) {
-          System.err.println("wrong prediction")
-          System.err.println("pre vs act: " + predicated.toString.diff(state.toString))
-          System.err.println("act vs pre: " + state.toString.diff(predicated.toString))
-        }
-        val actions = myPlayer.reactTo(state)
-        predicated = GameSimulator.singleTurn(state, arena, Vector(myPlayer, otherPlayer))
-        actions.foreach(a => println(a))
-        controller.nextContext(c, state, actions)
-    }
-  }
-}
-
-object CGLogger {
-  private val info = 0
-  private val debug = 1
-  private val current = info
-  def debug(message: Any): Unit = log(message, debug)
-  def info(message: Any): Unit = log(message, info)
-  private def log(message: Any, level: Int): Unit = {
-    if (level <= current) {
-      System.err.println(level)
-    }
-  }
-}
-class GameLoop[C, S, A](
-                         controller: GameController[C, S, A],
-                         myPlayer: GamePlayer[S, A],
-                         turns: Int = 200
-                       ) {
-  def run(): Unit = {
-    val time = System.nanoTime()
-    val initContext = controller.readContext
-    controller.warmup(myPlayer)
-    CGLogger.info("GameInit elt: " + (System.nanoTime() - time) / 1000000 + "ms")
-    (1 to turns).foldLeft(initContext) {
-      case (c, turn) =>
-        val state = controller.readState(turn, c)
-        CGLogger.info(state)
-        val time = System.nanoTime()
-        val actions = myPlayer.reactTo(state)
-        CGLogger.info("GameReact elt: " + (System.nanoTime() - time) / 1000000 + "ms")
-        actions.foreach(a => println(a))
-        controller.nextContext(c, state, actions)
-    }
-  }
-}
-
-trait GameController[C, S, A] {
-  def readContext: C
-  def readState(turn: Int, context: C): S
-  def nextContext(context: C, state: S, actions: Vector[A]): C
-  def warmup(player: GamePlayer[S, A]): Unit = {}
-}
-import java.util.concurrent.TimeUnit
-trait GameState[A] {
-  def apply(action: A): GameState[A]
-}
-trait GamePlayer[S, A] {
-  def reactTo(state: S): Vector[A]
-}
-trait GameArena[S, A] {
-  def next(fromState: S, actions: Vector[A]): S
-  def judge(state: S): GameResult
-}
-trait GameResult {
-}
-case object Draw extends GameResult
-case object WinKO extends GameResult
-case object LossKO extends GameResult
-case object WinTech extends GameResult
-case object LossTech extends GameResult
-object GameSimulator {
-  
-  def simulate[S, A](round: Int, from: S, arena: GameArena[S, A], players: Vector[GamePlayer[S, A]]): S = {
-    (0 until round).foldLeft(from)((s, r) => {
-      System.out.println("Round " + r)
-      arena.next(s, players.flatMap(_.reactTo(s)))
-    })
-  }
-  def singleTurn[S, A](from: S, arena: GameArena[S, A], players: Vector[GamePlayer[S, A]]): S = {
-    arena.next(from, players.flatMap(_.reactTo(from)))
-  }
-  def evaluateOffline[S, A](games: Vector[S], arena: GameArena[S, A], players: Vector[GamePlayer[S, A]], round: Int = 200): Unit = {
-    val time = System.nanoTime()
-    println(s"Simulate ${games.size} Games")
-    val results = games.zipWithIndex.par.map {
-      case (game, indice) =>
-        val result = play(game, arena, players, round)
-        println(s"Game $indice $result")
-        result
-    }
-    val wins = results.count {
-      case WinKO | WinTech => true
-      case _ => false
-    }
-    val loss = results.count {
-      case LossKO | LossTech => true
-      case _ => false
-    }
-    val draws = results.count {
-      case Draw => true
-      case _ => false
-    }
-    val p = wins.toDouble / games.size
-    val winRate = p * 100.0
-    val confidenceInterval = Math.sqrt(p * (1 - p) / games.size) * 100
-    println("Battles elt: " + TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - time) + "s")
-    println(s"${games.size} Games $wins Wins $loss Loss $draws Draws")
-    println(s"WinRate:$winRate%+-$confidenceInterval%")
-  }
-  def play[S, A](from: S, arena: GameArena[S, A], players: Vector[GamePlayer[S, A]], round: Int = 200): GameResult = {
-    val result = arena.judge(from)
-    if (round == 0) result else {
-      result match {
-        case WinKO | LossKO => result
-        case _ =>
-          val next = arena.next(from, players.flatMap(_.reactTo(from)))
-          play(next, arena, players, round - 1)
-      }
-    }
-  }
-}
-
-case class FixedCabribbeanPlayer(playerId: Int, otherPlayer: Int) extends GamePlayer[CaribbeanState, CaribbeanAction] {
-  override def reactTo(state: CaribbeanState): Vector[CaribbeanAction] = {
-    val otherShips = state.shipsOf(otherPlayer)
-    state.shipsOf(playerId).map(ship => {
-      if (otherShips.isEmpty) Wait(ship.id) else {
-        val target = otherShips.minBy(other => other.center.distanceTo(ship.center)).center.toOffset
-        Fire(ship.id, target)
-      }
-    })
-  }
-}
-
-case class Offset(x : Int, y : Int) {
-  def toCube: Cube = {
-    val xp = x - (y - (y & 1)) / 2
-    val zp = y
-    val yp = -(xp + zp)
-    Cube(xp, yp, zp)
-  }
-  def angle(target: Offset): Double = {
-    val dy = (target.y - this.y) * Math.sqrt(3) / 2
-    val dx = target.x - this.x + ((this.y - target.y) & 1) * 0.5
-    var angle = -Math.atan2(dy, dx) * 3 / Math.PI
-    if (angle < 0) angle += 6
-    else if (angle >= 6) angle -= 6
-    angle
-  }
-}
-
-case class Cube(x: Int, y: Int, z: Int) {
-  def toOffset: Offset = {
-    val newX = x + (z - (z & 1)) / 2
-    val newY = z
-    Offset(newX, newY)
-  }
-  def neighbor(orientation: Int): Cube = {
-    Cube(x + Cube.directions(orientation)(0),
-      y + Cube.directions(orientation)(1),
-      z + Cube.directions(orientation)(2))
-  }
-  def distanceTo(that: Cube): Int =
-    (Math.abs(x - that.x) + Math.abs(y - that.y) + Math.abs(z - that.z)) / 2
-}
-object Cube {
-  val directions: Array[Array[Int]] = Array[Array[Int]](
-    Array(1, -1, 0),
-    Array(+1, 0, -1),
-    Array(0, +1, -1),
-    Array(-1, +1, 0),
-    Array(-1, 0, +1),
-    Array(0, -1, +1))
-  def apply(x: Int, y: Int): Cube = {
-    Offset(x, y).toCube
-  }
-}
-
-object CollisionAnalysis {
-  def hitMyself(ship: Ship): Cube = {
-    ship.speed match {
-      case 0 => ship.center
-      case 1 => ship.nextBow
-      case 2 => throw new IllegalStateException("unable to hit myself")
-    }
-  }
-  def travelTime(distance: Int): Int = {
-    (1 + (distance / 3.0).round).toInt
-  }
-  def collisionTime(ship: Ship, cube: Cube): Int = {
-    val distance = ship.center.distanceTo(cube)
-    val angle = CaribbeanContext.angle(ship.center, cube)
-    val diff = (ship.orientation - angle).abs
-    val realDiff = diff.min(6 - diff)
-    if (realDiff == 0) {
-      distance - 1
-    } else {
-      stop(ship) + realDiff + distance - 1
-    }
-  }
-  def canMine(one: Ship, other: Ship): Boolean = {
-    val center = other.nextCenter
-    if (CaribbeanContext.inside(center.toOffset)) {
-      val nextOther = other.copy(position = center.toOffset)
-      nextOther.zone.contains(one.mine)
-    } else {
-      false
-    }
-  }
-  private def stop(ship: Ship): Int = ship.speed match {
-    case 0 => 0
-    case 1 => 1
-    case 2 => 3
-    case _ => throw new IllegalArgumentException("unknown speed")
-  }
-}
-
-case class CaribbeanContext(mines: Map[Int, Mine], lastFire: Map[Int, Int]) {
-}
-object CaribbeanContext {
-  val highMineDamage = 25
-  val lowMineDamage = 10
-  val lowBallDamage = 25
-  val highBallDamage = 50
-  val fireMaxDistance = 10
-  val width = 23
-  val height = 21
-  val me = 1
-  val other = 0
-  val maxRums = 150
-  private val orientations = (0 until 6).toVector
-  private val cubes: Vector[Cube] = (for {
-    x <- 0 until width
-    y <- 0 until height
-  } yield Offset(x, y).toCube).toVector
-  private val cubeInfo: Map[Cube, (Set[Cube], Map[Int, Set[Cube]], Vector[Cube], Map[Cube, Int])] = cubes
-    .map(cube => {
-      val neighbors = (0 to 5).map(cube.neighbor).filter(cubes.contains).toSet
-      val oriToZone = orientations.map(ori =>
-        ori -> Set(cube.neighbor(ori), cube.neighbor((ori + 3) % 6))
-      ).toMap
-      val reachable = cubes.filter(_.distanceTo(cube) <= 5)
-      val angles = cubes.map(ic => ic -> cube.toOffset.angle(ic.toOffset).ceil.toInt).toMap
-      cube -> (neighbors, oriToZone, reachable, angles)
-    }).toMap
-  def shipZone(cube: Cube, orientation: Int): Set[Cube] = cubeInfo(cube)._2(orientation)
-  def apply(): CaribbeanContext = CaribbeanContext(Map.empty, Map.empty)
-  def reachable(cube: Cube): Vector[Cube] = cubeInfo(cube)._3
-  def toCube(offset: Offset): Cube = offset.toCube
-  def neighbors(cube: Cube): Set[Cube] = cubeInfo(cube)._1
-  def angle(one: Cube, other: Cube) : Int = cubeInfo(one)._4(other)
-  def inside(offset: Offset) : Boolean = {
-    offset.x >= 0 && offset.x < width && offset.y >= 0 && offset.y < height
-  }
-}
-case class Ship(id: Int, position: Offset, orientation: Int, speed: Int, rums: Int, owner: Int) {
-  val center: Cube = CaribbeanContext.toCube(position)
-  val bowAndStern: Set[Cube] = CaribbeanContext.shipZone(center, orientation)
-  lazy val zone: Set[Cube] = bowAndStern + center
-  val bow: Cube = center.neighbor(orientation)
-  val stern: Cube = center.neighbor((orientation + 3) % 6)
-  def mine : Cube = stern.neighbor((orientation + 3) % 6)
-  def nextBow: Cube = speed match {
-    case 0 => bow
-    case 1 => bow.neighbor(orientation)
-    case 2 => bow.neighbor(orientation).neighbor(orientation)
-  }
-  def nextCenter: Cube = speed match {
-    case 0 => center
-    case 1 => bow
-    case 2 => bow.neighbor(orientation)
-  }
-  lazy val nextNextCenter: Cube = speed match {
-    case 0 => center
-    case 1 => nextBow
-    case 2 => nextCenter.neighbor(orientation).neighbor(orientation)
-  }
-}
-case class Barrel(id: Int, position: Offset, rums: Int) {
-  def cube: Cube = CaribbeanContext.toCube(position)
-}
-case class Ball(id: Int, target: Offset, owner: Int, land: Int) {
-  def cube: Cube = CaribbeanContext.toCube(target)
-}
-case class Mine(id: Int, position: Offset) {
-  def cube: Cube = CaribbeanContext.toCube(position)
-}
-case class CaribbeanState(context: CaribbeanContext,
-                          ships: Map[Int, Ship],
-                          barrels: Map[Int, Barrel],
-                          balls: Map[Int, Ball],
-                          mines: Map[Int, Mine],
-                          turn: Int) {
-  def shipsOf(owner: Int): Vector[Ship] = ships.values.filter(_.owner == owner).toVector.sortBy(_.id)
-}
-trait CaribbeanAction {
-  def shipId: Int
-}
-sealed case class Move(shipId: Int, offset: Offset) extends CaribbeanAction {
-  override def toString: String = s"MOVE ${offset.x} ${offset.y}"
-}
-sealed case class Slower(shipId: Int) extends CaribbeanAction {
-  override def toString: String = "SLOWER"
-}
-sealed case class Faster(shipId: Int) extends CaribbeanAction {
-  override def toString: String = "FASTER"
-}
-sealed case class Port(shipId: Int) extends CaribbeanAction {
-  override def toString: String = "PORT"
-}
-sealed case class Starboard(shipId: Int) extends CaribbeanAction {
-  override def toString: String = "STARBOARD"
-}
-sealed case class Wait(shipId: Int) extends CaribbeanAction {
-  override def toString: String = "WAIT"
-}
-sealed case class Fire(shipId: Int, offset: Offset) extends CaribbeanAction {
-  override def toString: String = s"FIRE ${offset.x} ${offset.y}"
-}
-sealed case class MineAction(shipId: Int) extends CaribbeanAction {
-  override def toString: String = s"MINE"
-}
-import scala.io.StdIn
-
-object CaribbeanController extends GameController[CaribbeanContext, CaribbeanState, CaribbeanAction] {
-  override def readContext: CaribbeanContext = {
-    CaribbeanContext()
-  }
-  override def readState(turn: Int, context: CaribbeanContext): CaribbeanState = {
-    val shipCount = StdIn.readInt()
-    val entities = for {
-      i <- 0 until StdIn.readInt()
-      line: String = StdIn.readLine()
-    } yield line
-    var ships: Map[Int, Ship] = Map.empty
-    var barrels: Map[Int,Barrel] = Map.empty
-    var balls: Map[Int,Ball] = Map.empty
-    var mines: Map[Int,Mine] = Map.empty
-    for {
-      line <- entities
-      Array(entityId, entityType, x, y, arg1, arg2, arg3, arg4) = line.split(" ")
-    } {
-      val id = entityId.toInt
-      val offset = Offset(x.toInt, y.toInt)
-      val a1 = arg1.toInt
-      val a2 = arg2.toInt
-      entityType match {
-        case "SHIP" => ships = ships.updated(id, Ship(id, offset, a1, a2, arg3.toInt, arg4.toInt))
-        case "BARREL" => barrels = barrels.updated(id, Barrel(id, offset, a1))
-        case "CANNONBALL" => balls = balls.updated(id, Ball(id, offset, a1, a2))
-        case "MINE" => mines = mines.updated(id, Mine(id, offset))
-      }
-    }
-    CaribbeanState(context, ships, barrels, balls, mines, turn)
-  }
-  override def nextContext(context: CaribbeanContext, state: CaribbeanState, actions: Vector[CaribbeanAction]): CaribbeanContext = {
-    context
-  }
-  override def warmup(player: GamePlayer[CaribbeanState, CaribbeanAction]): Unit = {
-    val state = CaribbeanState(CaribbeanContext(Map(),Map()),Map(0 -> Ship(0,Offset(2,2),2,0,100,1), 5 -> Ship(5,Offset(21,14),2,0,100,0), 1 -> Ship(1,Offset(2,18),4,0,100,0), 2 -> Ship(2,Offset(8,4),5,0,100,1), 3 -> Ship(3,Offset(8,16),1,0,100,0), 4 -> Ship(4,Offset(21,6),4,0,100,1)),Map(24 -> Barrel(24,Offset(2,4),20), 37 -> Barrel(37,Offset(13,12),10), 25 -> Barrel(25,Offset(2,16),20), 20 -> Barrel(20,Offset(15,3),14), 29 -> Barrel(29,Offset(6,15),13), 28 -> Barrel(28,Offset(6,5),13), 38 -> Barrel(38,Offset(1,3),14), 21 -> Barrel(21,Offset(15,17),14), 33 -> Barrel(33,Offset(13,16),18), 32 -> Barrel(32,Offset(13,4),18), 34 -> Barrel(34,Offset(6,2),12), 17 -> Barrel(17,Offset(16,11),15), 22 -> Barrel(22,Offset(14,3),15), 27 -> Barrel(27,Offset(1,11),14), 39 -> Barrel(39,Offset(1,17),14), 35 -> Barrel(35,Offset(6,18),12), 18 -> Barrel(18,Offset(16,6),13), 16 -> Barrel(16,Offset(16,9),15), 31 -> Barrel(31,Offset(19,17),11), 26 -> Barrel(26,Offset(1,9),14), 23 -> Barrel(23,Offset(14,17),15), 36 -> Barrel(36,Offset(13,8),10), 30 -> Barrel(30,Offset(19,3),11), 19 -> Barrel(19,Offset(16,14),13)),Map(),Map(6 -> Mine(6,Offset(20,6)), 13 -> Mine(13,Offset(9,7))),1)
-    (0 until 1).foreach(i => player.reactTo(state))
-  }
-}
-import java.util.concurrent.TimeUnit
-
-trait Stopper {
-  def start(): Unit
-  def willOutOfTime: Boolean
-}
-
-class CountStopper(count: Int) extends Stopper {
-  private var remaining = count
-  override def start(): Unit = {}
-  override def willOutOfTime: Boolean = {
-    remaining = remaining - 1
-    remaining < 0
-  }
-}
-import scala.concurrent.duration.Duration
-
-class Chronometer(duration: Duration) extends Stopper {
-  val budget: Long = duration.toNanos
-  private var startTime: Long = 0
-  private var elapsed: Long = 0
-  private var maxTurnElapsed: Long = -1
-  override def start(): Unit = {
-    startTime = mark
-    maxTurnElapsed = -1
-    elapsed = 0
-  }
-  def mark: Long = {
-    System.nanoTime()
-  }
-  override def willOutOfTime: Boolean = {
-    val untilNow = mark - startTime
-    val currentTurnElapsed = untilNow - elapsed
-    maxTurnElapsed = Math.max(maxTurnElapsed, currentTurnElapsed)
-    val remaining = budget - untilNow
-    elapsed = untilNow
-    //System.err.println(s"remaining $remaining max $maxTurnElapsed")
-    remaining < maxTurnElapsed
-  }
-}
-
-object CaribbeanPlayerDebug {
-  def main(args: Array[String]): Unit = {
-    val state = CaribbeanState(CaribbeanContext(Map(),Map(2 -> 50, 0 -> 39)),Map(0 -> Ship(0,Offset(8,12),1,2,64,1), 2 -> Ship(2,Offset(10,11),2,1,50,1), 1 -> Ship(1,Offset(20,10),4,2,67,0), 3 -> Ship(3,Offset(17,16),5,2,59,0)),Map(),Map(59 -> Ball(59,Offset(12,14),3,1), 60 -> Ball(60,Offset(14,17),2,2)),Map(5 -> Mine(5,Offset(14,12)), 29 -> Mine(29,Offset(7,8)), 61 -> Mine(61,Offset(15,12)), 38 -> Mine(38,Offset(4,10)), 7 -> Mine(7,Offset(12,16)), 51 -> Mine(51,Offset(14,10)), 4 -> Mine(4,Offset(14,8))),51)
-    val player = CaribbeanPlayer(1, 0, new CountStopper(100))
-    println(player.reactTo(state))
-    println(player.reactTo(state))
-  }
-}
-import java.util.concurrent.TimeUnit
 
 trait Solution {
   def quality() : Double
@@ -500,6 +69,7 @@ class BoundedVectorConvolution(noiseProbability: Double, min: Double, max: Doubl
     })
   }
 }
+import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.Duration
 
 case class BestCaribbeanPlayer(me: Int, other: Int,
@@ -600,6 +170,54 @@ case class BestCaribbeanSolution(problem: BestCaribbeanProblem,
   }
   def toActions: Vector[CaribbeanAction] = {
     adapt(problem.state, actions.take(problem.actionLength))
+  }
+}
+
+trait Stopper {
+  def start(): Unit
+  def willOutOfTime: Boolean
+}
+
+class CountStopper(count: Int) extends Stopper {
+  private var remaining = count
+  override def start(): Unit = {}
+  override def willOutOfTime: Boolean = {
+    remaining = remaining - 1
+    remaining < 0
+  }
+}
+import scala.concurrent.duration.Duration
+
+class Chronometer(duration: Duration) extends Stopper {
+  val budget: Long = duration.toNanos
+  private var startTime: Long = 0
+  private var elapsed: Long = 0
+  private var maxTurnElapsed: Long = -1
+  override def start(): Unit = {
+    startTime = mark
+    maxTurnElapsed = -1
+    elapsed = 0
+  }
+  def mark: Long = {
+    System.nanoTime()
+  }
+  override def willOutOfTime: Boolean = {
+    val untilNow = mark - startTime
+    val currentTurnElapsed = untilNow - elapsed
+    maxTurnElapsed = Math.max(maxTurnElapsed, currentTurnElapsed)
+    val remaining = budget - untilNow
+    elapsed = untilNow
+    //System.err.println(s"remaining $remaining max $maxTurnElapsed")
+    remaining < maxTurnElapsed
+  }
+}
+
+object CaribbeanPlayerDebug {
+  def main(args: Array[String]): Unit = {
+    val state = CaribbeanState(CaribbeanContext(Map(),Map(2 -> 50, 0 -> 39)),Map(0 -> Ship(0,Offset(8,12),1,2,64,1), 2 -> Ship(2,Offset(10,11),2,1,50,1), 1 -> Ship(1,Offset(20,10),4,2,67,0), 3 -> Ship(3,Offset(17,16),5,2,59,0)),Map(),Map(59 -> Ball(59,Offset(12,14),3,1), 60 -> Ball(60,Offset(14,17),2,2)),Map(5 -> Mine(5,Offset(14,12)), 29 -> Mine(29,Offset(7,8)), 61 -> Mine(61,Offset(15,12)), 38 -> Mine(38,Offset(4,10)), 7 -> Mine(7,Offset(12,16)), 51 -> Mine(51,Offset(14,10)), 4 -> Mine(4,Offset(14,8))),51)
+    val player = CaribbeanPlayer(1, 0, new CountStopper(100))
+    println(player.reactTo(state))
+    println(player.reactTo(state))
   }
 }
 
@@ -830,6 +448,7 @@ object CaribbeanArena extends GameArena[CaribbeanState, CaribbeanAction] {
     }
   }
 }
+import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.Duration
 
 case class CaribbeanPlayer(me: Int, other: Int,
@@ -938,6 +557,387 @@ case class CaribbeanSolution(problem: CaribbeanProblem,
   }
   def toActions: Vector[CaribbeanAction] = {
     adapt(problem.state, actions.take(problem.actionLength))
+  }
+}
+
+case class Offset(x : Int, y : Int) {
+  def toCube: Cube = {
+    val xp = x - (y - (y & 1)) / 2
+    val zp = y
+    val yp = -(xp + zp)
+    Cube(xp, yp, zp)
+  }
+  def angle(target: Offset): Double = {
+    val dy = (target.y - this.y) * Math.sqrt(3) / 2
+    val dx = target.x - this.x + ((this.y - target.y) & 1) * 0.5
+    var angle = -Math.atan2(dy, dx) * 3 / Math.PI
+    if (angle < 0) angle += 6
+    else if (angle >= 6) angle -= 6
+    angle
+  }
+}
+
+case class Cube(x: Int, y: Int, z: Int) {
+  def toOffset: Offset = {
+    val newX = x + (z - (z & 1)) / 2
+    val newY = z
+    Offset(newX, newY)
+  }
+  def neighbor(orientation: Int): Cube = {
+    Cube(x + Cube.directions(orientation)(0),
+      y + Cube.directions(orientation)(1),
+      z + Cube.directions(orientation)(2))
+  }
+  def distanceTo(that: Cube): Int =
+    (Math.abs(x - that.x) + Math.abs(y - that.y) + Math.abs(z - that.z)) / 2
+}
+object Cube {
+  val directions: Array[Array[Int]] = Array[Array[Int]](
+    Array(1, -1, 0),
+    Array(+1, 0, -1),
+    Array(0, +1, -1),
+    Array(-1, +1, 0),
+    Array(-1, 0, +1),
+    Array(0, -1, +1))
+  def apply(x: Int, y: Int): Cube = {
+    Offset(x, y).toCube
+  }
+}
+
+object CGLogger {
+  private val info = 0
+  private val debug = 1
+  private val current = info
+  def debug(message: Any): Unit = log(message, debug)
+  def info(message: Any): Unit = log(message, info)
+  private def log(message: Any, level: Int): Unit = {
+    if (level <= current) {
+      System.err.println(level)
+    }
+  }
+}
+class PredictableGameLoop[C, S, A](
+                                    controller: GameController[C, S, A],
+                                    myPlayer: GamePlayer[S, A],
+                                    otherPlayer: GamePlayer[S, A],
+                                    arena: GameArena[S, A]
+                                  ) {
+  var predicated: S = _
+  def run(): Unit = {
+    val initContext = controller.readContext
+    (1 to 200).foldLeft(initContext) {
+      case (c, turn) =>
+        val state = controller.readState(turn, c)
+        if (predicated != null) {
+          System.err.println("pre: " + predicated)
+        }
+        System.err.println("act: " + state)
+        if (predicated != null && predicated != state) {
+          System.err.println("wrong prediction")
+          System.err.println("pre vs act: " + predicated.toString.diff(state.toString))
+          System.err.println("act vs pre: " + state.toString.diff(predicated.toString))
+        }
+        val actions = myPlayer.reactTo(state)
+        predicated = GameSimulator.singleTurn(state, arena, Vector(myPlayer, otherPlayer))
+        actions.foreach(a => println(a))
+        controller.nextContext(c, state, actions)
+    }
+  }
+}
+class GameLoop[C, S, A](
+                         controller: GameController[C, S, A],
+                         myPlayer: GamePlayer[S, A],
+                         turns: Int = 200
+                       ) {
+  def run(): Unit = {
+    val time = System.nanoTime()
+    val initContext = controller.readContext
+    controller.warmup(myPlayer)
+    CGLogger.info("GameInit elt: " + (System.nanoTime() - time) / 1000000 + "ms")
+    (1 to turns).foldLeft(initContext) {
+      case (c, turn) =>
+        val state = controller.readState(turn, c)
+        CGLogger.info(state)
+        val time = System.nanoTime()
+        val actions = myPlayer.reactTo(state)
+        CGLogger.info("GameReact elt: " + (System.nanoTime() - time) / 1000000 + "ms")
+        actions.foreach(a => println(a))
+        controller.nextContext(c, state, actions)
+    }
+  }
+}
+
+trait GameController[C, S, A] {
+  def readContext: C
+  def readState(turn: Int, context: C): S
+  def nextContext(context: C, state: S, actions: Vector[A]): C
+  def warmup(player: GamePlayer[S, A]): Unit = {}
+}
+import java.util.concurrent.TimeUnit
+trait GameState[A] {
+  def apply(action: A): GameState[A]
+}
+trait GamePlayer[S, A] {
+  def reactTo(state: S): Vector[A]
+}
+trait GameArena[S, A] {
+  def next(fromState: S, actions: Vector[A]): S
+  def judge(state: S): GameResult
+}
+trait GameResult {
+}
+case object Draw extends GameResult
+case object WinKO extends GameResult
+case object LossKO extends GameResult
+case object WinTech extends GameResult
+case object LossTech extends GameResult
+object GameSimulator {
+  
+  def simulate[S, A](round: Int, from: S, arena: GameArena[S, A], players: Vector[GamePlayer[S, A]]): S = {
+    (0 until round).foldLeft(from)((s, r) => {
+      System.out.println("Round " + r)
+      arena.next(s, players.flatMap(_.reactTo(s)))
+    })
+  }
+  def singleTurn[S, A](from: S, arena: GameArena[S, A], players: Vector[GamePlayer[S, A]]): S = {
+    arena.next(from, players.flatMap(_.reactTo(from)))
+  }
+  def evaluateOffline[S, A](games: Vector[S], arena: GameArena[S, A], players: Vector[GamePlayer[S, A]], round: Int = 200): Unit = {
+    val time = System.nanoTime()
+    println(s"Simulate ${games.size} Games")
+    val results = games.zipWithIndex.par.map {
+      case (game, indice) =>
+        val result = play(game, arena, players, round)
+        println(s"Game $indice $result")
+        result
+    }
+    val wins = results.count {
+      case WinKO | WinTech => true
+      case _ => false
+    }
+    val loss = results.count {
+      case LossKO | LossTech => true
+      case _ => false
+    }
+    val draws = results.count {
+      case Draw => true
+      case _ => false
+    }
+    val p = wins.toDouble / games.size
+    val winRate = p * 100.0
+    val confidenceInterval = Math.sqrt(p * (1 - p) / games.size) * 100
+    println("Battles elt: " + TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - time) + "s")
+    println(s"${games.size} Games $wins Wins $loss Loss $draws Draws")
+    println(s"WinRate:$winRate%+-$confidenceInterval%")
+  }
+  def play[S, A](from: S, arena: GameArena[S, A], players: Vector[GamePlayer[S, A]], round: Int = 200): GameResult = {
+    val result = arena.judge(from)
+    if (round == 0) result else {
+      result match {
+        case WinKO | LossKO => result
+        case _ =>
+          val next = arena.next(from, players.flatMap(_.reactTo(from)))
+          play(next, arena, players, round - 1)
+      }
+    }
+  }
+}
+
+case class FixedCabribbeanPlayer(playerId: Int, otherPlayer: Int) extends GamePlayer[CaribbeanState, CaribbeanAction] {
+  override def reactTo(state: CaribbeanState): Vector[CaribbeanAction] = {
+    val otherShips = state.shipsOf(otherPlayer)
+    state.shipsOf(playerId).map(ship => {
+      if (otherShips.isEmpty) Wait(ship.id) else {
+        val target = otherShips.minBy(other => other.center.distanceTo(ship.center)).center.toOffset
+        Fire(ship.id, target)
+      }
+    })
+  }
+}
+
+object CollisionAnalysis {
+  def hitMyself(ship: Ship): Cube = {
+    ship.speed match {
+      case 0 => ship.center
+      case 1 => ship.nextBow
+      case 2 => throw new IllegalStateException("unable to hit myself")
+    }
+  }
+  def travelTime(distance: Int): Int = {
+    (1 + (distance / 3.0).round).toInt
+  }
+  def collisionTime(ship: Ship, cube: Cube): Int = {
+    val distance = ship.center.distanceTo(cube)
+    val angle = CaribbeanContext.angle(ship.center, cube)
+    val diff = (ship.orientation - angle).abs
+    val realDiff = diff.min(6 - diff)
+    if (realDiff == 0) {
+      distance - 1
+    } else {
+      stop(ship) + realDiff + distance - 1
+    }
+  }
+  def canMine(one: Ship, other: Ship): Boolean = {
+    val center = other.nextCenter
+    if (CaribbeanContext.inside(center.toOffset)) {
+      val nextOther = other.copy(position = center.toOffset)
+      nextOther.zone.contains(one.mine)
+    } else {
+      false
+    }
+  }
+  private def stop(ship: Ship): Int = ship.speed match {
+    case 0 => 0
+    case 1 => 1
+    case 2 => 3
+    case _ => throw new IllegalArgumentException("unknown speed")
+  }
+}
+
+case class CaribbeanContext(mines: Map[Int, Mine], lastFire: Map[Int, Int]) {
+}
+object CaribbeanContext {
+  val highMineDamage = 25
+  val lowMineDamage = 10
+  val lowBallDamage = 25
+  val highBallDamage = 50
+  val fireMaxDistance = 10
+  val width = 23
+  val height = 21
+  val me = 1
+  val other = 0
+  val maxRums = 150
+  private val orientations = (0 until 6).toVector
+  private val cubes: Vector[Cube] = (for {
+    x <- 0 until width
+    y <- 0 until height
+  } yield Offset(x, y).toCube).toVector
+  private val cubeInfo: Map[Cube, (Set[Cube], Map[Int, Set[Cube]], Vector[Cube], Map[Cube, Int])] = cubes
+    .map(cube => {
+      val neighbors = (0 to 5).map(cube.neighbor).filter(cubes.contains).toSet
+      val oriToZone = orientations.map(ori =>
+        ori -> Set(cube.neighbor(ori), cube.neighbor((ori + 3) % 6))
+      ).toMap
+      val reachable = cubes.filter(_.distanceTo(cube) <= 5)
+      val angles = cubes.map(ic => ic -> cube.toOffset.angle(ic.toOffset).ceil.toInt).toMap
+      cube -> (neighbors, oriToZone, reachable, angles)
+    }).toMap
+  def shipZone(cube: Cube, orientation: Int): Set[Cube] = cubeInfo(cube)._2(orientation)
+  def apply(): CaribbeanContext = CaribbeanContext(Map.empty, Map.empty)
+  def reachable(cube: Cube): Vector[Cube] = cubeInfo(cube)._3
+  def toCube(offset: Offset): Cube = offset.toCube
+  def neighbors(cube: Cube): Set[Cube] = cubeInfo(cube)._1
+  def angle(one: Cube, other: Cube) : Int = cubeInfo(one)._4(other)
+  def inside(offset: Offset) : Boolean = {
+    offset.x >= 0 && offset.x < width && offset.y >= 0 && offset.y < height
+  }
+}
+case class Ship(id: Int, position: Offset, orientation: Int, speed: Int, rums: Int, owner: Int) {
+  val center: Cube = CaribbeanContext.toCube(position)
+  val bowAndStern: Set[Cube] = CaribbeanContext.shipZone(center, orientation)
+  lazy val zone: Set[Cube] = bowAndStern + center
+  val bow: Cube = center.neighbor(orientation)
+  val stern: Cube = center.neighbor((orientation + 3) % 6)
+  def mine : Cube = stern.neighbor((orientation + 3) % 6)
+  def nextBow: Cube = speed match {
+    case 0 => bow
+    case 1 => bow.neighbor(orientation)
+    case 2 => bow.neighbor(orientation).neighbor(orientation)
+  }
+  def nextCenter: Cube = speed match {
+    case 0 => center
+    case 1 => bow
+    case 2 => bow.neighbor(orientation)
+  }
+  lazy val nextNextCenter: Cube = speed match {
+    case 0 => center
+    case 1 => nextBow
+    case 2 => nextCenter.neighbor(orientation).neighbor(orientation)
+  }
+}
+case class Barrel(id: Int, position: Offset, rums: Int) {
+  def cube: Cube = CaribbeanContext.toCube(position)
+}
+case class Ball(id: Int, target: Offset, owner: Int, land: Int) {
+  def cube: Cube = CaribbeanContext.toCube(target)
+}
+case class Mine(id: Int, position: Offset) {
+  def cube: Cube = CaribbeanContext.toCube(position)
+}
+case class CaribbeanState(context: CaribbeanContext,
+                          ships: Map[Int, Ship],
+                          barrels: Map[Int, Barrel],
+                          balls: Map[Int, Ball],
+                          mines: Map[Int, Mine],
+                          turn: Int) {
+  def shipsOf(owner: Int): Vector[Ship] = ships.values.filter(_.owner == owner).toVector.sortBy(_.id)
+}
+trait CaribbeanAction {
+  def shipId: Int
+}
+sealed case class Move(shipId: Int, offset: Offset) extends CaribbeanAction {
+  override def toString: String = s"MOVE ${offset.x} ${offset.y}"
+}
+sealed case class Slower(shipId: Int) extends CaribbeanAction {
+  override def toString: String = "SLOWER"
+}
+sealed case class Faster(shipId: Int) extends CaribbeanAction {
+  override def toString: String = "FASTER"
+}
+sealed case class Port(shipId: Int) extends CaribbeanAction {
+  override def toString: String = "PORT"
+}
+sealed case class Starboard(shipId: Int) extends CaribbeanAction {
+  override def toString: String = "STARBOARD"
+}
+sealed case class Wait(shipId: Int) extends CaribbeanAction {
+  override def toString: String = "WAIT"
+}
+sealed case class Fire(shipId: Int, offset: Offset) extends CaribbeanAction {
+  override def toString: String = s"FIRE ${offset.x} ${offset.y}"
+}
+sealed case class MineAction(shipId: Int) extends CaribbeanAction {
+  override def toString: String = s"MINE"
+}
+import scala.io.StdIn
+
+object CaribbeanController extends GameController[CaribbeanContext, CaribbeanState, CaribbeanAction] {
+  override def readContext: CaribbeanContext = {
+    CaribbeanContext()
+  }
+  override def readState(turn: Int, context: CaribbeanContext): CaribbeanState = {
+    val shipCount = StdIn.readInt()
+    val entities = for {
+      i <- 0 until StdIn.readInt()
+      line: String = StdIn.readLine()
+    } yield line
+    var ships: Map[Int, Ship] = Map.empty
+    var barrels: Map[Int,Barrel] = Map.empty
+    var balls: Map[Int,Ball] = Map.empty
+    var mines: Map[Int,Mine] = Map.empty
+    for {
+      line <- entities
+      Array(entityId, entityType, x, y, arg1, arg2, arg3, arg4) = line.split(" ")
+    } {
+      val id = entityId.toInt
+      val offset = Offset(x.toInt, y.toInt)
+      val a1 = arg1.toInt
+      val a2 = arg2.toInt
+      entityType match {
+        case "SHIP" => ships = ships.updated(id, Ship(id, offset, a1, a2, arg3.toInt, arg4.toInt))
+        case "BARREL" => barrels = barrels.updated(id, Barrel(id, offset, a1))
+        case "CANNONBALL" => balls = balls.updated(id, Ball(id, offset, a1, a2))
+        case "MINE" => mines = mines.updated(id, Mine(id, offset))
+      }
+    }
+    CaribbeanState(context, ships, barrels, balls, mines, turn)
+  }
+  override def nextContext(context: CaribbeanContext, state: CaribbeanState, actions: Vector[CaribbeanAction]): CaribbeanContext = {
+    context
+  }
+  override def warmup(player: GamePlayer[CaribbeanState, CaribbeanAction]): Unit = {
+    val state = CaribbeanState(CaribbeanContext(Map(),Map()),Map(0 -> Ship(0,Offset(2,2),2,0,100,1), 5 -> Ship(5,Offset(21,14),2,0,100,0), 1 -> Ship(1,Offset(2,18),4,0,100,0), 2 -> Ship(2,Offset(8,4),5,0,100,1), 3 -> Ship(3,Offset(8,16),1,0,100,0), 4 -> Ship(4,Offset(21,6),4,0,100,1)),Map(24 -> Barrel(24,Offset(2,4),20), 37 -> Barrel(37,Offset(13,12),10), 25 -> Barrel(25,Offset(2,16),20), 20 -> Barrel(20,Offset(15,3),14), 29 -> Barrel(29,Offset(6,15),13), 28 -> Barrel(28,Offset(6,5),13), 38 -> Barrel(38,Offset(1,3),14), 21 -> Barrel(21,Offset(15,17),14), 33 -> Barrel(33,Offset(13,16),18), 32 -> Barrel(32,Offset(13,4),18), 34 -> Barrel(34,Offset(6,2),12), 17 -> Barrel(17,Offset(16,11),15), 22 -> Barrel(22,Offset(14,3),15), 27 -> Barrel(27,Offset(1,11),14), 39 -> Barrel(39,Offset(1,17),14), 35 -> Barrel(35,Offset(6,18),12), 18 -> Barrel(18,Offset(16,6),13), 16 -> Barrel(16,Offset(16,9),15), 31 -> Barrel(31,Offset(19,17),11), 26 -> Barrel(26,Offset(1,9),14), 23 -> Barrel(23,Offset(14,17),15), 36 -> Barrel(36,Offset(13,8),10), 30 -> Barrel(30,Offset(19,3),11), 19 -> Barrel(19,Offset(16,14),13)),Map(),Map(6 -> Mine(6,Offset(20,6)), 13 -> Mine(13,Offset(9,7))),1)
+    (0 until 1).foreach(i => player.reactTo(state))
   }
 }
 import scala.io.StdIn

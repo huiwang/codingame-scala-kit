@@ -211,6 +211,32 @@ object FactoryTimeline {
   }
   def signum(number: Int): Int = if (number == 0) 0 else if (number > 0) 1 else -1
 }
+object Dichotomy {
+  
+  def search(low: Int, high: Int, lower: Int => Boolean): Int = {
+    if (low == high) low else {
+      val mid = (low + high) / 2
+      if (lower(mid)) {
+        search(low, mid, lower)
+      } else {
+        search(mid + 1, high, lower)
+      }
+    }
+  }
+}
+
+object CGLogger {
+  private val info = 0
+  private val debug = 1
+  private val current = info
+  def debug(message: Any): Unit = log(message, debug)
+  def info(message: Any): Unit = log(message, info)
+  private def log(message: Any, level: Int): Unit = {
+    if (level <= current) {
+      System.err.println(level)
+    }
+  }
+}
 class PredictableGameLoop[C, S, A](
                                     controller: GameController[C, S, A],
                                     myPlayer: GamePlayer[S, A],
@@ -236,19 +262,6 @@ class PredictableGameLoop[C, S, A](
         predicated = GameSimulator.singleTurn(state, arena, Vector(myPlayer, otherPlayer))
         actions.foreach(a => println(a))
         controller.nextContext(c, state, actions)
-    }
-  }
-}
-
-object CGLogger {
-  private val info = 0
-  private val debug = 1
-  private val current = info
-  def debug(message: Any): Unit = log(message, debug)
-  def info(message: Any): Unit = log(message, info)
-  private def log(message: Any, level: Int): Unit = {
-    if (level <= current) {
-      System.err.println(level)
     }
   }
 }
@@ -397,19 +410,6 @@ case class GhostCellPlayer(me: Int) extends GamePlayer[GhostCellGameState, Ghost
     if (state.center.owner == me) Some(state.center) else if (state.center.owner == -me) {
       Some(state.factories.filter(_.owner == me).minBy(fac => state.factories.filter(_.owner == -me).map(of => state.directDist(of.id, fac.id)).sum))
     } else None
-  }
-}
-object Dichotomy {
-  
-  def search(low: Int, high: Int, lower: Int => Boolean): Int = {
-    if (low == high) low else {
-      val mid = (low + high) / 2
-      if (lower(mid)) {
-        search(low, mid, lower)
-      } else {
-        search(mid + 1, high, lower)
-      }
-    }
   }
 }
 case class FactoryAnalysis(me: Int) {

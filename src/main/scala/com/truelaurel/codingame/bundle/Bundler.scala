@@ -10,7 +10,8 @@ import scala.util.control.NonFatal
 
 object BundlerMain extends App {
   if (args.isEmpty) {
-    println("Input file name must be provided"); sys.exit(1)
+    println("Input file name must be provided");
+    sys.exit(1)
   }
   args.foreach { fileName =>
     new Bundler(fileName, BundlerIo).bundle()
@@ -38,34 +39,34 @@ class Bundler(val fileName: String,
     stripComments(content.mkString("\n"))
   }
 
+  //  def transformFile(file: File): List[String] =
+  //    if (seenFiles.contains(file)) Nil
+  //    else {
+  //      seenFiles.add(file)
+  //      val fileLines = io.readFile(file)
+  //      val fileInSameFolder = io.filesInFolder(file.getParentFile)
+  //      val linesFromFilesInSamePackage = fileInSameFolder.flatMap(transformFile)
+  //      val allLines = linesFromFilesInSamePackage ++ transformContent(fileLines)
+  //      allLines.filterNot("".==)
+  //    }
+
   def transformFile(file: File): List[String] =
     if (seenFiles.contains(file)) Nil
     else {
       seenFiles.add(file)
       val fileLines = io.readFile(file)
+      val keptFileLines = fileLines.flatMap(transformedLine)
+
       val fileInSameFolder = io.filesInFolder(file.getParentFile)
       val linesFromFilesInSamePackage = fileInSameFolder.flatMap(transformFile)
-      val allLines = linesFromFilesInSamePackage ++ transformContent(fileLines)
+
+      val filesFromImport = fileLines.flatMap(filesFromLine)
+      val linesFromImportedFiles = filesFromImport.flatMap(transformFile)
+
+      val allLines = linesFromImportedFiles ++ linesFromFilesInSamePackage ++ keptFileLines
+
       allLines.filterNot("".==)
     }
-
-//  def transformFile(file: File): List[String] =
-//    if (seenFiles.contains(file)) Nil
-//    else {
-//      seenFiles.add(file)
-//      val fileLines = io.readFile(file)
-//      val keptFileLines = fileLines.flatMap(transformedLine)
-//
-//      val fileInSameFolder = io.filesInFolder(file.getParentFile)
-//      val linesFromFilesInSamePackage = fileInSameFolder.flatMap(transformFile)
-//
-//      val filesFromImport = fileLines.flatMap(filesFromLine)
-//      val linesFromImportedFiles = filesFromImport.flatMap(transformFile)
-//
-//      val allLines = linesFromImportedFiles ++ linesFromFilesInSamePackage ++ keptFileLines
-//
-//      allLines.filterNot("".==)
-//    }
 
   private def transformContent(lines: List[String]): List[String] =
     lines.flatMap(transformLine)
@@ -100,11 +101,15 @@ class Bundler(val fileName: String,
   }
 
   private def filesFromLine(line: String): List[File] =
-    if (!line.startsWith("import") ||
-      ignoredImports.exists(i => line.startsWith(s"import $i")))
+    if (!line.startsWith("import") || ignoredImports.exists(i => line.startsWith(s"import $i")))
       Nil
-    else
-      io.filesInFolder(extractFolderFromImport(line))
+    else {
+      val imported = line.split(" ").tail.mkString
+      val packageElements = imported.replaceAll("_", "").replaceAll("\\{.*\\}", "").split("\\.")
+      val subFolder = io.findFolder(packageElements, new File(srcFolder))
+      io.filesInFolder(subFolder)
+    }
+
 
   def extractFolderFromImport(im: String): File =
     new File(srcFolder, im.substring(im.indexOf(" ") + 1, im.lastIndexOf(".")).replace(".", File.separator))
