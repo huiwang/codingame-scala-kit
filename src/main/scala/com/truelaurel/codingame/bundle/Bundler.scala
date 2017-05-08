@@ -39,15 +39,15 @@ class Bundler(val fileName: String,
     stripComments(content.mkString("\n"))
   }
 
-  def filesList(contents: Map[File, List[String]] = Map.empty)(file: File): List[File] =
-    if (contents.contains(file)) Nil
-    else {
+  def filesList(queue: List[File], contents: Map[File, List[String]]): List[File] = queue match {
+    case Nil => Nil
+    case file :: t =>
       val fileLines = io.readFile(file)
-      val filesInSameFolder = io.filesInFolder(file.getParentFile)
-      val filesFromImport = fileLines.flatMap(filesFromLine)
-      val needed = filesFromImport ++ filesInSameFolder
-      needed.flatMap(filesList(contents + (file -> fileLines))) ++ needed
-    }
+      val needed = dependentFiles(file, fileLines)
+      val nextContents = contents + (file -> fileLines)
+      val nextQueue = (needed ++ t).distinct.diff(nextContents.keySet.toSeq)
+      filesList(nextQueue, nextContents) ++ needed :+ file
+  }
 
   def dependentFiles(file: File, fileLines: List[String]): List[File] = {
     val filesInSameFolder = io.filesInFolder(file.getParentFile)
@@ -55,21 +55,10 @@ class Bundler(val fileName: String,
     filesFromImport ++ filesInSameFolder
   }
 
-  def transformFile(file: File): List[String] =
-    if (fileContent.contains(file)) Nil
-    else {
-      val (fileLines, keptFileLines) = transformSingleFile(file)
-
-      val neededFiles = dependentFiles(file, fileLines)
-      val allLines = neededFiles.flatMap(transformFile) ++ keptFileLines
-
-      allLines.filterNot("".==)
-    }
-
-  def transformSingleFile(file: File): (List[String], List[String]) = {
-    val fileLines = io.readFile(file)
-    fileContent(file) = fileLines
-    (fileLines, fileLines.flatMap(transformedLine))
+  def transformFile(file: File): List[String] = {
+    val allFiles = filesList(List(file), Map.empty).distinct
+    println(allFiles)
+    allFiles.flatMap(f => io.readFile(f).flatMap(transformedLine)).filterNot("".==)
   }
 
   private def filesFromLine(line: String): List[File] =
