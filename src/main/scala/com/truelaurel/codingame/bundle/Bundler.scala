@@ -10,7 +10,7 @@ import scala.util.control.NonFatal
 
 object BundlerMain extends App {
   if (args.isEmpty) {
-    println("Input file name must be provided");
+    println("Input file name must be provided")
     sys.exit(1)
   }
   args.foreach { fileName =>
@@ -39,6 +39,16 @@ class Bundler(val fileName: String,
     stripComments(content.mkString("\n"))
   }
 
+  def filesList(contents: Map[File, List[String]] = Map.empty)(file: File): List[File] =
+    if (contents.contains(file)) Nil
+    else {
+      val fileLines = io.readFile(file)
+      val filesInSameFolder = io.filesInFolder(file.getParentFile)
+      val filesFromImport = fileLines.flatMap(filesFromLine)
+      val needed = filesFromImport ++ filesInSameFolder
+      needed.flatMap(filesList(contents + (file -> fileLines))) ++ needed
+    }
+
   def dependentFiles(file: File, fileLines: List[String]): List[File] = {
     val filesInSameFolder = io.filesInFolder(file.getParentFile)
     val filesFromImport = fileLines.flatMap(filesFromLine)
@@ -48,15 +58,19 @@ class Bundler(val fileName: String,
   def transformFile(file: File): List[String] =
     if (fileContent.contains(file)) Nil
     else {
-      val fileLines = io.readFile(file)
-      fileContent(file) = fileLines
-      val keptFileLines = fileLines.flatMap(transformedLine)
+      val (fileLines, keptFileLines) = transformSingleFile(file)
 
       val neededFiles = dependentFiles(file, fileLines)
       val allLines = neededFiles.flatMap(transformFile) ++ keptFileLines
 
       allLines.filterNot("".==)
     }
+
+  def transformSingleFile(file: File): (List[String], List[String]) = {
+    val fileLines = io.readFile(file)
+    fileContent(file) = fileLines
+    (fileLines, fileLines.flatMap(transformedLine))
+  }
 
   private def filesFromLine(line: String): List[File] =
     if (!line.startsWith("import") || ignoredImports.exists(i => line.startsWith(s"import $i")))
