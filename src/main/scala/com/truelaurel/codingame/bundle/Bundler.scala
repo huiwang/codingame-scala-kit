@@ -25,7 +25,7 @@ class Bundler(val fileName: String,
 
   import Bundler._
 
-  val seenFiles = mutable.Set.empty[File]
+  val fileContent = mutable.Map.empty[File, List[String]]
 
   def bundle(): Unit = {
     val outputFileContent = buildOutput
@@ -39,16 +39,20 @@ class Bundler(val fileName: String,
     stripComments(content.mkString("\n"))
   }
 
+  def dependentFiles(file: File, fileLines: List[String]): List[File] = {
+    val filesInSameFolder = io.filesInFolder(file.getParentFile)
+    val filesFromImport = fileLines.flatMap(filesFromLine)
+    filesFromImport ++ filesInSameFolder
+  }
+
   def transformFile(file: File): List[String] =
-    if (seenFiles.contains(file)) Nil
+    if (fileContent.contains(file)) Nil
     else {
-      seenFiles.add(file)
       val fileLines = io.readFile(file)
+      fileContent(file) = fileLines
       val keptFileLines = fileLines.flatMap(transformedLine)
 
-      val filesInSameFolder = io.filesInFolder(file.getParentFile)
-      val filesFromImport = fileLines.flatMap(filesFromLine)
-      val neededFiles = filesFromImport ++ filesInSameFolder
+      val neededFiles = dependentFiles(file, fileLines)
       val allLines = neededFiles.flatMap(transformFile) ++ keptFileLines
 
       allLines.filterNot("".==)
