@@ -39,17 +39,6 @@ class Bundler(val fileName: String,
     stripComments(content.mkString("\n"))
   }
 
-  //  def transformFile(file: File): List[String] =
-  //    if (seenFiles.contains(file)) Nil
-  //    else {
-  //      seenFiles.add(file)
-  //      val fileLines = io.readFile(file)
-  //      val fileInSameFolder = io.filesInFolder(file.getParentFile)
-  //      val linesFromFilesInSamePackage = fileInSameFolder.flatMap(transformFile)
-  //      val allLines = linesFromFilesInSamePackage ++ transformContent(fileLines)
-  //      allLines.filterNot("".==)
-  //    }
-
   def transformFile(file: File): List[String] =
     if (seenFiles.contains(file)) Nil
     else {
@@ -57,48 +46,13 @@ class Bundler(val fileName: String,
       val fileLines = io.readFile(file)
       val keptFileLines = fileLines.flatMap(transformedLine)
 
-      val fileInSameFolder = io.filesInFolder(file.getParentFile)
-      val linesFromFilesInSamePackage = fileInSameFolder.flatMap(transformFile)
-
+      val filesInSameFolder = io.filesInFolder(file.getParentFile)
       val filesFromImport = fileLines.flatMap(filesFromLine)
-      val linesFromImportedFiles = filesFromImport.flatMap(transformFile)
-
-      val allLines = linesFromImportedFiles ++ linesFromFilesInSamePackage ++ keptFileLines
+      val neededFiles = filesFromImport ++ filesInSameFolder
+      val allLines = neededFiles.flatMap(transformFile) ++ keptFileLines
 
       allLines.filterNot("".==)
     }
-
-  private def transformContent(lines: List[String]): List[String] =
-    lines.flatMap(transformLine)
-
-  def transformLine(line: String) = line match {
-    case l if l.startsWith("package") => Nil
-    case i if i.startsWith("import") => transformImport(i)
-    case b => List(b)
-  }
-
-  def keepLine(line: String) = line match {
-    case l if l.startsWith("package") => false
-    case i if i.startsWith("import") => false
-    case b => true
-  }
-
-  private def folderFromImport(im: String): Option[File] =
-    if (ignoredImports.exists(i => im.startsWith(s"import $i"))) None
-    else {
-      val imported = im.split(" ").tail.mkString
-      val packageElements = imported.replaceAll("_", "").replaceAll("\\{.*\\}", "").split("\\.")
-      val subFolder = io.findFolder(packageElements, new File(srcFolder))
-      println(s"$imported => $subFolder")
-      Some(subFolder)
-    }
-
-  private def transformImport(im: String): List[String] = {
-    println(s"resolving import $im")
-    val transformed = folderFromImport(im).toList.flatMap(transformFilesFromFolder)
-    val line = transformedLine(im)
-    transformed ++ line
-  }
 
   private def filesFromLine(line: String): List[File] =
     if (!line.startsWith("import") || ignoredImports.exists(i => line.startsWith(s"import $i")))
@@ -109,14 +63,6 @@ class Bundler(val fileName: String,
       val subFolder = io.findFolder(packageElements, new File(srcFolder))
       io.filesInFolder(subFolder)
     }
-
-
-  def extractFolderFromImport(im: String): File =
-    new File(srcFolder, im.substring(im.indexOf(" ") + 1, im.lastIndexOf(".")).replace(".", File.separator))
-
-  def transformFilesFromFolder(folder: File): List[String] =
-    io.filesInFolder(folder).flatMap(transformFile)
-
 }
 
 trait BundlerIo {

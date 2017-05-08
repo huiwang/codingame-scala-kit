@@ -40,7 +40,7 @@ class BundlerTest extends FlatSpec with Matchers {
     val expectedContent = Source.fromFile("src/test/resources/com/truelaurel/codingame/bundler/" + shortName).getLines.mkString("\n")
     val output = new Bundler(shortName, BundlerIo).buildOutput
 
-    output shouldBe expectedContent
+    output.split("\n") should contain theSameElementsAs expectedContent.split("\n")
   }
 
 
