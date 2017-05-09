@@ -20,7 +20,7 @@ trait BundlerIo {
   def filesInFolder(folder: File): List[File]
 }
 
-case class StdBundlerIo(val srcFolder: String = "./src/main/scala") extends BundlerIo {
+case class StdBundlerIo(srcFolder: String = "./src/main/scala") extends BundlerIo {
 
   def readFile(file: File): List[String] = {
     println(s"reading from $file")

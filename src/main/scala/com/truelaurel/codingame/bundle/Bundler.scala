@@ -8,11 +8,11 @@ object BundlerMain extends App {
     sys.exit(1)
   }
   args.foreach { fileName =>
-    new Bundler(fileName, StdBundlerIo()).bundle()
+    Bundler(fileName, StdBundlerIo()).bundle()
   }
 }
 
-class Bundler(fileName: String, io: BundlerIo) {
+case class Bundler(fileName: String, io: BundlerIo) {
   val ignoredImports = Seq("scala", "java")
 
   def bundle(): Unit = {

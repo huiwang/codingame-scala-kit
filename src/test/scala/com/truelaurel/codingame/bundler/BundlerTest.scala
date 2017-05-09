@@ -1,6 +1,6 @@
 package com.truelaurel.codingame.bundler
 
-import com.truelaurel.codingame.bundle.{Bundler, BundlerIo, StdBundlerIo}
+import com.truelaurel.codingame.bundle.{Bundler, StdBundlerIo}
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.io.Source
@@ -38,7 +38,7 @@ class BundlerTest extends FlatSpec with Matchers {
 
   private def checkOuput(startFile: String, shortName: String): Unit = {
     val expectedContent = Source.fromFile("src/test/resources/com/truelaurel/codingame/bundler/" + shortName).getLines.mkString("\n")
-    val output = new Bundler(shortName, StdBundlerIo()).buildOutput
+    val output = Bundler(shortName, StdBundlerIo()).buildOutput
 
     output.split("\n") should contain theSameElementsAs expectedContent.split("\n")
   }
