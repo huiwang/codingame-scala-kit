@@ -16,7 +16,7 @@ object CGLogger {
 
   private def log(message: Any, level: Int): Unit = {
     if (level <= current) {
-      System.err.println(level)
+      System.err.println(message)
     }
   }
 
