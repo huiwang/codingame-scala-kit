@@ -10,7 +10,7 @@ object Player {
   private val gameLoop = new GameLoop(
     StrikeBackController,
     StrikeBackPlayer(StrikeBackContext.me, StrikeBackContext.other),
-    turns = 800
+    turns = Int.MaxValue
   )
 
   private val predictable = new PredictableGameLoop(

@@ -1,6 +1,7 @@
 package com.truelaurel.codingame.csb.arena
 
 import com.truelaurel.codingame.collision.Collision
+import com.truelaurel.codingame.csb.analysis.PodAnalysis
 import com.truelaurel.codingame.csb.model.{CheckPoint, Pod}
 import com.truelaurel.codingame.logging.CGLogger
 
@@ -20,7 +21,7 @@ object StrikeBackCollisionSimulation {
       pod1 <- pods
       pod2 <- pods
       if pod1.id < pod2.id
-      time <- Collision.collideTime(pod1.position, pod1.speed, pod1.radius, pod2.position, pod2.speed, pod2.radius)
+      time <- PodAnalysis.podToPodCollisionTime(pod1, pod2)
       if time < duration
     } yield (pod1, pod2, time)
 
@@ -45,6 +46,8 @@ object StrikeBackCollisionSimulation {
       }
     }
   }
+
+
 
   private def movePodCpCollision(pods: Vector[Pod], pod: Pod, time: Double) = {
     pods.map(p => if (p.id == pod.id) movePodAndGoal(p, time) else movePod(p, time))
