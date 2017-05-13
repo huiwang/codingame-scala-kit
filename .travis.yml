@@ -9,9 +9,15 @@ cache:
 
 language: scala
 
+scala:
+  # official version supported by CodinGame
+  - 2.12.1
+
+jdk:
+  - openjdk8
+
 script:
   - sbt ++$TRAVIS_SCALA_VERSION test
-
   # Trick to avoid unnecessary cache updates
   - find $HOME/.sbt -name "*.lock" | xargs rm
 
