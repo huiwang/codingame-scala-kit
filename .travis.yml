@@ -9,6 +9,9 @@ cache:
 
 language: scala
 
+jdk:
+  - oraclejdk8
+
 scala:
   # official version supported by CodinGame
   - 2.12.1
