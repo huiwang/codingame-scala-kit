@@ -18,6 +18,7 @@ scala:
 
 script:
   - sbt ++$TRAVIS_SCALA_VERSION test
+  - sbt ++$TRAVIS_SCALA_VERSION "jmh:run -i 1 -wi 1 -f1 -t1 HelloWorldBenchmark"
   # Trick to avoid unnecessary cache updates
   - find $HOME/.sbt -name "*.lock" | xargs rm
 
