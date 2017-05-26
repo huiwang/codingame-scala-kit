@@ -7,19 +7,34 @@ import org.scalactic._
 import org.scalatest.{FlatSpec, Matchers}
 
 class BundlerTest extends FlatSpec with Matchers {
-
   behavior of "Bundler"
 
-
   it should "copy simple content" in {
+    //GIVEN
     val inputName = "Demo.scala"
     val content = "object Demo extends App"
     val io = prepareMockIo(Map(inputName -> content))
+    //WHEN
     val output = Bundler(inputName, io).buildOutput
+    //THEN
     output shouldBe content
   }
 
+  it should "keep scala imports" in {
+    //GIVEN
+    val inputName = "Demo.scala"
+    val content =
+      """import scala.io.Source._
+        |object Demo extends App""".stripMargin
+    val io = prepareMockIo(Map(inputName -> content))
+    //WHEN
+    val output = Bundler(inputName, io).buildOutput
+    //THEN
+    output should equal(content)(after being linefeedNormalised)
+  }
+
   it should "strip multiline comments" in {
+    //GIVEN
     val inputName = "Demo.scala"
     val content =
       """object Demo extends App {
@@ -29,7 +44,9 @@ class BundlerTest extends FlatSpec with Matchers {
         |println("hello")
         |}""".stripMargin
     val io = prepareMockIo(Map(inputName -> content))
+    //WHEN
     val output = Bundler(inputName, io).buildOutput
+    //THEN
     output should equal(
       """object Demo extends App {
         |
@@ -39,6 +56,7 @@ class BundlerTest extends FlatSpec with Matchers {
 
 
   it should "copy also file in same folder" in {
+    //GIVEN
     val inputName = "pkg/Demo.scala"
     val content = "object Demo extends App"
     val utilName = "pkg/Util.scala"
@@ -46,12 +64,37 @@ class BundlerTest extends FlatSpec with Matchers {
     val io = prepareMockIo(Map(
       inputName -> content,
       utilName -> utilContent))
+    //WHEN
     val output = Bundler("Demo.scala", io).buildOutput
+    //THEN
     output shouldBe content + "\n" + utilContent
   }
 
 
+  it should "keep import Util._" in {
+    //GIVEN
+    val inputName = "pkg/Demo.scala"
+    val content =
+      """import util.Util._
+        |object Demo extends App""".stripMargin
+    val utilName = "util/Util.scala"
+    val utilContent = "object Util { def abs(x) = if(x>0) x else -x }"
+    val io = prepareMockIo(Map(
+      inputName -> content,
+      utilName -> utilContent))
+    //WHEN
+    val output = Bundler("Demo.scala", io).buildOutput
+    //THEN
+    val expected =
+      """object Util { def abs(x) = if(x>0) x else -x }
+        |import Util._
+        |object Demo extends App""".stripMargin
+    output should equal(expected)(after being linefeedNormalised)
+  }
+
+
   it should "resolve import from another package" in {
+    //GIVEN
     val inputName = "Demo.scala"
     val content =
       """import util.Util
@@ -63,7 +106,9 @@ class BundlerTest extends FlatSpec with Matchers {
     val io = prepareMockIo(Map(
       inputName -> content,
       utilName -> utilContent))
+    //WHEN
     val output = Bundler(inputName, io).buildOutput
+    //THEN
     output shouldBe
       "object Util { def abs(x) = if(x>0) x else -x }\n" +
         "object Demo extends App"
@@ -99,45 +144,7 @@ class BundlerTest extends FlatSpec with Matchers {
   }
 
 
-  def findFolder(packageElements: Array[String]): File = {
-    packageElements.foldLeft(new File(".")) {
-      case (folder, pkg) => new File(folder, pkg)
-    }
-  }
-
-
-  //  it should "have same output for GhostInTheCell" in {
-  //    checkOuput(
-  //      "src/main/scala/com/truelaurel/codingame/ghostcell/online/GhostInTheCell.scala",
-  //      "GhostInTheCell.scala")
-  //  }
-  //
-  //  it should "have same output for CodersCaribbean" in {
-  //    val startFile = "src/main/scala/com/truelaurel/codingame/caribbean/online/CodersCaribbean.scala"
-  //    val expectedOutput = "CodersCaribbean.scala"
-  //    checkOuput(startFile, expectedOutput)
-  //  }
-  //
-  //  it should "have same output for GhostMain" in {
-  //    val startFile = "src/main/scala/com/tyrcho/GhostMain.scala"
-  //    val expectedOutput = "GhostMain.scala"
-  //    checkOuput(startFile, expectedOutput)
-  //  }
-  //
-  //  it should "have same output for CoderStrikeBack" in {
-  //    val startFile = "src/main/scala/com/truelaurel/codingame/csb/io/CoderStrikeBack.scala"
-  //    val expectedOutput = "CoderStrikeBack.scala"
-  //    checkOuput(startFile, expectedOutput)
-  //  }
-  //
-  //  private def checkOuput(startFile: String, shortName: String): Unit = {
-  //    val expectedContent = Source.fromFile("src/test/resources/com/truelaurel/codingame/bundler/" + shortName).getLines.mkString("\n")
-  //    val output = Bundler(shortName, StdBundlerIo()).buildOutput
-  //
-  //    output.split("\n") should contain theSameElementsAs expectedContent.split("\n")
-  //  }
-
-  def linefeedNormalised: Uniformity[String] =
+  private def linefeedNormalised: Uniformity[String] =
     new AbstractStringUniformity {
       def normalized(s: String): String = s.replaceAll("\r\n", "\n")
 
