@@ -2,16 +2,18 @@ package com.tyrcho
 
 import scala.io.StdIn._
 
-object Player extends App {
-  var state = readInitialState()
+object Player {
+  def main(args: Array[String]) {
+    var state = readInitialState()
 
-  while (true) {
-    state = update(state)
-    val moves = state.nextMoves
-    state.debugState()
-    //    debug(state.factories(1))
-    if (moves.isEmpty) println("WAIT")
-    else println(moves.mkString(";"))
+    while (true) {
+      state = update(state)
+      val moves = state.nextMoves
+      state.debugState()
+      //    debug(state.factories(1))
+      if (moves.isEmpty) println("WAIT")
+      else println(moves.mkString(";"))
+    }
   }
 
   def update(state: GameState): GameState = {
