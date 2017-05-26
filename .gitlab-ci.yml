@@ -19,5 +19,4 @@ stages:
 test:
   stage: test
   script:
-    # Execute your project's tests and measure test coverage
-    - sbt clean coverage test coverageReport
+    - sbt test

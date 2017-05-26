@@ -2,6 +2,9 @@
 # What's new?
 > 2017-04 [Debugging in CodinGame Scala Kit](http://truelaurel.com/2017/04/27/Debug-in-CodinGame-Scala-Kit/)
 
+# Resources
+
+
 # CodinGame Scala Kit
 I love Both CodinGame and Scala because they make programming fun.
 
