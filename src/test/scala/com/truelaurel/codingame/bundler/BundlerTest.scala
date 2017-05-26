@@ -3,17 +3,11 @@ package com.truelaurel.codingame.bundler
 import java.io.File
 
 import com.truelaurel.codingame.bundle.{Bundler, BundlerIo, StdBundlerIo}
-import org.mockito.ArgumentMatchers._
-import org.mockito.Mockito._
-import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.io.Source
 
-/**
-  * Created by tyrcho on 07/05/2017.
-  */
-class BundlerTest extends FlatSpec with Matchers with MockitoSugar {
+class BundlerTest extends FlatSpec with Matchers {
 
   behavior of "Bundler"
 
@@ -27,58 +21,65 @@ class BundlerTest extends FlatSpec with Matchers with MockitoSugar {
 
 
   it should "copy also file in same folder" in {
-    val inputName = "Demo.scala"
+    val inputName = "pkg/Demo.scala"
     val content = "object Demo extends App"
-    val utilName = "Util.scala"
+    val utilName = "pkg/Util.scala"
     val utilContent = "object Util { def abs(x) = if(x>0) x else -x }"
     val io = prepareMock(Map(
       inputName -> content,
       utilName -> utilContent))
-    val output = Bundler(inputName, io).buildOutput
+    val output = Bundler("Demo.scala", io).buildOutput
     output shouldBe content + "\n" + utilContent
   }
 
 
-//  it should "resolve import from another package" in {
-//    val inputName = "Demo.scala"
-//    val content =
-//      """import util.Util
-//        |object Demo extends App
-//      """.stripMargin
-//    val utilName = "util/Util.scala"
-//    val utilContent =
-//      """package util
-//        |object Util { def abs(x) = if(x>0) x else -x }
-//        |""".stripMargin
-//    val io = prepareMock(Map(
-//      inputName -> content,
-//      utilName -> utilContent))
-//    val output = Bundler(inputName, io).buildOutput
-//    output shouldBe content + "\n" + utilContent
-//  }
+  //    it should "resolve import from another package" in {
+  //      val inputName = "Demo.scala"
+  //      val content =
+  //        """import util.Util
+  //          |object Demo extends App
+  //        """.stripMargin
+  //      val utilName = "util/Util.scala"
+  //      val utilContent =
+  //        """package util
+  //          |object Util { def abs(x) = if(x>0) x else -x }
+  //          |""".stripMargin
+  //      val io = prepareMock(Map(
+  //        inputName -> content,
+  //        utilName -> utilContent))
+  //      val output = Bundler(inputName, io).buildOutput
+  //      output shouldBe content + "\n" + utilContent
+  //    }
 
 
-  private def prepareMock(fileContents: Map[String, String]): BundlerIo = {
-    val io = mock[BundlerIo]
-    val folder = new File(".")
-    for {
-      (pathName, content) <- fileContents
-    } {
-      val inputFile = new File(folder, pathName)
-      val path = pathName.split("/").init.mkString("/")
-      when(io.findFile(pathName)).thenReturn(inputFile)
-      when(io.filesInFolder(folder)).thenReturn(
-        fileContents.keys.toList
-          .filter(_.startsWith(path))
-          .map(n => new File(folder, n)))
-      when(io.readFile(inputFile)).thenReturn(content.split("""\r\n|\n""").toList)
-      when(io.findFolder(notNull[Array[String]])).thenAnswer(invocation =>
-        new File(invocation.getArgument[Array[String]](0).init.mkString("/")))
+  private def prepareMock(fileContents: Map[String, String]): BundlerIo = new BundlerIo {
+    val root = new File(".")
 
+    val contentsByFile = fileContents.map {
+      case (pathName, content) => new File(root, pathName) -> content
     }
 
-    io
+    def filesInFolder(folder: File): List[File] =
+      contentsByFile.keys
+        .toList
+        .filter(_.getParentFile == folder)
+
+    def findFolder(packageElements: Array[String]): File =
+      packageElements.foldLeft(root) {
+        case (folder, pkg) => new File(folder, pkg)
+      }
+
+    def findFile(fileName: String): File =
+      new File(root, fileContents.keys.find(fn => fn.endsWith(fileName)).get)
+
+    def save(fileName: String, content: String): Unit = ???
+
+    def readFile(file: File): List[String] = {
+      val content = contentsByFile(file)
+      content.split("""\r\n|\n""").toList
+    }
   }
+
 
   def findFolder(packageElements: Array[String]): File = {
     packageElements.foldLeft(new File(".")) {
