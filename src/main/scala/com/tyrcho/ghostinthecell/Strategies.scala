@@ -1,7 +1,7 @@
-package com.tyrcho
+package com.tyrcho.ghostinthecell
 
 import ai.scala.fp.State
-import com.tyrcho.CodinGameTemplate._
+import CodinGameTemplate._
 
 object Strategies {
   type Strategy = State[GameState, Vector[Move]]

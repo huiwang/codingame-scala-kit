@@ -1,14 +1,13 @@
-package com.tyrcho
+package com.tyrcho.ghostinthecell
 
-import CodinGameTemplate._
 import ai.scala.fp.IterableUtil._
-
-import scala.util.Random
-import Strategies._
 import ai.scala.fp.State
+import CodinGameTemplate.debug
+import com.tyrcho.ghostinthecell.Strategies._
 
 import scala.collection.Seq
 import scala.collection.immutable.Stream.consWrapper
+import scala.util.Random
 
 case class GameState(
     grid: Grid,

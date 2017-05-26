@@ -1,4 +1,4 @@
-package com.tyrcho
+package com.tyrcho.ghostinthecell
 
 import ai.scala.fp.IterableUtil._
 

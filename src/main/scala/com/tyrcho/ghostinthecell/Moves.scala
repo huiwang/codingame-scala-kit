@@ -1,5 +1,5 @@
 
-package com.tyrcho
+package com.tyrcho.ghostinthecell
 
 sealed trait Move
 

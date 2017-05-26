@@ -1,4 +1,4 @@
-package com.tyrcho
+package com.tyrcho.ghostinthecell
 
 import scala.io.StdIn._
 

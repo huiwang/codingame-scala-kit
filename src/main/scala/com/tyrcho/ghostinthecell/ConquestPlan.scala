@@ -1,4 +1,4 @@
-package com.tyrcho
+package com.tyrcho.ghostinthecell
 
 case class ConquestPlans(plans: Vector[ConquestPlan], achieved: Int) {
   val failed: Boolean = plans.isEmpty
