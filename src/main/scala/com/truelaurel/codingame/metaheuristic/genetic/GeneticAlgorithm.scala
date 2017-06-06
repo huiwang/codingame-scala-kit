@@ -3,56 +3,54 @@ package com.truelaurel.codingame.metaheuristic.genetic
 import com.truelaurel.codingame.math.Mathl
 import com.truelaurel.codingame.time.Stopper
 
-import scala.collection.mutable.ArrayBuffer
-
-class GeneticAlgorithm(popSize: Int, tournamentSize: Int, stopper: Stopper) {
+class GeneticAlgorithm[S](popSize: Int, tournamentSize: Int, eliteSize: Int, stopper: Stopper) {
   require(popSize % 2 == 0, "population size must be even")
+  require(eliteSize % 2 == 0, "elite size must be even")
   require(tournamentSize > 0, "tournament size must be greater than zero")
 
-  def search[S <: GeneticSolution](problem: GeneticProblem[S]): S = {
+  private val fullPop = (0 until popSize).toVector
+  private val halfPop = (0 until (popSize - eliteSize)/ 2).toVector
+
+  def search(repr: GeneticRepresentation[S]): S = {
     stopper.start()
-    var parents = ArrayBuffer.fill(popSize)(problem.randomSolution)
-    var children = ArrayBuffer.fill(popSize)(null.asInstanceOf[S])
-    var bestSoFar = null.asInstanceOf[S]
+    var parents = fullPop.map(_ => repr.assess(repr.randomSolution)).sortBy(_.quality)
+    var best = null.asInstanceOf[AssessedSolution[S]]
 
     while (!stopper.willOutOfTime) {
-      val bestInGeneration = parents.maxBy(_.quality)
+      best = better(best, parents.last)
 
-      if (bestSoFar == null || bestInGeneration.quality > bestSoFar.quality) {
-        bestSoFar = bestInGeneration
-      }
-
-      //build a new generation from crossover and mutation
-      var i = 0
-
-      while (i < popSize) {
-        val parentA = problem.copy(tournamentSelect(parents))
-        val parentB = problem.copy(tournamentSelect(parents))
-        val (childA, childB) = problem.crossover(parentA, parentB)
-        children(i) = problem.mutate(childA)
-        children(i + 1) = problem.mutate(childB)
-        i = i + 2
-      }
-
-      val tmp = parents
-      parents = children
-      children = tmp
-
+      parents = (halfPop.flatMap(_ => {
+        val parentA = tournamentSelect(parents)
+        val parentB = tournamentSelect(parents)
+        val (childA, childB) = repr.crossover(parentA, parentB)
+        val mutatedA = repr.mutate(childA)
+        val mutatedB = repr.mutate(childB)
+        val assessedA = repr.assess(mutatedA)
+        val assessedB = repr.assess(mutatedB)
+        Vector(assessedA, assessedB)
+      }) ++ parents.takeRight(eliteSize)).sortBy(_.quality)
     }
-    bestSoFar
+    best.solution
   }
 
-  private def tournamentSelect[S <: GeneticSolution](population: ArrayBuffer[S]) = {
-    def pickRandomIndividual = population(Mathl.random.nextInt(popSize))
+  private def better(bestSoFar: AssessedSolution[S], bestInGeneration: AssessedSolution[S]) = {
+    if (bestSoFar == null || bestInGeneration.quality > bestSoFar.quality) bestInGeneration else bestSoFar
+  }
 
-    var best = pickRandomIndividual
+  private def tournamentSelect(population: Vector[AssessedSolution[S]]) = {
+    var best = pickRandomIndividual(population)
     var i = 2
     while (i <= tournamentSize) {
-      val next = pickRandomIndividual
+      val next = pickRandomIndividual(population)
       if (next.quality > best.quality) best = next
       i = i + 1
     }
-    best
+    best.solution
   }
+
+  private def pickRandomIndividual[T](population: Vector[T]) = {
+    population(Mathl.random.nextInt(popSize))
+  }
+
 
 }
