@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/TrueLaurel/CodinGame-Scala-Kit.svg?branch=master)](https://travis-ci.org/TrueLaurel/CodinGame-Scala-Kit)
+[![Gitter](https://badges.gitter.im/TrueLaurel/CodinGame-Scala-Kit.svg)](https://gitter.im/TrueLaurel/CodinGame-Scala-Kit?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 # What's new?
 > 2017-04 [Debugging in CodinGame Scala Kit](http://truelaurel.com/2017/04/27/Debug-in-CodinGame-Scala-Kit/)
