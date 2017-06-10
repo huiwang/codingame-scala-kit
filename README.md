@@ -1,6 +1,10 @@
-[![Build Status](https://travis-ci.org/huiwang/dailycoding.svg?branch=master)](https://travis-ci.org/TrueLaurel/CodinGame-Scala-Kit.svg?branch=master)
+[![Build Status](https://travis-ci.org/TrueLaurel/CodinGame-Scala-Kit.svg?branch=master)](https://travis-ci.org/TrueLaurel/CodinGame-Scala-Kit)
+
 # What's new?
 > 2017-04 [Debugging in CodinGame Scala Kit](http://truelaurel.com/2017/04/27/Debug-in-CodinGame-Scala-Kit/)
+
+# Resources
+
 
 # CodinGame Scala Kit
 I love Both CodinGame and Scala because they make programming fun.
