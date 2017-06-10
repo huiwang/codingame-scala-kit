@@ -7,14 +7,7 @@ object Compilation {
 
   def compiles(code: String): Boolean = {
     val toolBox = currentMirror.mkToolBox()
-    try {
-      toolBox.parse(code)
-      true
-    } catch {
-      case e: Throwable => {
-        e.printStackTrace()
-        false
-      }
-    }
+    toolBox.parse(code)
+    true
   }
 }

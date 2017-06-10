@@ -3,6 +3,8 @@ package com.truelaurel.tests
 import com.truelaurel.tests.Compilation.compiles
 import org.scalatest.{FlatSpec, Matchers}
 
+import scala.tools.reflect.ToolBoxError
+
 class CompilationTest extends FlatSpec with Matchers {
   behavior of "Compilation"
 
@@ -11,7 +13,9 @@ class CompilationTest extends FlatSpec with Matchers {
   }
 
   it should "reject invalid code" in {
-    compiles("object Toto extends App { println) }") shouldBe false
+    intercept[ToolBoxError]{
+      compiles("object Toto extends App { println) }")
+    }
   }
 
 
