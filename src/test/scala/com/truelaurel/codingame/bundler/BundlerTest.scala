@@ -3,6 +3,7 @@ package com.truelaurel.codingame.bundler
 import java.io.File
 
 import com.truelaurel.codingame.bundle.{Bundler, BundlerIo}
+import com.truelaurel.tests.Compilation._
 import org.scalactic._
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -18,6 +19,7 @@ class BundlerTest extends FlatSpec with Matchers {
     val output = Bundler(inputName, io).buildOutput
     //THEN
     output shouldBe content
+    compiles(output) shouldBe true
   }
 
   it should "keep scala imports" in {
@@ -31,6 +33,7 @@ class BundlerTest extends FlatSpec with Matchers {
     val output = Bundler(inputName, io).buildOutput
     //THEN
     output should equal(content)(after being linefeedNormalised)
+    compiles(output) shouldBe true
   }
 
   it should "strip multiline comments" in {
@@ -52,6 +55,7 @@ class BundlerTest extends FlatSpec with Matchers {
         |
         |println("hello")
         |}""".stripMargin)(after being linefeedNormalised)
+    compiles(output) shouldBe true
   }
 
 
@@ -60,7 +64,7 @@ class BundlerTest extends FlatSpec with Matchers {
     val inputName = "pkg/Demo.scala"
     val content = "object Demo extends App"
     val utilName = "pkg/Util.scala"
-    val utilContent = "object Util { def abs(x) = if(x>0) x else -x }"
+    val utilContent = "object Util { def abs(x:Int) = if(x>0) x else -x }"
     val io = prepareMockIo(Map(
       inputName -> content,
       utilName -> utilContent))
@@ -68,6 +72,7 @@ class BundlerTest extends FlatSpec with Matchers {
     val output = Bundler("Demo.scala", io).buildOutput
     //THEN
     output shouldBe content + "\n" + utilContent
+    compiles(output) shouldBe true
   }
 
 
@@ -78,7 +83,7 @@ class BundlerTest extends FlatSpec with Matchers {
       """import util.Util._
         |object Demo extends App""".stripMargin
     val utilName = "util/Util.scala"
-    val utilContent = "object Util { def abs(x) = if(x>0) x else -x }"
+    val utilContent = "object Util { def abs(x:Int) = if(x>0) x else -x }"
     val io = prepareMockIo(Map(
       inputName -> content,
       utilName -> utilContent))
@@ -86,10 +91,11 @@ class BundlerTest extends FlatSpec with Matchers {
     val output = Bundler("Demo.scala", io).buildOutput
     //THEN
     val expected =
-      """object Util { def abs(x) = if(x>0) x else -x }
+      """object Util { def abs(x:Int) = if(x>0) x else -x }
         |import Util._
         |object Demo extends App""".stripMargin
     output should equal(expected)(after being linefeedNormalised)
+    compiles(output) shouldBe true
   }
 
 
@@ -102,7 +108,7 @@ class BundlerTest extends FlatSpec with Matchers {
     val utilName = "util/Util.scala"
     val utilContent =
       """package util
-        |object Util { def abs(x) = if(x>0) x else -x }""".stripMargin
+        |object Util { def abs(x:Int) = if(x>0) x else -x }""".stripMargin
     val io = prepareMockIo(Map(
       inputName -> content,
       utilName -> utilContent))
@@ -110,8 +116,9 @@ class BundlerTest extends FlatSpec with Matchers {
     val output = Bundler(inputName, io).buildOutput
     //THEN
     output shouldBe
-      "object Util { def abs(x) = if(x>0) x else -x }\n" +
+      "object Util { def abs(x:Int) = if(x>0) x else -x }\n" +
         "object Demo extends App"
+    compiles(output) shouldBe true
   }
 
 
@@ -150,5 +157,6 @@ class BundlerTest extends FlatSpec with Matchers {
 
       override def toString: String = "linefeedNormalised"
     }
+
 
 }
