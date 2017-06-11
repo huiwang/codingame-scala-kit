@@ -2,6 +2,8 @@ package ai.scala.fp.game.alphabeta
 
 import ai.scala.fp.game._
 
+import scala.annotation.tailrec
+
 case class AlphaBetaAi[S <: GameState[Boolean], M](rules: RulesFor2p[S, M],
                                                    heuristic: S => Double) {
 
@@ -24,18 +26,19 @@ case class AlphaBetaAi[S <: GameState[Boolean], M](rules: RulesFor2p[S, M],
         val moves = rules.validMoves(state)
         if (depth == 0 || moves.isEmpty) heuristic(state)
         else {
-          val (_, best) = moves.foldLeft((alphaIni, Double.MinValue)) {
-            case ((alpha, beta), move) =>
+          @tailrec
+          def fold(ms: Seq[M], alpha: Double, beta: Double): Double =
+            if (ms.isEmpty) alpha
+            else {
+              val move = ms.head
               if (betaIni > alpha) {
                 val nextState = rules.applyMove(state, move)
                 val evaluation = -negamax(nextState, depth - 1, -betaIni, -alpha)
-                (alpha max evaluation, beta max evaluation)
-              } else {
-                (alpha, beta)
-              }
-          }
-//          println(s"$best is the score for $state")
-          best
+                fold(ms.tail, alpha max evaluation, beta max evaluation)
+              } else alpha
+            }
+
+          fold(moves, alphaIni, Double.MinValue)
         }
     }
   }
