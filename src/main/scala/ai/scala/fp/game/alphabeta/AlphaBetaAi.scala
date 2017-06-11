@@ -34,7 +34,7 @@ case class AlphaBetaAi[S <: GameState[Boolean], M](rules: RulesFor2p[S, M],
                 (alpha, beta)
               }
           }
-          println(s"$best is the score for $state")
+//          println(s"$best is the score for $state")
           best
         }
     }
