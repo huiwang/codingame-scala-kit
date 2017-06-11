@@ -28,14 +28,14 @@ case class GomokuRules(size: Int, lengthToWin: Int)
     BitGrid(data, masks).complete
   }
 
-  def centerHeuristic(b: GomokuBoard): Double = {
+  def centerHeuristic(state: GomokuBoard): Double = {
     def score(data: GridData) =
       data.usedPos.map {
         case Pos(x, y) => 1.0 / (1 + abs(x - size / 2) + abs(y - size / 2))
       }.sum
 
-    val mine = score(b.dataLast)
-    val opp = score(b.dataNext)
-    opp - mine
+    val opp = score(state.dataLast)
+    val mine = score(state.dataNext)
+    mine - opp
   }
 }

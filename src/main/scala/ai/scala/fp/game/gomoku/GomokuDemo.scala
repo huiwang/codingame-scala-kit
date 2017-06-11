@@ -10,7 +10,7 @@ import scala.concurrent.duration.DurationInt
 object GomokuDemo {
   def main(args: Array[String]): Unit = {
     val outcome = rules.judge(
-      truePl = alphaBetaMove,
+      truePl = mctsMove,
       falsePl = alphaBetaMove,
       s => println(s.toText))
     println(outcome)
@@ -18,11 +18,10 @@ object GomokuDemo {
 
 
   def mctsMove(s: GomokuBoard): Pos = {
-    val chronometer = new Chronometer(2.seconds)
+    val chronometer = new Chronometer(5.seconds)
     chronometer.start()
     MctsAi(rules)(_ => chronometer.willOutOfTime).chooseMove(s)
   }
-
 
   val rules = GomokuRules(7, 4)
 
