@@ -22,6 +22,10 @@ case class GomokuBoard(
                         nextPlayer: Boolean = false)
   extends GameState[Boolean] {
 
+  def dataNext = if (nextPlayer) dataTrue else dataFalse
+
+  def dataLast = if (nextPlayer) dataFalse else dataTrue
+
   def play(x: Int, y: Int): GomokuBoard = play(Pos(x, y))
 
   def play(p: Pos): GomokuBoard =

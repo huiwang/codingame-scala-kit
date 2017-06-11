@@ -1,7 +1,9 @@
 package ai.scala.fp.game.gomoku
 
 import ai.scala.fp.game._
-import ai.scala.fp.geo.{BitGrid, Masks, Pos}
+import ai.scala.fp.geo.{BitGrid, GridData, Masks, Pos}
+
+import scala.math.abs
 
 case class GomokuRules(size: Int, lengthToWin: Int)
   extends RulesFor2p[GomokuBoard, Pos] {
@@ -24,5 +26,16 @@ case class GomokuRules(size: Int, lengthToWin: Int)
   def hasWon(b: GomokuBoard, player: Boolean) = {
     val data = if (player) b.dataTrue else b.dataFalse
     BitGrid(data, masks).complete
+  }
+
+  def centerHeuristic(b: GomokuBoard): Double = {
+    def score(data: GridData) =
+      data.usedPos.map {
+        case Pos(x, y) => 1.0 / (1 + abs(x - size / 2) + abs(y - size / 2))
+      }.sum
+
+    val mine = score(b.dataLast)
+    val opp = score(b.dataNext)
+    opp - mine
   }
 }
