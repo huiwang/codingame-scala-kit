@@ -7,11 +7,9 @@ import scala.annotation.tailrec
 case class AlphaBetaAi[S <: GameState[Boolean], M](rules: RulesFor2p[S, M],
                                                    heuristic: S => Double) {
 
-  def chooseMove(state: S, depth: Int): M = {
-    val moves = rules.validMoves(state)
-    //TODO : can we cut branches also from root node ??
-    moves.minBy(m => negamax(rules.applyMove(state, m), depth - 1))
-  }
+  def chooseMove(state: S, depth: Int): M =
+    best(rules.validMoves(state), Double.MinValue, Double.MaxValue, Double.MaxValue, state, depth)._2.get
+
 
   def negamax(state: S,
               depth: Int,
@@ -25,21 +23,25 @@ case class AlphaBetaAi[S <: GameState[Boolean], M](rules: RulesFor2p[S, M],
       case Undecided =>
         val moves = rules.validMoves(state)
         if (depth == 0 || moves.isEmpty) heuristic(state)
-        else {
-          @tailrec
-          def fold(ms: Seq[M], alpha: Double, beta: Double): Double =
-            if (ms.isEmpty) alpha
-            else {
-              val move = ms.head
-              if (betaIni > alpha) {
-                val nextState = rules.applyMove(state, move)
-                val evaluation = -negamax(nextState, depth - 1, -betaIni, -alpha)
-                fold(ms.tail, alpha max evaluation, beta max evaluation)
-              } else alpha
-            }
-
-          fold(moves, alphaIni, Double.MinValue)
-        }
+        else best(moves, alphaIni, Double.MinValue, betaIni, state, depth)._1
     }
   }
+
+  @tailrec
+  final def best(moves: Seq[M],
+                 alpha: Double,
+                 beta: Double,
+                 betaIni: Double,
+                 state: S,
+                 depth: Int,
+                 currentBest: Option[M] = None): (Double, Option[M]) =
+    if (moves.isEmpty) (alpha, currentBest)
+    else if (betaIni > alpha) {
+      val move = moves.head
+      val nextState = rules.applyMove(state, move)
+      val evaluation = -negamax(nextState, depth - 1, -betaIni, -alpha)
+      val newBest = if (evaluation > alpha) Some(move) else currentBest
+      best(moves.tail, alpha max evaluation, beta max evaluation, betaIni, state, depth, newBest)
+    } else (alpha, currentBest)
+
 }
