@@ -15,7 +15,7 @@ case class AlphaBetaAi[S <: GameState[Boolean], M](rules: RulesFor2p[S, M],
 
   def chooseMove(state: S, depth: Int): M = {
     val sorted = sortedMoves(state)
-    best(sorted, MIN, MAX, MAX, state, depth).move.getOrElse(sorted.head)
+    best(sorted, MIN, MAX, state, depth).move.getOrElse(sorted.head)
   }
 
 
@@ -25,8 +25,8 @@ case class AlphaBetaAi[S <: GameState[Boolean], M](rules: RulesFor2p[S, M],
 
   def negamax(state: S,
               depth: Int,
-              alphaIni: Double,
-              betaIni: Double): Double = {
+              alpha: Double,
+              beta: Double): Double = {
     val player = state.nextPlayer
     rules.outcome(state) match {
       case Wins(`player`) => MAX
@@ -35,7 +35,7 @@ case class AlphaBetaAi[S <: GameState[Boolean], M](rules: RulesFor2p[S, M],
       case Undecided =>
         val moves = sortedMoves(state)
         if (depth == 0 || moves.isEmpty) heuristic(state)
-        else best(moves, alphaIni, MIN, betaIni, state, depth).score
+        else best(moves, alpha, beta, state, depth).score
     }
   }
 
@@ -43,17 +43,17 @@ case class AlphaBetaAi[S <: GameState[Boolean], M](rules: RulesFor2p[S, M],
   final def best(moves: Seq[M],
                  alpha: Double,
                  beta: Double,
-                 betaIni: Double,
                  state: S,
                  depth: Int,
-                 currentBest: Option[M] = None): ScoredMove =
-    if (betaIni > alpha && moves.nonEmpty) {
+                 currentBest: Option[M] = None): ScoredMove = {
+    if (beta > alpha && moves.nonEmpty) {
       val move = moves.head
       val nextState = rules.applyMove(state, move)
-      val evaluation = -negamax(nextState, depth - 1, -betaIni, -alpha)
+      val evaluation = -negamax(nextState, depth - 1, -beta, -alpha)
       val newBest = if (evaluation > alpha) Some(move) else currentBest
-      best(moves.tail, alpha max evaluation, beta max evaluation, betaIni, state, depth, newBest)
+      best(moves.tail, alpha max evaluation, beta max evaluation, state, depth, newBest)
     } else ScoredMove(alpha, currentBest)
+  }
 
 
   case class ScoredMove(score: Double, move: Option[M])
