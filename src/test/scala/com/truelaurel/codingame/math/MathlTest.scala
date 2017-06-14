@@ -8,7 +8,7 @@ import org.scalatest.{FlatSpec, Matchers}
   */
 class MathlTest extends FlatSpec with Matchers {
 
-  behavior of "Random NUmber"
+  behavior of "Random Number"
 
   it can "change" in {
     for (i <- 0 until 100)
