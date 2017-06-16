@@ -2,41 +2,60 @@ package ai.scala.fp.game.alphabeta
 
 import ai.scala.fp.game._
 
+import scala.annotation.tailrec
+
+/**
+  * @param heuristic must represent higher chance of success for state.nextPlayer
+  */
 case class AlphaBetaAi[S <: GameState[Boolean], M](rules: RulesFor2p[S, M],
                                                    heuristic: S => Double) {
 
+  val MIN = Double.MinValue
+  val MAX = Double.MaxValue
+
   def chooseMove(state: S, depth: Int): M = {
-    val moves = rules.validMoves(state)
-    //TODO : can we cut branches also from root node ??
-    moves.minBy(m => negamax(rules.applyMove(state, m), depth - 1))
+    val sorted = sortedMoves(state)
+    best(sorted, MIN, MAX, state, depth).move.getOrElse(sorted.head)
+  }
+
+
+  def sortedMoves(state: S): Seq[M] = {
+    rules.validMoves(state).sortBy(m => heuristic(rules.applyMove(state, m)))
   }
 
   def negamax(state: S,
               depth: Int,
-              alphaIni: Double = Double.MinValue,
-              betaIni: Double = Double.MaxValue): Double = {
+              alpha: Double,
+              beta: Double): Double = {
     val player = state.nextPlayer
     rules.outcome(state) match {
-      case Wins(`player`) => Double.MaxValue
-      case Wins(_) => Double.MinValue
+      case Wins(`player`) => MAX
+      case Wins(_) => MIN
       case Draw => 0
       case Undecided =>
-        val moves = rules.validMoves(state)
+        val moves = sortedMoves(state)
         if (depth == 0 || moves.isEmpty) heuristic(state)
-        else {
-          val (_, best) = moves.foldLeft((alphaIni, Double.MinValue)) {
-            case ((alpha, beta), move) =>
-              if (betaIni > alpha) {
-                val nextState = rules.applyMove(state, move)
-                val evaluation = -negamax(nextState, depth - 1, -betaIni, -alpha)
-                (alpha max evaluation, beta max evaluation)
-              } else {
-                (alpha, beta)
-              }
-          }
-          println(s"$best is the score for $state")
-          best
-        }
+        else best(moves, alpha, beta, state, depth).score
     }
   }
+
+  @tailrec
+  final def best(moves: Seq[M],
+                 alpha: Double,
+                 beta: Double,
+                 state: S,
+                 depth: Int,
+                 currentBest: Option[M] = None): ScoredMove = {
+    if (beta > alpha && moves.nonEmpty) {
+      val move = moves.head
+      val nextState = rules.applyMove(state, move)
+      val evaluation = -negamax(nextState, depth - 1, -beta, -alpha)
+      val newBest = if (evaluation > alpha) Some(move) else currentBest
+      best(moves.tail, alpha max evaluation, beta max evaluation, state, depth, newBest)
+    } else ScoredMove(alpha, currentBest)
+  }
+
+
+  case class ScoredMove(score: Double, move: Option[M])
+
 }

@@ -1,9 +1,10 @@
 package ai.scala.fp.game.mcts.perf
 
 
+import ai.scala.fp.game.DummyBoard
 import ai.scala.fp.game.gomoku.{GomokuBoard, GomokuRules}
 import ai.scala.fp.game.mcts.MctsNode
-import ai.scala.fp.game.mcts.perf.Dummy._
+import ai.scala.fp.game.mcts.perf.DummyMcts._
 import ai.scala.fp.geo.Pos
 import org.openjdk.jmh.annotations._
 
