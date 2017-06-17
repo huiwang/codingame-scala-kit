@@ -86,7 +86,9 @@ class BundlerTest extends FlatSpec with Matchers {
       """import util.Util._
         |object Demo extends App""".stripMargin
     val utilName = "util/Util.scala"
-    val utilContent = "object Util { def abs(x:Int) = if(x>0) x else -x }"
+    val utilContent =
+      """package util
+        |object Util { def abs(x:Int) = if(x>0) x else -x }""".stripMargin
     val io = prepareMockIo(Map(
       inputName -> content,
       utilName -> utilContent))
@@ -94,8 +96,11 @@ class BundlerTest extends FlatSpec with Matchers {
     val output = Bundler("Demo.scala", io).buildOutput
     //THEN
     val expected =
-      """object Util { def abs(x:Int) = if(x>0) x else -x }
-        |import Util._
+      """package object util {
+        |object Util { def abs(x:Int) = if(x>0) x else -x }
+        |}
+        |
+        |import util.Util._
         |object Demo extends App""".stripMargin
     output should equal(expected)(after being linefeedNormalised)
     compiles(output) shouldBe true
@@ -119,7 +124,11 @@ class BundlerTest extends FlatSpec with Matchers {
     val output = Bundler(inputName, io).buildOutput
     //THEN
     val expected =
-      """object Util { def abs(x:Int) = if(x>0) x else -x }
+      """package object util {
+        |object Util { def abs(x:Int) = if(x>0) x else -x }
+        |}
+        |
+        |import util.Util
         |object Demo extends App""".stripMargin
     output should equal(expected)(after being linefeedNormalised)
     compiles(output) shouldBe true
@@ -157,7 +166,7 @@ class BundlerTest extends FlatSpec with Matchers {
 
   private def linefeedNormalised: Uniformity[String] =
     new AbstractStringUniformity {
-      def normalized(s: String): String = s.replaceAll("\r\n", "\n")
+      def normalized(s: String): String = s.replaceAll("\r\n", "\n").split("\n").map(_.trim).mkString("\n")
 
       override def toString: String = "linefeedNormalised"
     }

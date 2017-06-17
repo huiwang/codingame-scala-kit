@@ -50,13 +50,17 @@ case class Bundler(fileName: String, io: BundlerIo) {
   }
 
   private def transformSingleFile(f: File): String = {
-    val lines = io.readFile(f).map(_.trim).filterNot("".==)
+    val lines = io.readFile(f)
     val (pkgLines, rest) = lines.span(_.startsWith("package"))
-    val result = rest.map(transformedLine).filterNot("".==).mkString("\n")
+    val result = rest.map(_.trim).filterNot("".==).mkString("\n")
     pkgLines match {
       case Nil => result
       case List(pkgLine) =>
-        result
+        val pkgName = pkgLine.drop("package ".size)
+        s"""package object $pkgName {
+           |$result
+           |}
+         """.stripMargin
       case _ => throw new Exception("Bundler does not support yet multiple packages declaration")
     }
   }
@@ -76,18 +80,5 @@ case class Bundler(fileName: String, io: BundlerIo) {
     val b = x indexOf(e, a + s.length)
     if (a == -1 || b == -1) x
     else stripComments(x.take(a) + x.drop(b + e.length), s, e)
-  }
-
-  private def transformedLine(line: String): String = line match {
-    case im if im.startsWith("import") && ignoredImports.exists(i => im.startsWith(s"import $i")) =>
-      im
-    case im if im.startsWith("import") =>
-      val imported = im.split(" ").tail.mkString
-      val elements = imported.split("\\.")
-      val lastElt = elements(elements.size - 2)
-      val isStarImport = im.endsWith("_") && lastElt.head.isUpper
-      if (isStarImport) "import " + lastElt + "._"
-      else ""
-    case b => b
   }
 }
