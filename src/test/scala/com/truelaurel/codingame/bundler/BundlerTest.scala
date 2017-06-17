@@ -18,7 +18,7 @@ class BundlerTest extends FlatSpec with Matchers {
     //WHEN
     val output = Bundler(inputName, io).buildOutput
     //THEN
-    output shouldBe content
+    output should equal(content)(after being linefeedNormalised)
     compiles(output) shouldBe true
   }
 
@@ -134,6 +134,39 @@ class BundlerTest extends FlatSpec with Matchers {
     compiles(output) shouldBe true
   }
 
+  it should "resolve 2 imports from another package" in {
+    //GIVEN
+    val inputName = "Demo.scala"
+    val content =
+      """import util.Util
+        |object Demo extends App""".stripMargin
+    val utilName = "util/Util.scala"
+    val utilContent =
+      """package util
+        |object Util { def abs(x:Int) = if(x>0) x else -x }""".stripMargin
+    val utilName2 = "util/Util2.scala"
+    val utilContent2 =
+      """package util
+        |object Util2 { def sqr(x:Int) = x * x }""".stripMargin
+    val io = prepareMockIo(Map(
+      inputName -> content,
+      utilName -> utilContent,
+      utilName2 -> utilContent2))
+    //WHEN
+    val output = Bundler(inputName, io).buildOutput
+    //THEN
+    val expected =
+      """package object util {
+        |object Util { def abs(x:Int) = if(x>0) x else -x }
+        |object Util2 { def sqr(x:Int) = x * x }
+        |}
+        |
+        |import util.Util
+        |object Demo extends App""".stripMargin
+    output should equal(expected)(after being linefeedNormalised)
+    compiles(output) shouldBe true
+  }
+
 
   private def prepareMockIo(fileContents: Map[String, String]): BundlerIo = new BundlerIo {
     val root = new File(".")
@@ -166,7 +199,13 @@ class BundlerTest extends FlatSpec with Matchers {
 
   private def linefeedNormalised: Uniformity[String] =
     new AbstractStringUniformity {
-      def normalized(s: String): String = s.replaceAll("\r\n", "\n").split("\n").map(_.trim).mkString("\n")
+      def normalized(s: String): String =
+        s.
+          replaceAll("\r\n", "\n").
+          split("\n").
+          map(_.trim).
+          filterNot("".==).
+          mkString("\n")
 
       override def toString: String = "linefeedNormalised"
     }

@@ -15,8 +15,6 @@ object BundlerMain {
 }
 
 case class Bundler(fileName: String, io: BundlerIo) {
-  val ignoredImports = Seq("scala", "java")
-
   def bundle(): Unit = {
     val outputFileContent = buildOutput
     io.save(fileName, outputFileContent)
@@ -46,27 +44,43 @@ case class Bundler(fileName: String, io: BundlerIo) {
 
   def transformFile(file: File): List[String] = {
     val allFiles = filesList(List(file), Map.empty).distinct
-    allFiles.map(transformSingleFile)
+    val packageContents = allFiles.foldLeft(Map.empty[String, String]) {
+      case (contents, file) => transformSingleFile(file, contents)
+    }
+    packageContents.map { case (n, c) => formatPackage(n, c) }.toList
   }
 
-  private def transformSingleFile(f: File): String = {
+  def formatPackage(name: String, content: String): String =
+    if (name == "") content
+    else
+      s"""package object $name {
+         |$content
+         |}""".stripMargin
+
+  type PackageContents = Map[String, String]
+
+
+  def add(pkgName: String, content: String, contents: PackageContents): PackageContents = {
+    val value = contents.getOrElse(pkgName, "") + "\n" + content
+    contents.updated(pkgName, value)
+  }
+
+  private def transformSingleFile(f: File, packagesContents: PackageContents): PackageContents = {
     val lines = io.readFile(f)
     val (pkgLines, rest) = lines.span(_.startsWith("package"))
     val result = rest.map(_.trim).filterNot("".==).mkString("\n")
     pkgLines match {
-      case Nil => result
+      case Nil => add("", result, packagesContents)
       case List(pkgLine) =>
         val pkgName = pkgLine.drop("package ".size)
-        s"""package object $pkgName {
-           |$result
-           |}
-         """.stripMargin
-      case _ => throw new Exception("Bundler does not support yet multiple packages declaration")
+        add(pkgName, result, packagesContents)
+      case _ => throw new Exception("Bundler does not support multiple packages declaration")
     }
   }
 
+
   private def filesFromLine(line: String): List[File] =
-    if (!line.startsWith("import") || ignoredImports.exists(i => line.startsWith(s"import $i")))
+    if (!line.startsWith("import") || Seq("scala", "java").exists(i => line.startsWith(s"import $i")))
       Nil
     else {
       val imported = line.split(" ").tail.mkString
