@@ -71,7 +71,10 @@ class BundlerTest extends FlatSpec with Matchers {
     //WHEN
     val output = Bundler("Demo.scala", io).buildOutput
     //THEN
-    output shouldBe content + "\n" + utilContent
+    val expected =
+      """object Demo extends App
+        |object Util { def abs(x:Int) = if(x>0) x else -x }""".stripMargin
+    output should equal(expected)(after being linefeedNormalised)
     compiles(output) shouldBe true
   }
 
@@ -115,9 +118,10 @@ class BundlerTest extends FlatSpec with Matchers {
     //WHEN
     val output = Bundler(inputName, io).buildOutput
     //THEN
-    output shouldBe
-      "object Util { def abs(x:Int) = if(x>0) x else -x }\n" +
-        "object Demo extends App"
+    val expected =
+      """object Util { def abs(x:Int) = if(x>0) x else -x }
+        |object Demo extends App""".stripMargin
+    output should equal(expected)(after being linefeedNormalised)
     compiles(output) shouldBe true
   }
 

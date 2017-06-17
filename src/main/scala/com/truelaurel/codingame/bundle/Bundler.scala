@@ -24,8 +24,8 @@ case class Bundler(fileName: String, io: BundlerIo) {
 
   def buildOutput: String = {
     val file = io.findFile(fileName)
-    val content = transformFile(file)
-    stripComments(content.mkString("\n"))
+    val content = transformFile(file).mkString("\n")
+    stripComments(content)
   }
 
   def dependentFiles(file: File, fileLines: List[String]): List[File] = {
@@ -46,8 +46,19 @@ case class Bundler(fileName: String, io: BundlerIo) {
 
   def transformFile(file: File): List[String] = {
     val allFiles = filesList(List(file), Map.empty).distinct
-    println(allFiles)
-    allFiles.flatMap(f => io.readFile(f).flatMap(transformedLine)).filterNot("".==)
+    allFiles.map(transformSingleFile)
+  }
+
+  private def transformSingleFile(f: File): String = {
+    val lines = io.readFile(f).map(_.trim).filterNot("".==)
+    val (pkgLines, rest) = lines.span(_.startsWith("package"))
+    val result = rest.map(transformedLine).filterNot("".==).mkString("\n")
+    pkgLines match {
+      case Nil => result
+      case List(pkgLine) =>
+        result
+      case _ => throw new Exception("Bundler does not support yet multiple packages declaration")
+    }
   }
 
   private def filesFromLine(line: String): List[File] =
@@ -67,17 +78,16 @@ case class Bundler(fileName: String, io: BundlerIo) {
     else stripComments(x.take(a) + x.drop(b + e.length), s, e)
   }
 
-  private def transformedLine(line: String): Option[String] = line match {
-    case l if l.startsWith("package") => None
+  private def transformedLine(line: String): String = line match {
     case im if im.startsWith("import") && ignoredImports.exists(i => im.startsWith(s"import $i")) =>
-      Some(im)
+      im
     case im if im.startsWith("import") =>
       val imported = im.split(" ").tail.mkString
       val elements = imported.split("\\.")
       val lastElt = elements(elements.size - 2)
       val isStarImport = im.endsWith("_") && lastElt.head.isUpper
-      if (isStarImport) Some("import " + lastElt + "._")
-      else None
-    case b => Some(b)
+      if (isStarImport) "import " + lastElt + "._"
+      else ""
+    case b => b
   }
 }
