@@ -53,7 +53,7 @@ case class Bundler(fileName: String, io: BundlerIo) {
   def formatPackage(name: String, content: String): String =
     if (name == "") content
     else
-      s"""package object $name {
+      s"""package $name {
          |$content
          |}""".stripMargin
 

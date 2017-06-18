@@ -96,7 +96,7 @@ class BundlerTest extends FlatSpec with Matchers {
     val output = Bundler("Demo.scala", io).buildOutput
     //THEN
     val expected =
-      """package object util {
+      """package util {
         |object Util { def abs(x:Int) = if(x>0) x else -x }
         |}
         |
@@ -124,7 +124,7 @@ class BundlerTest extends FlatSpec with Matchers {
     val output = Bundler(inputName, io).buildOutput
     //THEN
     val expected =
-      """package object util {
+      """package util {
         |object Util { def abs(x:Int) = if(x>0) x else -x }
         |}
         |
@@ -156,7 +156,7 @@ class BundlerTest extends FlatSpec with Matchers {
     val output = Bundler(inputName, io).buildOutput
     //THEN
     val expected =
-      """package object util {
+      """package util {
         |object Util { def abs(x:Int) = if(x>0) x else -x }
         |object Util2 { def sqr(x:Int) = x * x }
         |}
