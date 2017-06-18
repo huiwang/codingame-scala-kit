@@ -15,8 +15,6 @@ object BundlerMain {
 }
 
 case class Bundler(fileName: String, io: BundlerIo) {
-  val ignoredImports = Seq("scala", "java")
-
   def bundle(): Unit = {
     val outputFileContent = buildOutput
     io.save(fileName, outputFileContent)
@@ -24,8 +22,8 @@ case class Bundler(fileName: String, io: BundlerIo) {
 
   def buildOutput: String = {
     val file = io.findFile(fileName)
-    val content = transformFile(file)
-    stripComments(content.mkString("\n"))
+    val content = transformFile(file).mkString("\n")
+    stripComments(content)
   }
 
   def dependentFiles(file: File, fileLines: List[String]): List[File] = {
@@ -46,12 +44,43 @@ case class Bundler(fileName: String, io: BundlerIo) {
 
   def transformFile(file: File): List[String] = {
     val allFiles = filesList(List(file), Map.empty).distinct
-    println(allFiles)
-    allFiles.flatMap(f => io.readFile(f).flatMap(transformedLine)).filterNot("".==)
+    val packageContents = allFiles.foldLeft(Map.empty[String, String]) {
+      case (contents, file) => transformSingleFile(file, contents)
+    }
+    packageContents.map { case (n, c) => formatPackage(n, c) }.toList
   }
 
+  def formatPackage(name: String, content: String): String =
+    if (name == "") content
+    else
+      s"""package $name {
+         |$content
+         |}""".stripMargin
+
+  type PackageContents = Map[String, String]
+
+
+  def add(pkgName: String, content: String, contents: PackageContents): PackageContents = {
+    val value = contents.getOrElse(pkgName, "") + "\n" + content
+    contents.updated(pkgName, value)
+  }
+
+  private def transformSingleFile(f: File, packagesContents: PackageContents): PackageContents = {
+    val lines = io.readFile(f)
+    val (pkgLines, rest) = lines.span(_.startsWith("package"))
+    val result = rest.map(_.trim).filterNot("".==).mkString("\n")
+    pkgLines match {
+      case Nil => add("", result, packagesContents)
+      case List(pkgLine) =>
+        val pkgName = pkgLine.drop("package ".size)
+        add(pkgName, result, packagesContents)
+      case _ => throw new Exception("Bundler does not support multiple packages declaration")
+    }
+  }
+
+
   private def filesFromLine(line: String): List[File] =
-    if (!line.startsWith("import") || ignoredImports.exists(i => line.startsWith(s"import $i")))
+    if (!line.startsWith("import") || Seq("scala", "java").exists(i => line.startsWith(s"import $i")))
       Nil
     else {
       val imported = line.split(" ").tail.mkString
@@ -65,19 +94,5 @@ case class Bundler(fileName: String, io: BundlerIo) {
     val b = x indexOf(e, a + s.length)
     if (a == -1 || b == -1) x
     else stripComments(x.take(a) + x.drop(b + e.length), s, e)
-  }
-
-  private def transformedLine(line: String): Option[String] = line match {
-    case l if l.startsWith("package") => None
-    case im if im.startsWith("import") && ignoredImports.exists(i => im.startsWith(s"import $i")) =>
-      Some(im)
-    case im if im.startsWith("import") =>
-      val imported = im.split(" ").tail.mkString
-      val elements = imported.split("\\.")
-      val lastElt = elements(elements.size - 2)
-      val isStarImport = im.endsWith("_") && lastElt.head.isUpper
-      if (isStarImport) Some("import " + lastElt + "._")
-      else None
-    case b => Some(b)
   }
 }
