@@ -167,6 +167,54 @@ class BundlerTest extends FlatSpec with Matchers {
     compiles(output) shouldBe true
   }
 
+ it should "resolve imports from 2 other packages with the same class name" in {
+    //GIVEN
+    val inputName = "Demo.scala"
+    val content =
+      """import util2.Util
+        |object Demo extends App {
+        |  Util.sqr(3)
+        |}
+        |""".stripMargin
+    val utilName = "util/Util.scala"
+    val utilContent =
+      """package util
+        |object Util { def abs(x:Int) = if(x>0) x else -x }""".stripMargin
+    val utilName2 = "util2/Util.scala"
+    val utilContent2 =
+      """package util2
+        |
+        |import util.Util._
+        |
+        |object Util { def sqr(x:Int) = abs(x * x) }""".stripMargin
+    val io = prepareMockIo(Map(
+      inputName -> content,
+      utilName -> utilContent,
+      utilName2 -> utilContent2))
+    //WHEN
+    val output = Bundler(inputName, io).buildOutput
+    //THEN
+    val expected =
+      """package util {
+        |  object Util { def abs(x:Int) = if(x>0) x else -x }
+        |}
+        |
+        |package util2 {
+        |  import util.Util._
+        |
+        |  object Util { def sqr(x:Int) = abs(x * x) }
+        |}
+        |
+        |import util2.Util
+        |
+        |object Demo extends App {
+        |  Util.sqr(3)
+        |}
+        |""".stripMargin
+    output should equal(expected)(after being linefeedNormalised)
+    compiles(output) shouldBe true
+  }
+
 
   private def prepareMockIo(fileContents: Map[String, String]): BundlerIo = new BundlerIo {
     val root = new File(".")
