@@ -9,7 +9,7 @@ case object X extends TicTacToePiece
 
 case object O extends TicTacToePiece
 
-case object - extends TicTacToePiece
+case object N extends TicTacToePiece
 
 sealed trait TicTacToePlayer {
   def oppo: TicTacToePlayer

@@ -13,18 +13,13 @@ class TicTacToeMinimaxTest extends FlatSpec with Matchers {
   it should "it should find the move which leads to victory" in {
 
     val winningActions = Set(TicTacToeAction(O, 0), TicTacToeAction(O, 2))
-    val root = TicTacToeState(Vector(
-      -, O, -
-    ,
-    X
-    , O
-    , X
-    ,
-    -, X
-    , -
-    ), OPlayer
+    val root = TicTacToeState(
+      Vector(
+        N, O, N,
+        X, O, X,
+        N, X, N
+      ), OPlayer
     )
-
     val repr = new TicTacToeMinimaxRepresentation(root)
     val minimax = new MinimaxAlgorithm[TicTacToeState, TicTacToeAction]()
 

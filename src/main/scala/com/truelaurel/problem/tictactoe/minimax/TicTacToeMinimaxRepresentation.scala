@@ -36,8 +36,7 @@ class TicTacToeMinimaxRepresentation(val root: TicTacToeState) extends MinimaxRe
         case XPlayer => X
         case OPlayer => O
       }
-      node.pieces.indices.filter(i => node.pieces(i) == -
-      ).map(i => TicTacToeAction(piece, i))
+      node.pieces.indices.filter(i => node.pieces(i) == N).map(i => TicTacToeAction(piece, i))
     }
   }
 
