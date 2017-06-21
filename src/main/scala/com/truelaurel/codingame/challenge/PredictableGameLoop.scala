@@ -1,4 +1,4 @@
-package com.truelaurel.codingame.architecture
+package com.truelaurel.codingame.challenge
 
 class PredictableGameLoop[C, S, A](
                                     controller: GameController[C, S, A],

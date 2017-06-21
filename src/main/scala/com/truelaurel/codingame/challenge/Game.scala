@@ -1,4 +1,4 @@
-package com.truelaurel.codingame.architecture
+package com.truelaurel.codingame.challenge
 
 trait GameState[A] {
   def apply(action: A): GameState[A]

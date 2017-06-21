@@ -1,4 +1,4 @@
-package com.truelaurel.codingame.architecture
+package com.truelaurel.codingame.challenge
 
 import java.util.concurrent.TimeUnit
 
