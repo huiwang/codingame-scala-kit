@@ -52,7 +52,7 @@ The example Bot [Ghost in the Cell](https://www.codingame.com/multiplayer/bot-pr
 
 4. Open a second terminal and fire SBT, hit
 
-    `~runMain com.truelaurel.codingame.bundle.Bundler GhostInTheCell.scala` to bundle destination file continuously
+    `~runMain com.truelaurel.codingame.tool.bundle.Bundler GhostInTheCell.scala` to bundle destination file continuously
 
 5. Open CodinGame Sync to synchronize Player.scala file continuously to online IDE
 
