@@ -1,4 +1,6 @@
-package com.truelaurel.collection
+package com.truelaurel.math.geometry.grid
+
+import com.truelaurel.math.geometry.Pos
 
 import scala.collection.BitSet
 

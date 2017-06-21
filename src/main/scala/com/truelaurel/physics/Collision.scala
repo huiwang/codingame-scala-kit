@@ -1,6 +1,6 @@
 package com.truelaurel.physics
 
-import com.truelaurel.math.vectorial.Vectorl
+import com.truelaurel.math.geometry.Vectorl
 
 case class Disk(p: Vectorl, v: Vectorl, r: Double, m: Double = 1.0) {
 }

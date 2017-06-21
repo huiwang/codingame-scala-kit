@@ -1,4 +1,4 @@
-package com.truelaurel.tests
+package com.truelaurel.compilation
 
 import scala.reflect.runtime.currentMirror
 import scala.tools.reflect.ToolBox

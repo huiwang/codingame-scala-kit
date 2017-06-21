@@ -1,4 +1,4 @@
-package com.truelaurel.algorithm.mcts.perf
+package com.truelaurel.algorithm.perf
 
 import com.truelaurel.algorithm.mcts.MctsNode
 import com.truelaurel.samplegames.dummy.DummyRules

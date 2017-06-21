@@ -1,5 +1,6 @@
-package com.truelaurel.collection
+package com.truelaurel.math.geometry.grid
 
+import com.truelaurel.math.geometry.Pos
 import org.scalatest.{FlatSpec, Matchers}
 
 class GridDataSpec extends FlatSpec with Matchers {

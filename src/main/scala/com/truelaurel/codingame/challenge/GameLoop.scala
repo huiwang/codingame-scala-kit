@@ -1,6 +1,6 @@
 package com.truelaurel.codingame.challenge
 
-import com.truelaurel.codingame.tool.logging.CGLogger
+import com.truelaurel.codingame.logging.CGLogger
 
 
 class GameLoop[C, S, A](

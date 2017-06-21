@@ -1,6 +1,6 @@
 package com.truelaurel.samplegames.stones
 
-import com.truelaurel.collection.Pos
+import com.truelaurel.math.geometry.Pos
 
 sealed trait Move
 

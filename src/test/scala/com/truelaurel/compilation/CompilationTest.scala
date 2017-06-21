@@ -1,6 +1,6 @@
-package com.truelaurel.tests
+package com.truelaurel.compilation
 
-import com.truelaurel.tests.Compilation.compiles
+import com.truelaurel.compilation.Compilation.compiles
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.tools.reflect.ToolBoxError

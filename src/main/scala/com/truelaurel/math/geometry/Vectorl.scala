@@ -1,4 +1,4 @@
-package com.truelaurel.math.vectorial
+package com.truelaurel.math.geometry
 
 import com.truelaurel.math.Mathl
 

@@ -1,4 +1,4 @@
-package com.truelaurel.collection
+package com.truelaurel.math.geometry.grid
 
 case class Masks(size: Int, needed: Int) {
   val empty = GridData(size)

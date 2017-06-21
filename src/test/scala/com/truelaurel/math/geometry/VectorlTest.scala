@@ -1,4 +1,4 @@
-package com.truelaurel.math.vectorial
+package com.truelaurel.math.geometry
 
 import org.scalactic.TolerantNumerics
 import org.scalatest.{FlatSpec, Matchers}

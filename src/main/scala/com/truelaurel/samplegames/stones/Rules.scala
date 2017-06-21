@@ -1,7 +1,8 @@
 package com.truelaurel.samplegames.stones
 
 import com.truelaurel.algorithm.game._
-import com.truelaurel.collection.{BitGrid, Masks, Pos}
+import com.truelaurel.math.geometry.Pos
+import com.truelaurel.math.geometry.grid.{BitGrid, Masks}
 import com.truelaurel.samplegames.gomoku.GomokuBoard
 
 //Terni Lapilli game (3 stones)

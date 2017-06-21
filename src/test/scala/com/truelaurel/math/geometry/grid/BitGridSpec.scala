@@ -1,4 +1,4 @@
-package com.truelaurel.collection
+package com.truelaurel.math.geometry.grid
 
 import org.scalatest.{FlatSpec, Matchers}
 

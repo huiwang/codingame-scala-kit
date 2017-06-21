@@ -2,17 +2,7 @@ package com.truelaurel.codingame.tool.bundle
 
 import java.io.File
 
-object BundlerMain {
-  def main(args: Array[String]): Unit = {
-    if (args.isEmpty) {
-      println("Input file name must be provided")
-      sys.exit(1)
-    }
-    args.foreach { fileName =>
-      Bundler(fileName, StdBundlerIo()).bundle()
-    }
-  }
-}
+
 
 case class Bundler(fileName: String, io: BundlerIo) {
   type PackageContents = Map[String, String]

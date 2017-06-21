@@ -1,7 +1,7 @@
-package com.truelaurel.algorithm.alphabeta.perf
+package com.truelaurel.algorithm.perf
 
 import com.truelaurel.algorithm.alphabeta.AlphaBetaAi
-import com.truelaurel.collection.Pos
+import com.truelaurel.math.geometry.Pos
 import com.truelaurel.samplegames.dummy.{DummyBoard, DummyRules}
 import com.truelaurel.samplegames.gomoku.GomokuRules
 import org.openjdk.jmh.annotations._

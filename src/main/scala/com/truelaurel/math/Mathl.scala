@@ -16,4 +16,7 @@ object Mathl {
   def randomBetween(min: Double, max: Double): Double = {
     min + random.nextDouble() * (max - min)
   }
+
+  @inline
+  def sqr(x: Int) = x * x
 }

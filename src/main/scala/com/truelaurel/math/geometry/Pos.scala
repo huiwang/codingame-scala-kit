@@ -1,4 +1,4 @@
-package com.truelaurel.collection
+package com.truelaurel.math.geometry
 
 case class Pos(x: Int, y: Int) {
   def neighbours4: Seq[Pos] =

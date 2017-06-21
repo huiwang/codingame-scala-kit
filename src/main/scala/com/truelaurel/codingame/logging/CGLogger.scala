@@ -1,4 +1,4 @@
-package com.truelaurel.codingame.tool.logging
+package com.truelaurel.codingame.logging
 
 /**
   * Created by hwang on 29/04/2017.

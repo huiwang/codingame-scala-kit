@@ -3,7 +3,7 @@ package com.truelaurel.codingame.bundler
 import java.io.File
 
 import com.truelaurel.codingame.tool.bundle.{Bundler, BundlerIo}
-import com.truelaurel.tests.Compilation._
+import com.truelaurel.compilation.Compilation._
 import org.scalactic._
 import org.scalatest.{FlatSpec, Matchers}
 

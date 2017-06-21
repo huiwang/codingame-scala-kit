@@ -1,7 +1,8 @@
 package com.truelaurel.samplegames.gomoku
 
 import com.truelaurel.algorithm.game._
-import com.truelaurel.collection.{BitGrid, GridData, Masks, Pos}
+import com.truelaurel.math.geometry.Pos
+import com.truelaurel.math.geometry.grid.{BitGrid, GridData, Masks}
 
 import scala.math.abs
 

@@ -1,7 +1,8 @@
 package com.truelaurel.samplegames.gomoku
 
 import com.truelaurel.algorithm.game.GameState
-import com.truelaurel.collection.{GridData, Pos}
+import com.truelaurel.math.geometry.Pos
+import com.truelaurel.math.geometry.grid.GridData
 
 import scala.annotation.tailrec
 

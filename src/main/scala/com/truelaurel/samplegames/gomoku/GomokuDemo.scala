@@ -2,7 +2,7 @@ package com.truelaurel.samplegames.gomoku
 
 import com.truelaurel.algorithm.alphabeta.AlphaBetaAi
 import com.truelaurel.algorithm.mcts.MctsAi
-import com.truelaurel.collection.Pos
+import com.truelaurel.math.geometry.Pos
 import com.truelaurel.time.Chronometer
 
 import scala.concurrent.duration.DurationInt

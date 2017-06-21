@@ -2,7 +2,6 @@ package com.truelaurel.collection
 
 object IterableUtil {
 
-
   implicit class NumericIterableOps(elts: Iterable[Float]) {
     def median = {
       val sorted = elts.toVector.sorted

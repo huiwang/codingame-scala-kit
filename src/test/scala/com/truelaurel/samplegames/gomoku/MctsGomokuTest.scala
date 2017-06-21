@@ -1,7 +1,7 @@
 package com.truelaurel.samplegames.gomoku
 
 import com.truelaurel.algorithm.mcts.MctsAi
-import com.truelaurel.collection.Pos
+import com.truelaurel.math.geometry.Pos
 import org.scalatest.{FlatSpec, Matchers}
 
 class MctsGomokuTest extends FlatSpec with Matchers {

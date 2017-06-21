@@ -1,4 +1,4 @@
-package com.truelaurel.collection
+package com.truelaurel.math.geometry.grid
 
 case class BitGrid(gridData: GridData, masks: Masks) {
   def empty: Boolean = gridData.empty

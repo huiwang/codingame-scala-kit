@@ -1,6 +1,6 @@
 package com.truelaurel.physics
 
-import com.truelaurel.math.vectorial.Vectorl
+import com.truelaurel.math.geometry.Vectorl
 import org.scalatest.{FlatSpec, Matchers}
 
 /**
