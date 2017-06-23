@@ -5,10 +5,10 @@ package com.truelaurel.codingame.logging
   */
 object CGLogger {
 
-  private val info = 0
-  private val debug = 1
+  val info = 0
+  val debug = 1
 
-  private val current = info
+  var current = info
 
   def debug(message: Any): Unit = log(message, debug)
 
