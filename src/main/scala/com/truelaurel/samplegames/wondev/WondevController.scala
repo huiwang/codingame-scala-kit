@@ -2,27 +2,26 @@ package com.truelaurel.samplegames.wondev
 
 import com.truelaurel.codingame.challenge.GameController
 
+import scala.io.StdIn._
 
 object WondevController extends GameController[WondevContext, WondevState, Action] {
-  def readContext: WondevContext =
-    WondevContext()
-
-  def readState(turn: Int, context: WondevContext): WondevState = {
-    WondevState.read().copy(
-      turn = turn)
+  def readContext: WondevContext = {
+    val size = readInt
+    val unitsperplayer = readInt
+    WondevContext(size, unitsperplayer)
   }
+
+  def readState(turn: Int, context: WondevContext): WondevState =
+    WondevState.read(context).copy(turn = turn)
 
   def nextContext(context: WondevContext, state: WondevState, actions: Vector[Action]): WondevContext = {
     context
   }
 }
 
-case class WondevContext()
+case class WondevContext(size: Int, unitsperplayer: Int)
 
-case class WondevState(turn: Int)
 
-object WondevState {
-  def read() = WondevState(0)
-}
 
-trait Action
+
+
