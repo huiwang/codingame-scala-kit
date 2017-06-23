@@ -21,7 +21,3 @@ object WondevController extends GameController[WondevContext, WondevState, Actio
 
 case class WondevContext(size: Int, unitsperplayer: Int)
 
-
-
-
-
