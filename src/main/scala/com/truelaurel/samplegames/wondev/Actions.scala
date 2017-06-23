@@ -2,6 +2,6 @@ package com.truelaurel.samplegames.wondev
 
 sealed trait Action
 
-case object DummyAction extends Action {
-  override val toString = "MOVE&BUILD 0 N S"
+case class LegalAction(actionType: String, index: Int, dir1: String, dir2: String) extends Action {
+  override val toString = s"$actionType $index $dir1 $dir2"
 }
