@@ -1,7 +1,6 @@
 package com.truelaurel.samplegames.wondev.analysis
 
 import com.truelaurel.math.geometry.Pos
-import com.truelaurel.samplegames.wondev._
 import com.truelaurel.samplegames.wondev.domain._
 
 /**
@@ -25,11 +24,7 @@ object WondevAnalysis {
   }
 
   def evaluate(state: WondevState): Double = {
-    val unit = state.myUnits.head
-    val neighbors = neighborsOf(unit, state.context.size) :+ unit
-    val myHeight = heightOf(unit, state)
-    val accessible = neighbors.map(heightOf(_, state)).count(h => h <= myHeight + 1)
-    myHeight + 0.125 * accessible
+    ???
   }
 
   def heightOf(pos: Pos, state: WondevState): Int = {
