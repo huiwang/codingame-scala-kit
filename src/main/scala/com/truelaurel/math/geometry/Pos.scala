@@ -9,9 +9,9 @@ case class Pos(x: Int, y: Int) {
 }
 
 object Pos {
-  val right = (1, 0)
-  val down = (0, 1)
-  val downRight = (1, 1)
-  val downLeft = (-1, 1)
+  val right: (Int, Int) = (1, 0)
+  val down: (Int, Int) = (0, 1)
+  val downRight: (Int, Int) = (1, 1)
+  val downLeft: (Int, Int) = (-1, 1)
   val all = Seq(right, down, downRight, downLeft)
 }
