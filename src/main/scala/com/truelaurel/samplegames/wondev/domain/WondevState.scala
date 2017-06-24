@@ -11,4 +11,3 @@ case class WondevState(context: WondevContext,
                        myUnits: Seq[Pos],
                        opUnits: Seq[Pos],
                        legalActions: Seq[WondevAction])
-

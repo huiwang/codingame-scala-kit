@@ -21,14 +21,30 @@ object Pos {
 }
 
 object Directions {
-  val N = Pos(0, -1)
-  val S = Pos(0, 1)
-  val E = Pos(1, 0)
-  val W = Pos(-1, 0)
-  val NE = N + E
-  val SE = S + E
-  val NW = N + W
-  val SW = S + W
+  val N = new Pos(0, -1) {
+    override val toString = "N"
+  }
+  val S = new Pos(0, 1) {
+    override val toString = "S"
+  }
+  val E = new Pos(1, 0) {
+    override val toString = "E"
+  }
+  val W = new Pos(-1, 0) {
+    override val toString = "W"
+  }
+  val NE = new Pos(1, -1) {
+    override val toString = "NE"
+  }
+  val SE = new Pos(1, 1) {
+    override val toString = "SE"
+  }
+  val NW = new Pos(-1, -1) {
+    override val toString = "NW"
+  }
+  val SW = new Pos(-1, 1) {
+    override val toString = "SW"
+  }
 
   val directions = Map(
     "N" -> N,
@@ -39,4 +55,8 @@ object Directions {
     "SW" -> SW,
     "E" -> E,
     "W" -> W)
+
+  def apply(name: String): Pos = directions(name)
+
+  val all: Seq[Pos] = directions.values.toSeq
 }
