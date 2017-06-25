@@ -14,11 +14,16 @@ object WondevAnalysis {
   }
 
   def evaluate(state: WondevState): Double = {
-    val unit = state.myUnits.head
-    val neighbors = neighborsOf(unit, state.context.size) :+ unit
+    val myAccesible = state.myUnits.map(countAccessibleNeighbors(state, _)).sum
+    val opAccesible = state.opUnits.filter(_.x != -1).map(countAccessibleNeighbors(state, _)).sum
+    myAccesible - opAccesible
+  }
+
+  private def countAccessibleNeighbors(state: WondevState, unit: Pos) = {
+    val neighbors = neighborsOf(unit, state.context.size)
     val myHeight = heightOf(unit, state)
-    val accessible = neighbors.map(heightOf(_, state)).count(h => h <= myHeight + 1)
-    myHeight + 0.125 * accessible
+    val accessible = neighbors.map(heightOf(_, state)).filter(h => h != 4 && h != -1).count(h => h <= myHeight + 1)
+    accessible
   }
 
   def heightOf(pos: Pos, state: WondevState): Int = {
