@@ -16,12 +16,12 @@ object WondevAnalysis {
   }
 
   def evaluate(state: WondevState): Double = {
-    val myAccesible = state.myUnits.map(countAccessibleNeighbors(state, state.heights, _)).sum
-    val opAccesible = state.opUnits.filter(_.x != -1).map(countAccessibleNeighbors(state, state.heights, _)).sum
+    val myAccesible = state.myUnits.map(countAccessibleNeighbors(state, state.heights, _, state.context.size / 2)).sum
+    val opAccesible = state.opUnits.filter(_.x != -1).map(countAccessibleNeighbors(state, state.heights, _, state.context.size / 2)).sum
     myAccesible - opAccesible
   }
 
-  private def countAccessibleNeighbors(state: WondevState, heightMap: Map[Pos, Int], unit: Pos, depth: Int = 3) = {
+  private def countAccessibleNeighbors(state: WondevState, heightMap: Map[Pos, Int], unit: Pos, depth: Int) = {
     val queue = new util.LinkedList[Pos]()
     var reached = 0
     queue.add(unit)
