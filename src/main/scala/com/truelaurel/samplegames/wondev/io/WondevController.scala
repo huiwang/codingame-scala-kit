@@ -41,7 +41,7 @@ object WondevController extends GameController[WondevContext, WondevState, Wonde
     (for {
       (row: String, y: Int) <- rows.zipWithIndex
       (cell: Char, x) <- row.zipWithIndex
-      h = if (cell == '.') -1 else cell.toInt
+      h = if (cell == '.') -1 else cell - '0'
     } yield Pos(x, y) -> h).toMap
   }
 
