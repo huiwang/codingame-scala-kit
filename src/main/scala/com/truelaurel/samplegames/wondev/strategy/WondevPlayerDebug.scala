@@ -1,42 +1,16 @@
 package com.truelaurel.samplegames.wondev.strategy
 
-import com.truelaurel.math.geometry.Pos
+import com.truelaurel.math.geometry._
 import com.truelaurel.samplegames.wondev.domain._
 
 /**
   * Created by hwang on 24/06/2017.
   */
 object WondevPlayerDebug {
-import com.truelaurel.math.geometry.Directions._
   def main(args: Array[String]): Unit = {
 
     val player = WondevPlayer(true)
-    val state = WondevState(WondevContext(6, 2), 1,
-      Map(Pos(2, 5) -> 48, Pos(1, 5) -> 48, Pos(5, 0) -> 48, Pos(0, 2) -> -1, Pos(0, 0) -> 48,
-        Pos(5, 2) -> -1, Pos(5, 1) -> 48, Pos(4, 0) -> -1, Pos(3, 4) -> 48, Pos(3, 1) -> 48,
-        Pos(4, 1) -> -1, Pos(2, 0) -> 48, Pos(0, 3) -> -1, Pos(4, 4) -> 48, Pos(3, 0) -> 48,
-        Pos(0, 5) -> 48, Pos(1, 1) -> -1, Pos(3, 5) -> 48, Pos(4, 5) -> 48, Pos(1, 4) -> 48,
-        Pos(0, 4) -> 48, Pos(5, 4) -> 48, Pos(3, 2) -> 48, Pos(1, 3) -> 48, Pos(2, 2) -> 48,
-        Pos(5, 5) -> 48, Pos(4, 2) -> 48, Pos(2, 4) -> 48, Pos(0, 1) -> 48, Pos(5, 3) -> -1,
-        Pos(3, 3) -> 48, Pos(2, 3) -> 48, Pos(1, 2) -> 48, Pos(2, 1) -> 48, Pos(4, 3) -> 48,
-        Pos(1, 0) -> -1), List(Pos(3, 0), Pos(3, 4)), List(Pos(3, 2), Pos(5, 1)),
-      List(MoveBuild(0, S, N), MoveBuild(0, S, NW), MoveBuild(0, S, SE), MoveBuild(0, S, SW),
-        MoveBuild(0, S, W), MoveBuild(0, SW, E), MoveBuild(0, SW, N), MoveBuild(0, SW, NE),
-        MoveBuild(0, SW, S), MoveBuild(0, SW, SW), MoveBuild(0, W, E), MoveBuild(0, W, S),
-        MoveBuild(0, W, SE), MoveBuild(1, E, E), MoveBuild(1, E, N), MoveBuild(1, E, NW),
-        MoveBuild(1, E, S), MoveBuild(1, E, SE), MoveBuild(1, E, SW), MoveBuild(1, E, W),
-        MoveBuild(1, N, E), MoveBuild(1, N, NE), MoveBuild(1, N, NW), MoveBuild(1, N, S),
-        MoveBuild(1, N, SE), MoveBuild(1, N, SW), MoveBuild(1, N, W), MoveBuild(1, NE, N),
-        MoveBuild(1, NE, S), MoveBuild(1, NE, SE), MoveBuild(1, NE, SW), MoveBuild(1, NE, W),
-        MoveBuild(1, NW, E), MoveBuild(1, NW, N), MoveBuild(1, NW, NW), MoveBuild(1, NW, S),
-        MoveBuild(1, NW, SE), MoveBuild(1, NW, SW), MoveBuild(1, NW, W), MoveBuild(1, S, E),
-        MoveBuild(1, S, N), MoveBuild(1, S, NE), MoveBuild(1, S, NW), MoveBuild(1, S, W),
-        MoveBuild(1, SE, E), MoveBuild(1, SE, N), MoveBuild(1, SE, NE), MoveBuild(1, SE, NW),
-        MoveBuild(1, SE, W), MoveBuild(1, SW, E), MoveBuild(1, SW, N), MoveBuild(1, SW, NE),
-        MoveBuild(1, SW, NW), MoveBuild(1, SW, W), MoveBuild(1, W, E), MoveBuild(1, W, N),
-        MoveBuild(1, W, NE), MoveBuild(1, W, NW), MoveBuild(1, W, S), MoveBuild(1, W, SE),
-        MoveBuild(1, W, SW), MoveBuild(1, W, W)))
-
+    val state = WondevState(WondevContext(7,2),2,Map(Pos(2,5) -> 0, Pos(1,5) -> -1, Pos(5,0) -> -1, Pos(0,2) -> -1, Pos(0,0) -> -1, Pos(5,2) -> 0, Pos(5,1) -> -1, Pos(4,0) -> -1, Pos(3,4) -> 0, Pos(6,4) -> -1, Pos(6,6) -> -1, Pos(3,1) -> 0, Pos(6,1) -> -1, Pos(4,1) -> 0, Pos(6,2) -> -1, Pos(2,0) -> -1, Pos(0,3) -> 0, Pos(4,4) -> 0, Pos(3,0) -> 0, Pos(1,6) -> -1, Pos(0,5) -> -1, Pos(3,6) -> 0, Pos(6,5) -> -1, Pos(1,1) -> -1, Pos(6,3) -> 0, Pos(3,5) -> 0, Pos(4,6) -> -1, Pos(4,5) -> 0, Pos(1,4) -> 1, Pos(2,6) -> -1, Pos(0,4) -> -1, Pos(5,4) -> 0, Pos(3,2) -> 0, Pos(1,3) -> 1, Pos(2,2) -> 0, Pos(5,5) -> -1, Pos(4,2) -> 0, Pos(2,4) -> 0, Pos(0,1) -> -1, Pos(5,3) -> 0, Pos(3,3) -> 0, Pos(2,3) -> 0, Pos(1,2) -> 0, Pos(2,1) -> 0, Pos(4,3) -> 0, Pos(6,0) -> -1, Pos(1,0) -> -1, Pos(5,6) -> -1, Pos(0,6) -> -1),List(Pos(3,4), Pos(0,3)),List(Pos(-1,-1), Pos(2,3)),List(LegalAction(Build,0,E,E), LegalAction(Build,0,E,N), LegalAction(Build,0,E,NE), LegalAction(Build,0,E,NW), LegalAction(Build,0,E,S), LegalAction(Build,0,E,SW), LegalAction(Build,0,E,W), LegalAction(Build,0,N,E), LegalAction(Build,0,N,N), LegalAction(Build,0,N,NE), LegalAction(Build,0,N,NW), LegalAction(Build,0,N,S), LegalAction(Build,0,N,SE), LegalAction(Build,0,N,SW), LegalAction(Build,0,NE,E), LegalAction(Build,0,NE,N), LegalAction(Build,0,NE,NE), LegalAction(Build,0,NE,NW), LegalAction(Build,0,NE,S), LegalAction(Build,0,NE,SE), LegalAction(Build,0,NE,SW), LegalAction(Build,0,NE,W), LegalAction(Build,0,S,E), LegalAction(Build,0,S,N), LegalAction(Build,0,S,NE), LegalAction(Build,0,S,NW), LegalAction(Build,0,S,S), LegalAction(Build,0,S,W), LegalAction(Build,0,SE,N), LegalAction(Build,0,SE,NE), LegalAction(Build,0,SE,NW), LegalAction(Build,0,SE,SW), LegalAction(Build,0,SE,W), LegalAction(Build,0,SW,E), LegalAction(Build,0,SW,N), LegalAction(Build,0,SW,NE), LegalAction(Build,0,SW,NW), LegalAction(Build,0,SW,SE), LegalAction(Build,0,W,E), LegalAction(Build,0,W,NE), LegalAction(Build,0,W,NW), LegalAction(Build,0,W,S), LegalAction(Build,0,W,SE), LegalAction(Build,0,W,W), LegalAction(Build,1,E,N), LegalAction(Build,1,E,NE), LegalAction(Build,1,E,S), LegalAction(Build,1,E,SE), LegalAction(Build,1,E,W), LegalAction(Build,1,NE,E), LegalAction(Build,1,NE,NE), LegalAction(Build,1,NE,S), LegalAction(Build,1,NE,SW), LegalAction(Build,1,SE,E), LegalAction(Build,1,SE,N), LegalAction(Build,1,SE,NW), LegalAction(Build,1,SE,SE), LegalAction(Push,0,NW,N), LegalAction(Push,0,NW,NW), LegalAction(Push,0,NW,W)))
     player.reactTo(state)
 
   }

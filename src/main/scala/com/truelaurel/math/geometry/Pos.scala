@@ -9,7 +9,18 @@ case class Pos(x: Int, y: Int) {
 
   def +(pos: Pos): Pos = Pos(x + pos.x, y + pos.y)
 
-  def +(direction: String): Pos = this + (Directions.directions(direction))
+  def neighborIn(direction: Direction): Pos = direction match {
+    case N => Pos(x, y - 1)
+    case S => Pos(x, y + 1)
+    case W => Pos(x - 1, y)
+    case E => Pos(x + 1, y)
+    case NE => Pos(x + 1, y - 1)
+    case SE => Pos(x + 1, y + 1)
+    case NW => Pos(x - 1, y - 1)
+    case SW => Pos(x - 1, y + 1)
+  }
+
+  def distance(pos: Pos): Int = Math.max(Math.abs(x - pos.x), Math.abs(y - pos.y))
 }
 
 object Pos {
@@ -20,43 +31,38 @@ object Pos {
   val all = Seq(right, down, downRight, downLeft)
 }
 
-object Directions {
-  val N = new Pos(0, -1) {
-    override val toString = "N"
-  }
-  val S = new Pos(0, 1) {
-    override val toString = "S"
-  }
-  val E = new Pos(1, 0) {
-    override val toString = "E"
-  }
-  val W = new Pos(-1, 0) {
-    override val toString = "W"
-  }
-  val NE = new Pos(1, -1) {
-    override val toString = "NE"
-  }
-  val SE = new Pos(1, 1) {
-    override val toString = "SE"
-  }
-  val NW = new Pos(-1, -1) {
-    override val toString = "NW"
-  }
-  val SW = new Pos(-1, 1) {
-    override val toString = "SW"
-  }
 
-  val directions = Map(
-    "N" -> N,
-    "S" -> S,
-    "NE" -> NE,
-    "SE" -> SE,
-    "NW" -> NW,
-    "SW" -> SW,
-    "E" -> E,
-    "W" -> W)
+sealed trait Direction
 
-  def apply(name: String): Pos = directions(name)
+case object N extends Direction
 
-  val all: Seq[Pos] = directions.values.toSeq
+case object W extends Direction
+
+case object S extends Direction
+
+case object E extends Direction
+
+case object NW extends Direction
+
+case object NE extends Direction
+
+case object SW extends Direction
+
+case object SE extends Direction
+
+object Direction {
+
+  val all = Vector(N, W, S, E, SW, SE, NW, NE)
+
+  def apply(dir: String): Direction = dir match {
+    case "N" => N
+    case "S" => S
+    case "W" => W
+    case "E" => E
+    case "NE" => NE
+    case "SE" => SE
+    case "NW" => NW
+    case "SW" => SW
+    case _ => throw new IllegalArgumentException("unknown direction " + dir)
+  }
 }

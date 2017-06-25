@@ -1,6 +1,8 @@
 package com.truelaurel.samplegames.wondev.analysis
 
-import com.truelaurel.math.geometry.{Directions, Pos}
+import java.util
+
+import com.truelaurel.math.geometry.{Direction, Pos}
 import com.truelaurel.samplegames.wondev.domain._
 
 /**
@@ -8,22 +10,43 @@ import com.truelaurel.samplegames.wondev.domain._
   */
 object WondevAnalysis {
   def neighborsOf(pos: Pos, size: Int): Seq[Pos] = {
-    Directions.all
-      .map(pos.+)
+    Direction.all
+      .map(d => pos.neighborIn(d))
       .filter(p => p.x < size && p.x >= 0 && p.y < size && p.y >= 0)
   }
 
   def evaluate(state: WondevState): Double = {
-    val myAccesible = state.myUnits.map(countAccessibleNeighbors(state, _)).sum
-    val opAccesible = state.opUnits.filter(_.x != -1).map(countAccessibleNeighbors(state, _)).sum
+    val myAccesible = state.myUnits.map(countAccessibleNeighbors(state, state.heights, _)).sum
+    val opAccesible = state.opUnits.filter(_.x != -1).map(countAccessibleNeighbors(state, state.heights, _)).sum
     myAccesible - opAccesible
   }
 
-  private def countAccessibleNeighbors(state: WondevState, unit: Pos) = {
-    val neighbors = WondevContext.neighborsMap(unit)
-    val myHeight = state.heights(unit)
-    val accessible = neighbors.map(state.heights(_)).filter(h => h != 4 && h != -1).count(h => h <= myHeight + 1)
-    accessible
+  private def countAccessibleNeighbors(state: WondevState, heightMap: Map[Pos, Int], unit: Pos, depth: Int = 3) = {
+    val queue = new util.LinkedList[Pos]()
+    var reached = 0
+    queue.add(unit)
+    while (!queue.isEmpty) {
+      val next = queue.remove()
+      reached += 1
+      val neighbors = state.context.neighborsMap(next)
+      val height = heightMap(next)
+      val distance1 = unit.distance(next)
+      neighbors
+        .foreach(neighbor => {
+          val distance2 = unit.distance(neighbor)
+          val neighborHeight = state.heights(neighbor)
+          if (distance2 > distance1 &&
+            distance2 <= depth &&
+            neighborHeight != 4 && neighborHeight != -1 &&
+            neighborHeight <= height + 1 &&
+            !state.myUnits.contains(neighbor) &&
+            !state.opUnits.contains(neighbor)
+          ) {
+            queue.add(neighbor)
+          }
+        })
+    }
+    reached
   }
 
 }

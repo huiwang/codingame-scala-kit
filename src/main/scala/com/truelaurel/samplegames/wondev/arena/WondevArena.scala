@@ -13,8 +13,8 @@ object WondevArena extends GameArena[WondevState, WondevAction] {
     action match {
       case MoveBuild(unitIndex, moveDir, buildDir) =>
         val unit = fromState.myUnits(unitIndex)
-        val moveTarget = unit + moveDir
-        val buildTarget = moveTarget + buildDir
+        val moveTarget = unit.neighborIn(moveDir)
+        val buildTarget = moveTarget.neighborIn(buildDir)
 
         fromState.copy(
           turn = fromState.turn + 1,
@@ -23,8 +23,8 @@ object WondevArena extends GameArena[WondevState, WondevAction] {
 
       case MovePush(unitIndex, moveDir, pushDir) =>
         val unit = fromState.myUnits(unitIndex)
-        val moveTarget = unit + moveDir
-        val pushTarget = moveTarget + pushDir
+        val moveTarget = unit.neighborIn(moveDir)
+        val pushTarget = moveTarget.neighborIn(pushDir)
         val pushedUnitIndex = fromState.opUnits.indexOf(moveTarget)
         fromState.copy(
           turn = fromState.turn + 1,

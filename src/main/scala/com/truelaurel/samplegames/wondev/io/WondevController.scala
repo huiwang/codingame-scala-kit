@@ -1,7 +1,7 @@
 package com.truelaurel.samplegames.wondev.io
 
 import com.truelaurel.codingame.challenge.GameController
-import com.truelaurel.math.geometry.{Directions, Pos}
+import com.truelaurel.math.geometry.{Direction, Pos}
 import com.truelaurel.samplegames.wondev.domain._
 
 import scala.io.StdIn._
@@ -50,9 +50,9 @@ object WondevController extends GameController[WondevContext, WondevState, Wonde
       val Array(_type, _index, dir1, dir2) = readLine split " "
       val index = _index.toInt
       if (_type == "MOVE&BUILD") {
-        MoveBuild(index, Directions(dir1), Directions(dir2))
+        LegalAction(Build, index, Direction(dir1), Direction(dir2))
       } else {
-        MovePush(index, Directions(dir1), Directions(dir2))
+        LegalAction(Push, index, Direction(dir1), Direction(dir2))
       }
     }
   }
