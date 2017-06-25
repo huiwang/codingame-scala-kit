@@ -52,7 +52,7 @@ case object SE extends Direction
 
 object Direction {
 
-  val all = Vector(N, W, S, E, SW, SE, NW, NE)
+  val all = Set(N, W, S, E, SW, SE, NW, NE)
 
   def apply(dir: String): Direction = dir match {
     case "N" => N

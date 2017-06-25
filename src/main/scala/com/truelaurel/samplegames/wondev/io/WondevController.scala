@@ -2,6 +2,7 @@ package com.truelaurel.samplegames.wondev.io
 
 import com.truelaurel.codingame.challenge.{GameController, GamePlayer}
 import com.truelaurel.math.geometry._
+import com.truelaurel.samplegames.wondev.arena.WondevArena
 import com.truelaurel.samplegames.wondev.domain._
 import com.truelaurel.samplegames.wondev.strategy.WondevPlayer
 
@@ -18,7 +19,7 @@ object WondevController extends GameController[WondevContext, WondevState, Wonde
     read(context).copy(turn = turn)
 
   def nextContext(context: WondevContext, state: WondevState, actions: Vector[WondevAction]): WondevContext = {
-    context
+    context.copy(previousHeightMap = WondevArena.next(state, actions).heightMap)
   }
 
   def read(context: WondevContext): WondevState =
