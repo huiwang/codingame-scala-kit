@@ -10,7 +10,7 @@ object WondevPlayerDebug {
 import com.truelaurel.math.geometry.Directions._
   def main(args: Array[String]): Unit = {
 
-    val player = TyrchoPlayer(true)
+    val player = WondevPlayer(true)
     val state = WondevState(WondevContext(6, 2), 1,
       Map(Pos(2, 5) -> 48, Pos(1, 5) -> 48, Pos(5, 0) -> 48, Pos(0, 2) -> -1, Pos(0, 0) -> 48,
         Pos(5, 2) -> -1, Pos(5, 1) -> 48, Pos(4, 0) -> -1, Pos(3, 4) -> 48, Pos(3, 1) -> 48,
