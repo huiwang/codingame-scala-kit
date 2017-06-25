@@ -5,15 +5,24 @@ import com.truelaurel.samplegames.wondev.analysis.WondevAnalysis
 
 
 case class WondevContext(size: Int, unitsperplayer: Int) {
+}
 
-  val neighborsMap: Map[Pos, Seq[Pos]] = (for {
+
+object WondevContext {
+
+  val neighborMapBySize = Map(
+    5 -> computeNeighborMap(5),
+    6 -> computeNeighborMap(6),
+    7 -> computeNeighborMap(7)
+  )
+
+  def computeNeighborMap(size : Int) : Map[Pos, Seq[Pos]] = (for {
     x <- 0 until size
     y <- 0 until size
     pos = Pos(x, y)
     neighbors = WondevAnalysis.neighborsOf(pos, size)
   } yield pos -> neighbors).toMap
 }
-
 
 sealed trait LegalActionType
 
