@@ -10,7 +10,7 @@ object WondevAnalysis {
   def neighborsOf(pos: Pos, size: Int): Seq[Pos] = {
     Directions.all
       .map(pos.+)
-      .filter(p => p.x < size && p.x > 0 && p.y < size && p.y > 0)
+      .filter(p => p.x < size && p.x >= 0 && p.y < size && p.y >= 0)
   }
 
   def evaluate(state: WondevState): Double = {
@@ -20,6 +20,8 @@ object WondevAnalysis {
   }
 
   private def countAccessibleNeighbors(state: WondevState, unit: Pos) = {
+
+
     val neighbors = neighborsOf(unit, state.context.size)
     val myHeight = heightOf(unit, state)
     val accessible = neighbors.map(heightOf(_, state)).filter(h => h != 4 && h != -1).count(h => h <= myHeight + 1)
