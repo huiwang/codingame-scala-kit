@@ -18,9 +18,10 @@ object WondevAnalysis {
     else {
       val neighbors: Set[Pos] = state.context.neighborsMap(unit)
       val height = state.heightMap(unit)
-      neighbors
+      val free = neighbors
         .map(state.heightMap)
         .count(h => h >= 0 && h < 4 && h <= height + 1)
+      free + state.context.distToCenter(unit)
     }
 
   def evaluate(state: WondevState, oppoPos: Option[Pos]): Double = {

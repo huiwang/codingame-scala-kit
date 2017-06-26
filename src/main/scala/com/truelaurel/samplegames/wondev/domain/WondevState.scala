@@ -7,6 +7,10 @@ import com.truelaurel.samplegames.wondev.analysis.WondevAnalysis
 case class WondevContext(size: Int, unitsperplayer: Int, previousHeightMap: Map[Pos, Int] = Map.empty) {
 
   def neighborsMap: Map[Pos, Set[Pos]] = WondevContext.neighborMapBySize(size)
+
+  val center = Pos(size / 2, size / 2)
+
+  def distToCenter(p: Pos): Int = (p.x - center.x).abs + (p.y - center.y).abs
 }
 
 
