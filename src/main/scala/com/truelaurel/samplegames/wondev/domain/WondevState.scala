@@ -4,19 +4,21 @@ import com.truelaurel.math.geometry.{Direction, Pos}
 import com.truelaurel.samplegames.wondev.analysis.WondevAnalysis
 
 
-case class WondevContext(size: Int, unitsperplayer: Int, previousHeightMap : Map[Pos, Int] = Map.empty) {
+case class WondevContext(size: Int, unitsperplayer: Int, previousHeightMap: Map[Pos, Int] = Map.empty) {
+
+  def neighborsMap: Map[Pos, Set[Pos]] = WondevContext.neighborMapBySize(size)
 }
 
 
 object WondevContext {
 
-  val neighborMapBySize = Map(
+  val neighborMapBySize: Map[Int, Map[Pos, Set[Pos]]] = Map(
     5 -> computeNeighborMap(5),
     6 -> computeNeighborMap(6),
     7 -> computeNeighborMap(7)
   )
 
-  def computeNeighborMap(size : Int) : Map[Pos, Set[Pos]] = (for {
+  def computeNeighborMap(size: Int): Map[Pos, Set[Pos]] = (for {
     x <- 0 until size
     y <- 0 until size
     pos = Pos(x, y)
