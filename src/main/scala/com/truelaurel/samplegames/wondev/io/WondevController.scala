@@ -40,6 +40,10 @@ object WondevController extends GameController[WondevContext, WondevState, Wonde
 
   private def readHeights(context: WondevContext) = {
     val rows = Seq.fill(context.size)(readLine)
+    parseHeights(rows)
+  }
+
+  def parseHeights(rows: Seq[String]) = {
     (for {
       (row: String, y: Int) <- rows.zipWithIndex
       (cell: Char, x) <- row.zipWithIndex
