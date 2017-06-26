@@ -52,6 +52,16 @@ case object SE extends Direction
 
 object Direction {
 
+  /**
+    * @param size of the square
+    * @return the valid neighbors
+    */
+  def neighborsOf(pos: Pos, size: Int): Set[Pos] = {
+    Direction.all
+      .map(d => pos.neighborIn(d))
+      .filter(p => p.x < size && p.x >= 0 && p.y < size && p.y >= 0)
+  }
+
   val all = Set(N, W, S, E, SW, SE, NW, NE)
 
   def apply(dir: String): Direction = dir match {

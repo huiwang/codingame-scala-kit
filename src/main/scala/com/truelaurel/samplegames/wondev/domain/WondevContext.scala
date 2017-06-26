@@ -1,7 +1,6 @@
 package com.truelaurel.samplegames.wondev.domain
 
-import com.truelaurel.math.geometry.Pos
-import com.truelaurel.samplegames.wondev.analysis.WondevAnalysis
+import com.truelaurel.math.geometry.{Direction, Pos}
 
 object WondevContext {
 
@@ -15,7 +14,7 @@ object WondevContext {
     x <- 0 until size
     y <- 0 until size
     pos = Pos(x, y)
-    neighbors = WondevAnalysis.neighborsOf(pos, size)
+    neighbors = Direction.neighborsOf(pos, size)
   } yield pos -> neighbors).toMap
 }
 

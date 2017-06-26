@@ -1,17 +1,12 @@
 package com.truelaurel.samplegames.wondev.analysis
 
-import com.truelaurel.math.geometry.{Direction, Pos}
+import com.truelaurel.math.geometry.Pos
 import com.truelaurel.samplegames.wondev.domain._
 
 /**
   * Created by hwang on 24/06/2017.
   */
 object WondevAnalysis {
-  def neighborsOf(pos: Pos, size: Int): Set[Pos] = {
-    Direction.all
-      .map(d => pos.neighborIn(d))
-      .filter(p => p.x < size && p.x >= 0 && p.y < size && p.y >= 0)
-  }
 
   def evaluate(unit: Pos, state: WondevState): Int =
     if (unit == Pos(-1, -1)) 0
