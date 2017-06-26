@@ -14,7 +14,7 @@ import com.truelaurel.samplegames.wondev.strategy.WondevPlayer
 
 object Player {
   def main(args: Array[String]): Unit = {
-    CGLogger.current = CGLogger.info
+    CGLogger.current = CGLogger.debug
     val gameLoop = new GameLoop(WondevController, WondevPlayer(true))
     gameLoop.run()
   }

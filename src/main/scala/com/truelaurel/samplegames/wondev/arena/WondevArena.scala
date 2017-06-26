@@ -3,7 +3,7 @@ package com.truelaurel.samplegames.wondev.arena
 import com.truelaurel.codingame.challenge.{GameArena, GameResult}
 import com.truelaurel.math.geometry.Direction
 import com.truelaurel.samplegames.wondev.analysis.WondevAnalysis
-import com.truelaurel.samplegames.wondev.domain.{MoveBuild, MovePush, WondevAction, WondevState}
+import com.truelaurel.samplegames.wondev.domain._
 
 /**
   * Created by hwang on 24/06/2017.
@@ -16,6 +16,8 @@ object WondevArena extends GameArena[WondevState, WondevAction] {
 
       case MovePush(unitIndex, moveDir, pushDir) =>
         handleMovePush(fromState, unitIndex, moveDir, pushDir)
+
+      case Pass => fromState
     }
   }
 

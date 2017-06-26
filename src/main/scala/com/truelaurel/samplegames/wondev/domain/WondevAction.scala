@@ -11,3 +11,7 @@ sealed case class MoveBuild(unitIndex: Int, moveDir: Direction, buildDir: Direct
 sealed case class MovePush(unitIndex: Int, moveDir: Direction, pushDir: Direction) extends WondevAction {
   override def toString: String = s"PUSH&BUILD $unitIndex $moveDir $pushDir"
 }
+
+object Pass extends WondevAction {
+  override val toString = "ACCEPT-DEFEAT"
+}
