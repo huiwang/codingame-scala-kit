@@ -40,6 +40,22 @@ case class FastState(size: Int,
       copy(opUnits = units)
     }
 
+  def push(unitId: Int, tgt: Direction, push: Direction): FastState =
+    if (nextPlayer) {
+      val unitPos = myUnits(unitId)
+      val tgtPos = grid.neigborIn(unitPos, tgt)
+      val tgtId = if (opUnits(0) == tgtPos) 0 else 1
+      val pushed = grid.neigborIn(tgtPos, push)
+      val units = opUnits.updated(tgtId, pushed)
+      copy(opUnits = units)
+    } else {
+      val unitPos = opUnits(unitId)
+      val tgtPos = grid.neigborIn(unitPos, tgt)
+      val tgtId = if (myUnits(0) == tgtPos) 0 else 1
+      val pushed = grid.neigborIn(tgtPos, push)
+      val units = myUnits.updated(tgtId, pushed)
+      copy(myUnits = units)
+    }
 }
 
 object FastState {
