@@ -6,9 +6,15 @@ import org.scalatest.{FlatSpec, Matchers}
 
 class FastStateTest extends FlatSpec with Matchers {
   val grid = FastGrid(5)
+
+  val myPos0 = Pos(1, 1)
+  val myPos1 = Pos(1, 2)
+  val opPos0 = Pos(2, 4)
+  val opPos1 = Pos(1, 3)
+
   val state = FastState(5,
-    myUnits = Vector(grid.pos(Pos(1, 1)), grid.pos(Pos(1, 2))),
-    opUnits = Vector(grid.pos(Pos(2, 4)), grid.pos(Pos(1, 3))))
+    myUnits = Vector(grid.pos(myPos0), grid.pos(myPos1)),
+    opUnits = Vector(grid.pos(opPos0), grid.pos(opPos1)))
 
   "fast state : build" should "increase height" in {
     val p = grid.pos(Pos(2, 2))
@@ -22,27 +28,27 @@ class FastStateTest extends FlatSpec with Matchers {
   "fast state : move" should "move my unit" in {
     val moved = state.move(0, N)
 
-    moved.myUnits(0) shouldBe grid.pos(Pos(1, 1).neighborIn(N))
+    moved.myUnits(0) shouldBe grid.pos(myPos0.neighborIn(N))
   }
 
   "fast state : push" should "push op unit" in {
     val pushed = state.push(1, S, SW)
 
-    pushed.myUnits(1) shouldBe grid.pos(Pos(1, 2))
-    pushed.opUnits(1) shouldBe grid.pos(Pos(1, 3).neighborIn(SW))
+    pushed.myUnits(1) shouldBe grid.pos(myPos1)
+    pushed.opUnits(1) shouldBe grid.pos(opPos1.neighborIn(SW))
   }
 
   "fast state : move" should "move op unit" in {
     val moved = state.copy(nextPlayer = false).move(0, W)
 
-    moved.opUnits(0) shouldBe grid.pos(Pos(2, 4).neighborIn(W))
+    moved.opUnits(0) shouldBe grid.pos(opPos0.neighborIn(W))
   }
 
 
   "fast state : move&build" should "move my unit and build" in {
     val moved = state.applyAction(MoveBuild(0, S, SE))
 
-    moved.myUnits(0) shouldBe grid.pos(Pos(1, 1).neighborIn(S))
+    moved.myUnits(0) shouldBe grid.pos(myPos0.neighborIn(S))
     moved.heights(grid.pos(Pos(2, 3))) shouldBe 1
   }
 
@@ -50,9 +56,9 @@ class FastStateTest extends FlatSpec with Matchers {
   "fast state : push&build" should "push op unit and build" in {
     val moved = state.applyAction(MovePush(1, S, SE))
 
-    moved.myUnits(1) shouldBe grid.pos(Pos(1, 2))
-    moved.opUnits(1) shouldBe grid.pos(Pos(1, 3).neighborIn(SE))
-    moved.heights(grid.pos(Pos(1, 3))) shouldBe 1
+    moved.myUnits(1) shouldBe grid.pos(myPos1)
+    moved.opUnits(1) shouldBe grid.pos(opPos1.neighborIn(SE))
+    moved.heights(grid.pos(opPos1)) shouldBe 1
   }
 
   "fast state : pass" should "change active player" in {
@@ -60,5 +66,13 @@ class FastStateTest extends FlatSpec with Matchers {
 
     next.nextPlayer shouldBe false
   }
+  //
+  //  "fast state : move&build" should "increase score" in {
+  //    val
+  //    val s = state.copy(heights = state.heights.updated())
+  //    val next = state.applyAction(Pass)
+  //
+  //    next.nextPlayer shouldBe false
+  //  }
 
 }
