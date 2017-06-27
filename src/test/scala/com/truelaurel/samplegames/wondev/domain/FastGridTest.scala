@@ -28,6 +28,16 @@ class FastGridTest extends FlatSpec with Matchers with PropertyChecks {
     }
   }
 
+ "neighbors" should "be symmetric" in {
+    forAll(genGrid) { grid =>
+      forAll(Gen.chooseNum(0, grid.size * grid.size - 1)) { p =>
+        forAll(Gen.chooseNum(0, grid.size * grid.size - 1)) { q =>
+          grid.neighbors(p).contains(q) shouldBe grid.neighbors(q).contains(p)
+        }
+      }
+    }
+  }
+
   def genGrid: Gen[FastGrid] =
     for {
       size <- Gen.chooseNum(minT = 3, maxT = 10)
