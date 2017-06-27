@@ -14,6 +14,7 @@ case class FastState(size: Int,
                      grid: FastGrid,
                      nextPlayer: Boolean = true) {
 
+  import FastState._
 
   def applyAction(action: WondevAction) = action match {
     case MoveBuild(unitIndex, moveDir, buildDir) =>
@@ -52,13 +53,15 @@ case class FastState(size: Int,
     if (nextPlayer) {
       val unitPos = myUnits(unitId)
       val nextPos = grid.neigborIn(unitPos, direction)
+      val score = if (heights(nextPos) == SCORE_HEIGHT) myScore + 1 else myScore
       val units = myUnits.updated(unitId, nextPos)
-      copy(myUnits = units)
+      copy(myUnits = units, myScore = score)
     } else {
       val unitPos = opUnits(unitId)
       val nextPos = grid.neigborIn(unitPos, direction)
+      val score = if (heights(nextPos) == SCORE_HEIGHT) opScore + 1 else opScore
       val units = opUnits.updated(unitId, nextPos)
-      copy(opUnits = units)
+      copy(opUnits = units, opScore = score)
     }
 
   def push(unitId: Int, tgt: Direction, push: Direction): FastState =
@@ -89,4 +92,7 @@ object FastState {
       opUnits,
       heights = Vector.fill(size * size)(0),
       grid = FastGrid(size))
+
+  val MAX_BUILT_HEIGHT = 4
+  val SCORE_HEIGHT = 3
 }

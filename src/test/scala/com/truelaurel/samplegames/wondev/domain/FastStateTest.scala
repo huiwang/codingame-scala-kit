@@ -5,6 +5,9 @@ import com.truelaurel.math.geometry.{Pos, _}
 import org.scalatest.{FlatSpec, Matchers}
 
 class FastStateTest extends FlatSpec with Matchers {
+
+  import FastState._
+
   val grid = FastGrid(5)
 
   val myPos0 = Pos(1, 1)
@@ -66,13 +69,15 @@ class FastStateTest extends FlatSpec with Matchers {
 
     next.nextPlayer shouldBe false
   }
-  //
-  //  "fast state : move&build" should "increase score" in {
-  //    val
-  //    val s = state.copy(heights = state.heights.updated())
-  //    val next = state.applyAction(Pass)
-  //
-  //    next.nextPlayer shouldBe false
-  //  }
+
+  "fast state : move&build" should "increase score" in {
+    val higher = state.heights
+      .updated(grid.pos(myPos0), SCORE_HEIGHT)
+      .updated(grid.pos(myPos0.neighborIn(N)), SCORE_HEIGHT)
+    val s = state.copy(heights = higher)
+    val next = s.applyAction(MoveBuild(0, N, S))
+
+    next.myScore shouldBe 1
+  }
 
 }
