@@ -17,18 +17,33 @@ case class FastState(size: Int,
 
   def applyAction(action: WondevAction) = action match {
     case MoveBuild(unitIndex, moveDir, buildDir) =>
-      val unitPos = if (nextPlayer) myUnits(unitIndex) else opUnits(unitIndex)
-      val movedPos = grid.neigborIn(unitPos, moveDir)
-      val builtPos = grid.neigborIn(movedPos, buildDir)
-      move(unitIndex, moveDir).build(builtPos)
+      moveAndBuild(unitIndex, moveDir, buildDir)
 
     case MovePush(unitIndex, moveDir, pushDir) =>
-      val unitPos = if (nextPlayer) myUnits(unitIndex) else opUnits(unitIndex)
-      val tgtPos = grid.neigborIn(unitPos, moveDir)
-      push(unitIndex, moveDir, pushDir).build(tgtPos)
+      pushAndBuild(unitIndex, moveDir, pushDir)
 
-    case Pass => this
+    case Pass => endTurn
   }
+
+  private def pushAndBuild(unitIndex: Int, moveDir: Direction, pushDir: Direction) = {
+    val unitPos = if (nextPlayer) myUnits(unitIndex) else opUnits(unitIndex)
+    val tgtPos = grid.neigborIn(unitPos, moveDir)
+    push(unitIndex, moveDir, pushDir)
+      .build(tgtPos)
+      .endTurn
+  }
+
+  private def moveAndBuild(unitIndex: Int, moveDir: Direction, buildDir: Direction) = {
+    val unitPos = if (nextPlayer) myUnits(unitIndex) else opUnits(unitIndex)
+    val movedPos = grid.neigborIn(unitPos, moveDir)
+    val builtPos = grid.neigborIn(movedPos, buildDir)
+    move(unitIndex, moveDir)
+      .build(builtPos)
+      .endTurn
+  }
+
+  def endTurn: FastState =
+    copy(nextPlayer = !nextPlayer)
 
   def build(p: Int): FastState =
     copy(heights = heights.updatef(p, 1 +))

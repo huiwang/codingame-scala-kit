@@ -55,4 +55,10 @@ class FastStateTest extends FlatSpec with Matchers {
     moved.heights(grid.pos(Pos(1, 3))) shouldBe 1
   }
 
+  "fast state : pass" should "change active player" in {
+    val next = state.applyAction(Pass)
+
+    next.nextPlayer shouldBe false
+  }
+
 }
