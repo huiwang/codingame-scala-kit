@@ -1,5 +1,6 @@
 package com.truelaurel.samplegames.wondev.domain
 
+import com.truelaurel.algorithm.game.GameState
 import com.truelaurel.collection.IterableUtil._
 import com.truelaurel.math.geometry.Direction
 import com.truelaurel.math.geometry.grid.FastGrid
@@ -13,11 +14,15 @@ case class FastState(size: Int,
                      opUnits: Vector[Int],
                      heights: Vector[Int],
                      grid: FastGrid,
-                     nextPlayer: Boolean = true) {
+                     nextPlayer: Boolean = true) extends GameState[Boolean] {
 
   // myUnits : when nextPlayer == true
 
   import FastState._
+
+  def scoreForNext = if (nextPlayer) myScore else opScore
+
+  def scoreForOther = if (nextPlayer) opScore else myScore
 
   def applyAction(action: WondevAction) = action match {
     case MoveBuild(unitIndex, moveDir, buildDir) =>
@@ -28,6 +33,19 @@ case class FastState(size: Int,
 
     case Pass => endTurn
   }
+
+  def validActions: Seq[WondevAction] = {
+    val actions = for {
+      id <- 0 to 1
+      move <- validActionsForUnit(id)
+    } yield move
+    if (actions.nonEmpty)
+      actions
+    else Vector(Pass)
+  }
+
+  private def validActionsForUnit(id: Int): Iterable[WondevAction] =
+    pushActions(id) ++ moveActions(id)
 
   private def pushAndBuild(unitIndex: Int, moveDir: Direction, pushDir: Direction) = {
     val unitPos = if (nextPlayer) myUnits(unitIndex) else opUnits(unitIndex)
