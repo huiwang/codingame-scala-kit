@@ -1,4 +1,4 @@
-package com.truelaurel.samplegames.wondev.domain
+package com.truelaurel.math.geometry.grid
 
 import com.truelaurel.math.geometry._
 import org.scalacheck.Gen
