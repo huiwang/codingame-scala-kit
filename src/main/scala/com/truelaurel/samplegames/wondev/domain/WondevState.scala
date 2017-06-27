@@ -24,6 +24,8 @@ case class FastState(turn: Int,
 }
 
 case class FastGrid(size: Int) {
+  val center: Int = pos(Pos(size / 2, size / 2))
+
   val neighbors: Array[Array[Int]] = for {
     p <- (0 until size * size).toArray
   } yield Direction.neighborsOf(pos(p), size).map(pos).toArray
