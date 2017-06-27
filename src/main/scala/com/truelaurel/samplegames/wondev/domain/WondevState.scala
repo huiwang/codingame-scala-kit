@@ -1,6 +1,6 @@
 package com.truelaurel.samplegames.wondev.domain
 
-import com.truelaurel.math.geometry.{Direction, Pos}
+import com.truelaurel.math.geometry._
 
 
 case class WondevState(context: WondevContext,
@@ -24,6 +24,17 @@ case class FastState(turn: Int,
 }
 
 case class FastGrid(size: Int) {
+  def neigborIn(pos: Int, d: Direction): Int = d match {
+    case N => pos - size
+    case W => pos - 1
+    case S => pos + size
+    case E => pos + 1
+    case NW => pos - size - 1
+    case NE => pos - size + 1
+    case SW => pos + size - 1
+    case SE => pos + size + 1
+  }
+
   val center: Int = pos(Pos(size / 2, size / 2))
 
   val neighbors: Array[Array[Int]] = for {

@@ -1,5 +1,6 @@
 package com.truelaurel.samplegames.wondev.domain
 
+import com.truelaurel.math.geometry._
 import org.scalacheck.Gen
 import org.scalatest.prop.PropertyChecks
 import org.scalatest.{FlatSpec, Matchers}
@@ -41,6 +42,17 @@ class FastGridTest extends FlatSpec with Matchers with PropertyChecks {
   "neighbors(center)" should "have 8 elements" in {
     forAll(genGrid) { grid =>
       grid.neighbors(grid.center).size shouldBe 8
+    }
+  }
+
+  "neighbor(direction)" should "match Position" in {
+    forAll(genGrid) { grid =>
+      forAll(Gen.oneOf(Direction.all.toSeq)) { d =>
+        val n = grid.neigborIn(grid.center, d)
+        val center = grid.pos(grid.center)
+        val neighbor = center.neighborIn(d)
+        grid.pos(n) shouldBe neighbor
+      }
     }
   }
 
