@@ -36,5 +36,7 @@ case class FastGrid(size: Int) {
     val y = p / size
     Pos(x, y)
   }
+
+  def isValid(p: Int) = p >= 0 && p < size * size
 }
 

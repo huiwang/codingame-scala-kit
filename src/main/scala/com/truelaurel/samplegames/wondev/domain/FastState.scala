@@ -4,6 +4,7 @@ import com.truelaurel.collection.IterableUtil._
 import com.truelaurel.math.geometry.Direction
 import com.truelaurel.math.geometry.grid.FastGrid
 
+
 case class FastState(size: Int,
                      turn: Int,
                      myScore: Int,
@@ -13,6 +14,8 @@ case class FastState(size: Int,
                      heights: Vector[Int],
                      grid: FastGrid,
                      nextPlayer: Boolean = true) {
+
+  // myUnits : when nextPlayer == true
 
   import FastState._
 
@@ -44,10 +47,14 @@ case class FastState(size: Int,
   }
 
   def endTurn: FastState =
-    copy(nextPlayer = !nextPlayer)
+    copy(
+      nextPlayer = !nextPlayer,
+      turn = turn + 1)
 
   def build(p: Int): FastState =
     copy(heights = heights.updatef(p, 1 +))
+
+  //TODO : test System.arraycopy for perf
 
   def move(unitId: Int, direction: Direction): FastState =
     if (nextPlayer) {
@@ -80,6 +87,24 @@ case class FastState(size: Int,
       val units = myUnits.updated(tgtId, pushed)
       copy(myUnits = units)
     }
+
+  //TODO : make faster ! use grid.neighbors
+  def moveActions(unitId: Int): Iterable[MoveBuild] = {
+    val allUnits = myUnits ++ opUnits
+    val unitPos = if (nextPlayer) myUnits(unitId) else opUnits(unitId)
+    val otherUnits = allUnits diff Seq(unitPos)
+    for {
+      moveDir <- Direction.all
+      tgtPos = grid.neigborIn(unitPos, moveDir)
+      if grid.isValid(tgtPos)
+      if !otherUnits.contains(tgtPos)
+      buildDir <- Direction.all
+      buildPos = grid.neigborIn(tgtPos, buildDir)
+      if grid.isValid(buildPos)
+      if !otherUnits.contains(buildPos)
+    } yield MoveBuild(unitId, moveDir, buildDir)
+  }
+
 }
 
 object FastState {

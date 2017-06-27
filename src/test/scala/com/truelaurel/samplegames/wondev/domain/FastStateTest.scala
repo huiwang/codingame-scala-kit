@@ -15,6 +15,12 @@ class FastStateTest extends FlatSpec with Matchers {
   val opPos0 = Pos(2, 4)
   val opPos1 = Pos(1, 3)
 
+  // .....
+  // .T...
+  // .T...
+  // .F...
+  // ..F..
+
   val state = FastState(5,
     myUnits = Vector(grid.pos(myPos0), grid.pos(myPos1)),
     opUnits = Vector(grid.pos(opPos0), grid.pos(opPos1)))
@@ -79,5 +85,19 @@ class FastStateTest extends FlatSpec with Matchers {
 
     next.myScore shouldBe 1
   }
+
+  "fast state" should "list valid move actions for 1 unit" in {
+    val moves = for {
+      moveDir <- Direction.all diff Set(N, S)
+      buildDir <- Direction.all
+      builtPos = myPos1.neighborIn(moveDir).neighborIn(buildDir)
+      builtP = grid.pos(builtPos)
+      if grid.isValid(builtP)
+      if !Set(myPos0, opPos0, opPos1).contains(builtPos)
+    } yield MoveBuild(1, moveDir, buildDir)
+
+    state.moveActions(1).toSeq.map(_.toString).sorted shouldBe moves.toSeq.map(_.toString).sorted
+  }
+
 
 }
