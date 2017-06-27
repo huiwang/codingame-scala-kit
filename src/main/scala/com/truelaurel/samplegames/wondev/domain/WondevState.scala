@@ -13,13 +13,5 @@ case class WondevState(context: WondevContext,
   def neighborMap: Map[Pos, Set[Pos]] = WondevContext.neighborMapBySize(context.size)
 }
 
-case class FastState(turn: Int,
-                     myScore: Int,
-                     myUnit: Array[Int],
-                     opUnits: Array[Int],
-                     heights: Array[Int],
-                     size: Int) {
 
-
-}
 

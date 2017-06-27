@@ -37,3 +37,4 @@ case class FastGrid(size: Int) {
     Pos(x, y)
   }
 }
+
