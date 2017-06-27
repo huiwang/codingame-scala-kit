@@ -1,8 +1,7 @@
 package com.truelaurel.samplegames.wondev.analysis
 
-import com.truelaurel.math.geometry.{N, Pos, S}
-import com.truelaurel.samplegames.wondev.arena.WondevArena
-import com.truelaurel.samplegames.wondev.domain.{MoveBuild, WondevContext, WondevState}
+import com.truelaurel.math.geometry.Pos
+import com.truelaurel.samplegames.wondev.domain.{WondevContext, WondevState}
 import com.truelaurel.samplegames.wondev.io.WondevController
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -22,6 +21,6 @@ class WondevAnalysisTest extends FlatSpec with Matchers {
     opUnits = List(Pos(3, 2), Pos(2, 0)))
 
   "WondevAnalysis" should "evaluate unit" in {
-    WondevAnalysis.evaluate(Pos(2,2), state) shouldBe 8
+    WondevAnalysis.evaluate(Pos(2, 2), state) shouldBe (8 * 100 + 10)
   }
 }
