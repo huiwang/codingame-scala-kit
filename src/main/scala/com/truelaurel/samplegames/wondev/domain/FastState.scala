@@ -14,7 +14,9 @@ case class FastState(size: Int,
                      opUnits: Vector[Int],
                      heights: Vector[Int],
                      grid: FastGrid,
-                     nextPlayer: Boolean = true) extends GameState[Boolean] {
+                     nextPlayer: Boolean = true,
+                     myInactive: Boolean = false,
+                     opInactive: Boolean = false) extends GameState[Boolean] {
 
   // myUnits : when nextPlayer == true
 
@@ -31,7 +33,9 @@ case class FastState(size: Int,
     case MovePush(unitIndex, moveDir, pushDir) =>
       pushAndBuild(unitIndex, moveDir, pushDir)
 
-    case Pass => endTurn
+    case Pass =>
+      val deactivated = if (nextPlayer) copy(myInactive = true) else copy(opInactive = true)
+      deactivated.endTurn
   }
 
   def validActions: Seq[WondevAction] = {
