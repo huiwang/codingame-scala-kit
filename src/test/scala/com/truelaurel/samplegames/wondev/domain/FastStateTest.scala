@@ -99,5 +99,27 @@ class FastStateTest extends FlatSpec with Matchers {
     state.moveActions(1).toSeq.map(_.toString).sorted shouldBe moves.toSeq.map(_.toString).sorted
   }
 
+  "fast state" should "list valid move actions for 1 unit, avoiding inaccessible heights" in {
+    val eastTooHigh = myPos1.neighborIn(E)
+    val westHole = myPos1.neighborIn(W)
+    val higher = state.heights
+      .updated(grid.pos(myPos1), SCORE_HEIGHT)
+      .updated(grid.pos(eastTooHigh), MAX_BUILT_HEIGHT)
+      .updated(grid.pos(westHole), HOLE_HEIGHT)
+
+    val moves = for {
+      moveDir <- Direction.all diff Set(N, S, E, W)
+      buildDir <- Direction.all
+      builtPos = myPos1.neighborIn(moveDir).neighborIn(buildDir)
+      builtP = grid.pos(builtPos)
+      if grid.isValid(builtP)
+      if !Set(myPos0, opPos0, opPos1, eastTooHigh, westHole).contains(builtPos)
+    } yield MoveBuild(1, moveDir, buildDir)
+
+    val s = state.copy(heights = higher)
+
+    s.moveActions(1).toSeq.map(_.toString).sorted shouldBe moves.toSeq.map(_.toString).sorted
+  }
+
 
 }

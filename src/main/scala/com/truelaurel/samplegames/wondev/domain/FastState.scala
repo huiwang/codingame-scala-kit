@@ -92,16 +92,19 @@ case class FastState(size: Int,
   def moveActions(unitId: Int): Iterable[MoveBuild] = {
     val allUnits = myUnits ++ opUnits
     val unitPos = if (nextPlayer) myUnits(unitId) else opUnits(unitId)
+    val startHeight = heights(unitPos)
     val otherUnits = allUnits diff Seq(unitPos)
     for {
       moveDir <- Direction.all
       tgtPos = grid.neigborIn(unitPos, moveDir)
       if grid.isValid(tgtPos)
       if !otherUnits.contains(tgtPos)
+      if heights(tgtPos) <= startHeight + 1 && heights(tgtPos) < MAX_BUILT_HEIGHT && heights(tgtPos) != HOLE_HEIGHT
       buildDir <- Direction.all
       buildPos = grid.neigborIn(tgtPos, buildDir)
       if grid.isValid(buildPos)
       if !otherUnits.contains(buildPos)
+      if heights(buildPos) < MAX_BUILT_HEIGHT && heights(buildPos) != HOLE_HEIGHT
     } yield MoveBuild(unitId, moveDir, buildDir)
   }
 
@@ -119,5 +122,6 @@ object FastState {
       grid = FastGrid(size))
 
   val MAX_BUILT_HEIGHT = 4
+  val HOLE_HEIGHT = -1
   val SCORE_HEIGHT = 3
 }
