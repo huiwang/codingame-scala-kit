@@ -2,6 +2,7 @@ package com.truelaurel.samplegames.wondev.domain
 
 import com.truelaurel.math.geometry.Pos
 
+
 case class WondevState(context: WondevContext,
                        turn: Int,
                        heightMap: Map[Pos, Int],
@@ -23,10 +24,10 @@ case class FastState(turn: Int,
 }
 
 case class FastGrid(size: Int) {
-  val positions: Array[Int] = (for {
-    x <- 0 until size
-    y <- 0 until size
-  } yield x + y * size).toArray
+
+  def pos(p: Pos): Int =
+    p.x + p.y * size
+
 
   def pos(p: Int): Pos = {
     val x = p % size
