@@ -108,6 +108,27 @@ case class FastState(size: Int,
     } yield MoveBuild(unitId, moveDir, buildDir)
   }
 
+  //TODO : make faster ! use grid.neighbors
+  def pushActions(unitId: Int): Iterable[MovePush] = {
+    val unitPos = if (nextPlayer) myUnits(unitId) else opUnits(unitId)
+    val allUnits = myUnits ++ opUnits
+    val otherUnits = allUnits diff Seq(unitPos)
+
+    val others = if (nextPlayer) opUnits else myUnits
+    val pushable = others.filter(grid.neighbors(unitPos).contains)
+    for {
+      moveDir <- Direction.all
+      tgtPos = grid.neigborIn(unitPos, moveDir)
+      if pushable.contains(tgtPos)
+      startHeight = heights(tgtPos)
+      pushDir <- moveDir.similar
+      pushPos = grid.neigborIn(tgtPos, pushDir)
+      if grid.isValid(pushPos)
+      if heights(tgtPos) <= startHeight + 1 && heights(tgtPos) < MAX_BUILT_HEIGHT && heights(tgtPos) != HOLE_HEIGHT
+      if !otherUnits.contains(pushPos)
+    } yield MovePush(unitId, moveDir, pushDir)
+  }
+
 }
 
 object FastState {

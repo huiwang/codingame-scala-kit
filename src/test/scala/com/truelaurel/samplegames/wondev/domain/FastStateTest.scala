@@ -121,5 +121,22 @@ class FastStateTest extends FlatSpec with Matchers {
     s.moveActions(1).toSeq.map(_.toString).sorted shouldBe moves.toSeq.map(_.toString).sorted
   }
 
+ "fast state" should "list valid push actions for 1 unit, avoiding inaccessible heights" in {
+    val eastTooHigh = myPos1.neighborIn(E)
+    val westHole = myPos1.neighborIn(W)
+    val higher = state.heights
+      .updated(grid.pos(myPos1), SCORE_HEIGHT)
+      .updated(grid.pos(eastTooHigh), MAX_BUILT_HEIGHT)
+      .updated(grid.pos(westHole), HOLE_HEIGHT)
+
+    val moves = for {
+      pushDir <- Seq(S,SW)
+    } yield MovePush(1, S, pushDir)
+
+    val s = state.copy(heights = higher)
+
+    s.pushActions(1).toSeq.map(_.toString).sorted shouldBe moves.toSeq.map(_.toString).sorted
+  }
+
 
 }

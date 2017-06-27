@@ -32,25 +32,44 @@ object Pos {
 }
 
 
-sealed trait Direction
+sealed trait Direction {
+  def similar: Set[Direction]
+}
 
-case object N extends Direction
+case object N extends Direction {
+  val similar: Set[Direction] = Set(NE, N, NW)
+}
 
-case object W extends Direction
+case object W extends Direction {
+  val similar: Set[Direction] = Set(NW, W, SW)
+}
 
-case object S extends Direction
+case object S extends Direction {
+  val similar: Set[Direction] = Set(SE, S, SW)
+}
 
-case object E extends Direction
+case object E extends Direction {
+  val similar: Set[Direction] = Set(NE, SE, E)
+}
 
-case object NW extends Direction
+case object NW extends Direction {
+  val similar: Set[Direction] = Set(N, W, NW)
+}
 
-case object NE extends Direction
+case object NE extends Direction {
+  val similar: Set[Direction] = Set(NE, N, E)
+}
 
-case object SW extends Direction
+case object SW extends Direction {
+  val similar: Set[Direction] = Set(S, W, SW)
+}
 
-case object SE extends Direction
+case object SE extends Direction {
+  val similar: Set[Direction] = Set(SE, E, N)
+}
 
 object Direction {
+
 
   /**
     * @param size of the square
