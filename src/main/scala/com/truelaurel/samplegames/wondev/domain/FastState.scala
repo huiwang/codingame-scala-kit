@@ -17,9 +17,15 @@ case class FastState(size: Int,
 
   def applyAction(action: WondevAction) = action match {
     case MoveBuild(unitIndex, moveDir, buildDir) =>
-
+      val unitPos = if (nextPlayer) myUnits(unitIndex) else opUnits(unitIndex)
+      val movedPos = grid.neigborIn(unitPos, moveDir)
+      val builtPos = grid.neigborIn(movedPos, buildDir)
+      move(unitIndex, moveDir).build(builtPos)
 
     case MovePush(unitIndex, moveDir, pushDir) =>
+      val unitPos = if (nextPlayer) myUnits(unitIndex) else opUnits(unitIndex)
+      val tgtPos = grid.neigborIn(unitPos, moveDir)
+      push(unitIndex, moveDir, pushDir).build(tgtPos)
 
     case Pass => this
   }

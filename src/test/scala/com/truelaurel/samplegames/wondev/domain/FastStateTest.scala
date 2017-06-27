@@ -37,4 +37,22 @@ class FastStateTest extends FlatSpec with Matchers {
 
     moved.opUnits(0) shouldBe grid.pos(Pos(2, 4).neighborIn(W))
   }
+
+
+  "fast state : move&build" should "move my unit and build" in {
+    val moved = state.applyAction(MoveBuild(0, S, SE))
+
+    moved.myUnits(0) shouldBe grid.pos(Pos(1, 1).neighborIn(S))
+    moved.heights(grid.pos(Pos(2, 3))) shouldBe 1
+  }
+
+
+  "fast state : push&build" should "push op unit and build" in {
+    val moved = state.applyAction(MovePush(1, S, SE))
+
+    moved.myUnits(1) shouldBe grid.pos(Pos(1, 2))
+    moved.opUnits(1) shouldBe grid.pos(Pos(1, 3).neighborIn(SE))
+    moved.heights(grid.pos(Pos(1, 3))) shouldBe 1
+  }
+
 }
