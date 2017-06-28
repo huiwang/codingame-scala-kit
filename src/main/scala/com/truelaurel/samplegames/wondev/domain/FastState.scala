@@ -12,12 +12,10 @@ case class PlayerState(units: Vector[Int],
                        inactive: Boolean = false) {
 
 
-  def push(unitId: Int, tgt: Direction, push: Direction): PlayerState = {
+  def push(unitId: Int, push: Direction): PlayerState = {
     val unitPos = units(unitId)
-    val tgtPos = grid.neigborIn(unitPos, tgt)
-    val tgtId = if (units(0) == tgtPos) 0 else 1
-    val pushed = grid.neigborIn(tgtPos, push)
-    copy(units = units.updated(tgtId, pushed))
+    val pushed = grid.neigborIn(unitPos, push)
+    copy(units = units.updated(unitId, pushed))
   }
 
   def move(unitId: Int, direction: Direction, heights: Vector[Int]): PlayerState = {
@@ -34,8 +32,6 @@ case class PlayerState(units: Vector[Int],
 case class FastState(size: Int,
                      turn: Int,
                      states: Seq[PlayerState],
-                     myUnits: Vector[Int],
-                     opUnits: Vector[Int],
                      heights: Vector[Int],
                      grid: FastGrid,
                      nextPlayer: Boolean = true,
@@ -45,8 +41,14 @@ case class FastState(size: Int,
   // myUnits : when nextPlayer == true
 
   def myScore: Int = states(0).score
+
   def opScore: Int = states(1).score
 
+  def myUnits: Vector[Int] = states(0).units
+
+  def opUnits: Vector[Int] = states(1).units
+
+  def state(mine: Boolean): PlayerState = states(if (mine) 0 else 1)
 
   def applyAction(action: WondevAction): FastState = action match {
     case MoveBuild(unitIndex, moveDir, buildDir) =>
@@ -80,10 +82,9 @@ case class FastState(size: Int,
     pushActions(id) ++ moveActions(id)
 
   private def pushAndBuild(unitIndex: Int, moveDir: Direction, pushDir: Direction) = {
-    val unitPos = if (nextPlayer) myUnits(unitIndex) else opUnits(unitIndex)
+    val unitPos = state(nextPlayer).units(unitIndex)
     val tgtPos = grid.neigborIn(unitPos, moveDir)
-    val pushed = updatePlayerState(!nextPlayer, _.push(unitIndex, moveDir, pushDir))
-    pushed.push(unitIndex, moveDir, pushDir)
+    push(unitIndex, moveDir, pushDir)
       .build(tgtPos)
       .endTurn
   }
@@ -92,9 +93,8 @@ case class FastState(size: Int,
     val unitPos = if (nextPlayer) myUnits(unitIndex) else opUnits(unitIndex)
     val movedPos = grid.neigborIn(unitPos, moveDir)
     val builtPos = grid.neigborIn(movedPos, buildDir)
-    val moved = updatePlayerState(nextPlayer, _.move(unitIndex, moveDir, heights))
 
-    moved.move(unitIndex, moveDir)
+    move(unitIndex, moveDir)
       .build(builtPos)
       .endTurn
   }
@@ -109,35 +109,17 @@ case class FastState(size: Int,
 
   //TODO : test System.arraycopy for perf
 
-  def move(unitId: Int, direction: Direction): FastState =
-    if (nextPlayer) {
-      val unitPos = myUnits(unitId)
-      val nextPos = grid.neigborIn(unitPos, direction)
-      val units = myUnits.updated(unitId, nextPos)
-      copy(myUnits = units)
-    } else {
-      val unitPos = opUnits(unitId)
-      val nextPos = grid.neigborIn(unitPos, direction)
-      val units = opUnits.updated(unitId, nextPos)
-      copy(opUnits = units)
-    }
+  def move(unitIndex: Int, direction: Direction): FastState = {
+    updatePlayerState(nextPlayer, _.move(unitIndex, direction, heights))
+  }
 
-  def push(unitId: Int, tgt: Direction, push: Direction): FastState =
-    if (nextPlayer) {
-      val unitPos = myUnits(unitId)
-      val tgtPos = grid.neigborIn(unitPos, tgt)
-      val tgtId = if (opUnits(0) == tgtPos) 0 else 1
-      val pushed = grid.neigborIn(tgtPos, push)
-      val units = opUnits.updated(tgtId, pushed)
-      copy(opUnits = units)
-    } else {
-      val unitPos = opUnits(unitId)
-      val tgtPos = grid.neigborIn(unitPos, tgt)
-      val tgtId = if (myUnits(0) == tgtPos) 0 else 1
-      val pushed = grid.neigborIn(tgtPos, push)
-      val units = myUnits.updated(tgtId, pushed)
-      copy(myUnits = units)
-    }
+  def push(unitIndex: Int, tgt: Direction, push: Direction): FastState = {
+    val unitPos = state(nextPlayer).units(unitIndex)
+    val tgtPos = grid.neigborIn(unitPos, tgt)
+    val otherUnits = state(!nextPlayer).units
+    val tgtId = if (otherUnits(0) == tgtPos) 0 else 1
+    updatePlayerState(!nextPlayer, _.push(tgtId, push))
+  }
 
   //TODO : make faster ! use grid.neighbors
   def moveActions(unitId: Int): Iterable[MoveBuild] = {
@@ -190,8 +172,6 @@ object FastState {
       states = Seq(
         PlayerState(myUnits, fastGrid),
         PlayerState(opUnits, fastGrid)),
-      myUnits,
-      opUnits,
       heights = Vector.fill(size * size)(0),
       grid = fastGrid)
   }
