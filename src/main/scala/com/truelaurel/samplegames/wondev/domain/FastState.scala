@@ -164,16 +164,15 @@ case class FastState(size: Int,
   //TODO : make faster ! use grid.neighbors
   def pushActions(unitId: Int): Iterable[MovePush] = {
     val unitPos = nextPlayerState.units(unitId)
-    val allUnits = myUnits ++ opUnits
-    val otherUnits = allUnits diff Seq(unitPos)
+    val otherUnits = others(unitPos)
 
-    val others = otherPlayerState.units
+    val opUnits = otherPlayerState.units
     val moves = ListBuffer.empty[MovePush]
     var dir = 0
     while (dir < 8) {
       val moveDir = Direction.all(dir)
       val tgtPos = grid.neigborIn(unitPos, moveDir)
-      if (others.contains(tgtPos))
+      if (opUnits.contains(tgtPos))
         addPushMoves(moves, tgtPos, otherUnits, moveDir, unitId)
       dir += 1
     }
