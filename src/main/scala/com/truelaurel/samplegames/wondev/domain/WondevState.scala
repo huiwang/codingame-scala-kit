@@ -10,7 +10,7 @@ case class WondevState(context: WondevContext,
                        opUnits: Seq[Pos],
                        legalActions: Seq[LegalAction] = Nil) {
 
-  def neighborMap: Map[Pos, Set[Pos]] = WondevContext.neighborMapBySize(context.size)
+  def neighborMap: Map[Pos, Seq[Pos]] = WondevContext.neighborMapBySize(context.size)
 }
 
 

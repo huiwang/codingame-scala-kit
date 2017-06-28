@@ -75,13 +75,13 @@ object Direction {
     * @param size of the square
     * @return the valid neighbors
     */
-  def neighborsOf(pos: Pos, size: Int): Set[Pos] = {
+  def neighborsOf(pos: Pos, size: Int): Seq[Pos] = {
     Direction.all
       .map(d => pos.neighborIn(d))
       .filter(p => p.x < size && p.x >= 0 && p.y < size && p.y >= 0)
   }
 
-  val all = Set(N, W, S, E, SW, SE, NW, NE)
+  val all = Seq(N, W, S, E, SW, SE, NW, NE)
 
   def apply(dir: String): Direction = dir match {
     case "N" => N

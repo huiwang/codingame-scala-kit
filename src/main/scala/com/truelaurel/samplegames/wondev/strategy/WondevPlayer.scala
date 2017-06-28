@@ -41,8 +41,8 @@ case class WondevPlayer(side: Boolean) extends GamePlayer[WondevState, WondevAct
         val oppoNeighbors = state.neighborMap(pos).filter(p => {
           val h = state.heightMap(p)
           h != -1 && h != 4
-        })
-        val seenNeighbors = state.myUnits.flatMap(unit => state.neighborMap(unit) + unit)
+        }).toSet
+        val seenNeighbors = state.myUnits.flatMap(unit => state.neighborMap(unit).toSet + unit)
         val feasibleNeighbors = oppoNeighbors -- seenNeighbors
         if (feasibleNeighbors.isEmpty) None else Some(feasibleNeighbors.maxBy(state.heightMap))
       })

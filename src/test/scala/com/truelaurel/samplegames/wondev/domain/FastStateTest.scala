@@ -88,7 +88,7 @@ class FastStateTest extends FlatSpec with Matchers {
 
   "fast state" should "list valid move actions for 1 unit" in {
     val moves = for {
-      moveDir <- Direction.all diff Set(N, S)
+      moveDir <- Direction.all diff Seq(N, S)
       buildDir <- Direction.all
       builtPos = myPos1.neighborIn(moveDir).neighborIn(buildDir)
       builtP = grid.pos(builtPos)
@@ -108,7 +108,7 @@ class FastStateTest extends FlatSpec with Matchers {
       .updated(grid.pos(westHole), HOLE_HEIGHT)
 
     val moves = for {
-      moveDir <- Direction.all diff Set(N, S, E, W)
+      moveDir <- Direction.all diff Seq(N, S, E, W)
       buildDir <- Direction.all
       builtPos = myPos1.neighborIn(moveDir).neighborIn(buildDir)
       builtP = grid.pos(builtPos)
