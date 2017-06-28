@@ -8,7 +8,7 @@ import com.truelaurel.samplegames.wondev.domain.FastState._
 
 import scala.collection.mutable.ListBuffer
 
-case class PlayerState(units: Vector[Int],
+case class PlayerState(units: Array[Int],
                        grid: FastGrid,
                        score: Int = 0,
                        inactive: Boolean = false) {
@@ -117,7 +117,7 @@ case class FastState(size: Int,
   def moveActions(unitId: Int): Iterable[MoveBuild] = {
     val unitPos = nextPlayerState.units(unitId)
     val startHeight = heights(unitPos)
-    val otherUnits: Vector[Int] = others(unitPos)
+    val otherUnits = others(unitPos)
     val moves = ListBuffer.empty[MoveBuild]
     var dir = 0
     while (dir < 8) {
@@ -131,11 +131,11 @@ case class FastState(size: Int,
   }
 
   private def others(unitPos: Int) = {
-    if (unitPos == 0) Vector(nextPlayerState.units(1), otherPlayerState.units(0), otherPlayerState.units(1))
-    else Vector(nextPlayerState.units(0), otherPlayerState.units(0), otherPlayerState.units(1))
+    if (unitPos == 0) Array(nextPlayerState.units(1), otherPlayerState.units(0), otherPlayerState.units(1))
+    else Array(nextPlayerState.units(0), otherPlayerState.units(0), otherPlayerState.units(1))
   }
 
-  private def addBuildMoves(moves: ListBuffer[MoveBuild], tgtPos: Int, otherUnits: Vector[Int], moveDir: Direction, unitId: Int): Unit = {
+  private def addBuildMoves(moves: ListBuffer[MoveBuild], tgtPos: Int, otherUnits: Array[Int], moveDir: Direction, unitId: Int): Unit = {
     var dir = 0
     while (dir < 8) {
       val buildDir = Direction.all(dir)
@@ -146,16 +146,16 @@ case class FastState(size: Int,
     }
   }
 
-  private def validMoveTarget(tgtPos: Int, otherUnits: Vector[Int], startHeight: Int) =
+  private def validMoveTarget(tgtPos: Int, otherUnits: Array[Int], startHeight: Int) =
     validBuildTarget(tgtPos, otherUnits) && heights(tgtPos) <= startHeight + 1
 
-  private def validBuildTarget(tgtPos: Int, otherUnits: Vector[Int]) =
+  private def validBuildTarget(tgtPos: Int, otherUnits: Array[Int]) =
     grid.isValid(tgtPos) &&
       fastNotContains(otherUnits, tgtPos) &&
       heights(tgtPos) < MAX_BUILT_HEIGHT &&
       heights(tgtPos) != HOLE_HEIGHT
 
-  private def fastNotContains(others: Vector[Int], pos: Int) = {
+  private def fastNotContains(others: Array[Int], pos: Int) = {
     if (others(0) == pos) false
     else if (others(1) == pos) false
     else others(2) != pos
@@ -180,7 +180,7 @@ case class FastState(size: Int,
     moves
   }
 
-  private def addPushMoves(moves: ListBuffer[MovePush], tgtPos: Int, otherUnits: Vector[Int], moveDir: Direction, unitId: Int) = {
+  private def addPushMoves(moves: ListBuffer[MovePush], tgtPos: Int, otherUnits: Array[Int], moveDir: Direction, unitId: Int) = {
     var dir = 0
     val startHeight = heights(tgtPos)
     while (dir < 3) {
@@ -197,9 +197,9 @@ case class FastState(size: Int,
 
   def opScore: Int = op.score
 
-  def myUnits: Vector[Int] = me.units
+  def myUnits: Array[Int] = me.units
 
-  def opUnits: Vector[Int] = op.units
+  def opUnits: Array[Int] = op.units
 
   def myInactive: Boolean = me.inactive
 
@@ -214,7 +214,7 @@ case class FastState(size: Int,
 }
 
 object FastState {
-  def apply(size: Int, myUnits: Vector[Int], opUnits: Vector[Int]): FastState = {
+  def apply(size: Int, myUnits: Array[Int], opUnits: Array[Int]): FastState = {
     val fastGrid = FastGrid(size)
     FastState(size,
       turn = 0,

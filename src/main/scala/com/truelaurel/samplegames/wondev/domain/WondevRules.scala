@@ -4,7 +4,7 @@ import com.truelaurel.algorithm.game._
 
 case class WondevRules(size: Int) extends RulesFor2p[FastState, WondevAction] {
   def initial: FastState =
-    FastState(size, myUnits = Vector(0, 1), opUnits = Vector(1, 2))
+    FastState(size, myUnits = Array(0, 1), opUnits = Array(3, 2))
 
   def validMoves(state: FastState): Seq[WondevAction] =
     state.validActions

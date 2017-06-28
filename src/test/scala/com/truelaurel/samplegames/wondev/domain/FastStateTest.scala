@@ -22,8 +22,8 @@ class FastStateTest extends FlatSpec with Matchers {
   // ..F..
 
   val state = FastState(5,
-    myUnits = Vector(grid.pos(myPos0), grid.pos(myPos1)),
-    opUnits = Vector(grid.pos(opPos0), grid.pos(opPos1)))
+    myUnits = Array(grid.pos(myPos0), grid.pos(myPos1)),
+    opUnits = Array(grid.pos(opPos0), grid.pos(opPos1)))
 
   "fast state : build" should "increase height" in {
     val p = grid.pos(Pos(2, 2))
