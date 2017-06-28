@@ -1,7 +1,9 @@
 import com.truelaurel.codingame.challenge.GameLoop
 import com.truelaurel.codingame.logging.CGLogger
-import com.truelaurel.samplegames.wondev.io.WondevController
-import com.truelaurel.samplegames.wondev.strategy.WondevPlayer
+import com.truelaurel.samplegames.wondev.io.FastController
+import com.truelaurel.samplegames.wondev.strategy.WondevFastPlayer
+
+import scala.io.StdIn.readInt
 
 // ~runMain com.truelaurel.codingame.tool.bundle.BundlerMain WondevChallenge.scala
 
@@ -15,7 +17,8 @@ import com.truelaurel.samplegames.wondev.strategy.WondevPlayer
 object Player {
   def main(args: Array[String]): Unit = {
     CGLogger.current = CGLogger.debug
-    val gameLoop = new GameLoop(WondevController, WondevPlayer(true))
+    val size = readInt
+    val gameLoop = new GameLoop(FastController(size), WondevFastPlayer(true, size))
     gameLoop.run()
   }
 }

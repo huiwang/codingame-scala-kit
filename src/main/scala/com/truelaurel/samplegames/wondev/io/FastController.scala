@@ -1,0 +1,73 @@
+package com.truelaurel.samplegames.wondev.io
+
+import com.truelaurel.codingame.challenge.GameController
+import com.truelaurel.math.geometry._
+import com.truelaurel.math.geometry.grid.FastGrid
+import com.truelaurel.samplegames.wondev.domain._
+
+import scala.io.StdIn._
+
+case class FastController(size: Int) extends GameController[WondevContext, FastState, WondevAction] {
+  val grid = FastGrid(size)
+
+  def readContext: WondevContext = {
+    val unitsperplayer = readInt
+    WondevContext(size, unitsperplayer)
+  }
+
+  def readState(turn: Int, context: WondevContext): FastState =
+    read(context).copy(turn = turn)
+
+  def nextContext(context: WondevContext, state: FastState, actions: Vector[WondevAction]): WondevContext = {
+    context //.copy(previousHeightMap = WondevArena.next(state, actions).heightMap)
+  }
+
+  def read(context: WondevContext): FastState = {
+    val heights = readHeights(context)
+    val mine = readUnits(context.unitsperplayer).toArray.map(grid.pos)
+    val op = readUnits(context.unitsperplayer).toArray.map(p => if (p == Pos(-1, -1)) 3 else grid.pos(p))
+    val state = FastState(size, mine, op).copy(heights = heights)
+    readActions
+    state
+  }
+
+  private def readUnits(unitsperplayer: Int) = {
+    Seq.fill(unitsperplayer) {
+      val Array(unitx, unity) = for (i <- readLine split " ") yield i.toInt
+      Pos(unitx, unity)
+    }
+  }
+
+  private def readHeights(context: WondevContext) = {
+    val rows = Seq.fill(context.size)(readLine)
+    parseHeights(rows).toArray
+  }
+
+  def parseHeights(rows: Seq[String]): Seq[Int] = {
+    val heights = for {
+      (row: String, y: Int) <- rows.zipWithIndex
+      (cell: Char, x) <- row.zipWithIndex
+      h = if (cell == '.') -1 else cell - '0'
+    } yield grid.pos(Pos(x, y)) -> h
+    heights.sortBy(_._1).map(_._2)
+  }
+
+  private def readActions = {
+    Seq.fill(readInt) {
+      val Array(_type, _index, dir1, dir2) = readLine split " "
+      val index = _index.toInt
+      if (_type == "MOVE&BUILD") {
+        LegalAction(Build, index, Direction(dir1), Direction(dir2))
+      } else {
+        LegalAction(Push, index, Direction(dir1), Direction(dir2))
+      }
+    }
+  }
+
+
+}
+
+
+
+
+
