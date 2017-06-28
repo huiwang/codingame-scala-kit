@@ -4,10 +4,36 @@ import com.truelaurel.algorithm.game.GameState
 import com.truelaurel.collection.IterableUtil._
 import com.truelaurel.math.geometry.Direction
 import com.truelaurel.math.geometry.grid.FastGrid
+import com.truelaurel.samplegames.wondev.domain.FastState._
 
+case class PlayerState(units: Vector[Int],
+                       grid: FastGrid,
+                       score: Int = 0,
+                       inactive: Boolean = false) {
+
+
+  def push(unitId: Int, tgt: Direction, push: Direction): PlayerState = {
+    val unitPos = units(unitId)
+    val tgtPos = grid.neigborIn(unitPos, tgt)
+    val tgtId = if (units(0) == tgtPos) 0 else 1
+    val pushed = grid.neigborIn(tgtPos, push)
+    copy(units = units.updated(tgtId, pushed))
+  }
+
+  def move(unitId: Int, direction: Direction, heights: Vector[Int]): PlayerState = {
+    val unitPos = units(unitId)
+    val nextPos = grid.neigborIn(unitPos, direction)
+    val s = if (heights(nextPos) == SCORE_HEIGHT) score + 1 else score
+    copy(
+      units = units.updated(unitId, nextPos),
+      score = s)
+  }
+
+}
 
 case class FastState(size: Int,
                      turn: Int,
+                     states: Seq[PlayerState],
                      myScore: Int,
                      opScore: Int,
                      myUnits: Vector[Int],
@@ -20,13 +46,8 @@ case class FastState(size: Int,
 
   // myUnits : when nextPlayer == true
 
-  import FastState._
 
-  def scoreForNext = if (nextPlayer) myScore else opScore
-
-  def scoreForOther = if (nextPlayer) opScore else myScore
-
-  def applyAction(action: WondevAction) = action match {
+  def applyAction(action: WondevAction): FastState = action match {
     case MoveBuild(unitIndex, moveDir, buildDir) =>
       moveAndBuild(unitIndex, moveDir, buildDir)
 
@@ -48,13 +69,20 @@ case class FastState(size: Int,
     else Vector(Pass)
   }
 
+  private def updatePlayerState(mine: Boolean, f: PlayerState => PlayerState) = {
+    val i = if (mine) 0 else 1
+    copy(states = states.updated(i, f(states(i))))
+  }
+
+
   private def validActionsForUnit(id: Int): Iterable[WondevAction] =
     pushActions(id) ++ moveActions(id)
 
   private def pushAndBuild(unitIndex: Int, moveDir: Direction, pushDir: Direction) = {
     val unitPos = if (nextPlayer) myUnits(unitIndex) else opUnits(unitIndex)
     val tgtPos = grid.neigborIn(unitPos, moveDir)
-    push(unitIndex, moveDir, pushDir)
+    val pushed = updatePlayerState(!nextPlayer, _.push(unitIndex, moveDir, pushDir))
+    pushed.push(unitIndex, moveDir, pushDir)
       .build(tgtPos)
       .endTurn
   }
@@ -63,7 +91,9 @@ case class FastState(size: Int,
     val unitPos = if (nextPlayer) myUnits(unitIndex) else opUnits(unitIndex)
     val movedPos = grid.neigborIn(unitPos, moveDir)
     val builtPos = grid.neigborIn(movedPos, buildDir)
-    move(unitIndex, moveDir)
+    val moved = updatePlayerState(nextPlayer, _.move(unitIndex, moveDir, heights))
+
+    moved.move(unitIndex, moveDir)
       .build(builtPos)
       .endTurn
   }
@@ -74,7 +104,7 @@ case class FastState(size: Int,
       turn = turn + 1)
 
   def build(p: Int): FastState =
-    copy(heights = heights.updatef(p, 1 +))
+    copy(heights = heights.updatef(p, 1.+))
 
   //TODO : test System.arraycopy for perf
 
@@ -154,15 +184,20 @@ case class FastState(size: Int,
 }
 
 object FastState {
-  def apply(size: Int, myUnits: Vector[Int], opUnits: Vector[Int]): FastState =
+  def apply(size: Int, myUnits: Vector[Int], opUnits: Vector[Int]): FastState = {
+    val fastGrid = FastGrid(size)
     FastState(size,
       turn = 0,
+      states = Seq(
+        PlayerState(myUnits, fastGrid),
+        PlayerState(opUnits, fastGrid)),
       myScore = 0,
       opScore = 0,
       myUnits,
       opUnits,
       heights = Vector.fill(size * size)(0),
-      grid = FastGrid(size))
+      grid = fastGrid)
+  }
 
   val MAX_BUILT_HEIGHT = 4
   val HOLE_HEIGHT = -1
