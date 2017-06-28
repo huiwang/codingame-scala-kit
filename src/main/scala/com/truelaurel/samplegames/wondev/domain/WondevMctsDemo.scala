@@ -17,7 +17,7 @@ object WondevMctsDemo {
   }
 
   def mctsMove(s: FastState): WondevAction = {
-    val chronometer = new Chronometer(1.seconds)
+    val chronometer = new Chronometer(50.millis)
     chronometer.start()
     MctsAi(rules)(_ => chronometer.willOutOfTime).chooseMove(s)
   }

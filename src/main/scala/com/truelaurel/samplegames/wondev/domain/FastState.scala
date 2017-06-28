@@ -2,8 +2,8 @@ package com.truelaurel.samplegames.wondev.domain
 
 import com.truelaurel.algorithm.game.GameState
 import com.truelaurel.collection.ArrayUtil._
-import com.truelaurel.math.geometry.Direction
 import com.truelaurel.math.geometry.grid.FastGrid
+import com.truelaurel.math.geometry.{Direction, Pos}
 import com.truelaurel.samplegames.wondev.domain.FastState._
 
 import scala.collection.mutable.ListBuffer
@@ -221,6 +221,23 @@ case class FastState(size: Int,
 
   def otherPlayerState: PlayerState = playerState(!nextPlayer)
 
+  override def toString = {
+    Seq.tabulate(grid.size)(y => lineAt(y))
+  }.mkString("\n", "\n", "\n")
+
+  private def lineAt(y: Int) = {
+    Seq.tabulate(grid.size)(x => charAt(x, y)).mkString
+  }
+
+  private def charAt(x: Int, y: Int): Char = {
+    val p = grid.pos(Pos(x, y))
+    if (states(0).units(0) == p) 'A'
+    else if (states(0).units(1) == p) 'B'
+    else if (states(1).units(1) == p) 'Z'
+    else if (states(1).units(0) == p) 'Y'
+    else if (heights(p) == HOLE_HEIGHT) ' '
+    else heights(p).toString.head
+  }
 }
 
 object FastState {
