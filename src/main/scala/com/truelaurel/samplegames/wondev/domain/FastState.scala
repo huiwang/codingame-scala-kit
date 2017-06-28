@@ -1,7 +1,7 @@
 package com.truelaurel.samplegames.wondev.domain
 
 import com.truelaurel.algorithm.game.GameState
-import com.truelaurel.collection.IterableUtil._
+import com.truelaurel.collection.ArrayUtil._
 import com.truelaurel.math.geometry.Direction
 import com.truelaurel.math.geometry.grid.FastGrid
 import com.truelaurel.samplegames.wondev.domain.FastState._
@@ -20,7 +20,7 @@ case class PlayerState(units: Vector[Int],
     copy(units = units.updated(unitId, pushed))
   }
 
-  def move(unitId: Int, direction: Direction, heights: Vector[Int]): PlayerState = {
+  def move(unitId: Int, direction: Direction, heights: Array[Int]): PlayerState = {
     val unitPos = units(unitId)
     val nextPos = grid.neigborIn(unitPos, direction)
     val s = if (heights(nextPos) == SCORE_HEIGHT) score + 1 else score
@@ -34,7 +34,7 @@ case class PlayerState(units: Vector[Int],
 case class FastState(size: Int,
                      turn: Int,
                      states: Seq[PlayerState],
-                     heights: Vector[Int],
+                     heights: Array[Int],
                      grid: FastGrid,
                      nextPlayer: Boolean = true) extends GameState[Boolean] {
 
@@ -96,7 +96,7 @@ case class FastState(size: Int,
       turn = turn + 1)
 
   def build(p: Int): FastState =
-    copy(heights = heights.updatef(p, 1.+))
+    copy(heights = update(heights, p, i => 1 + i))
 
   //TODO : test System.arraycopy for perf
 
@@ -221,7 +221,7 @@ object FastState {
       states = Seq(
         PlayerState(myUnits, fastGrid),
         PlayerState(opUnits, fastGrid)),
-      heights = Vector.fill(size * size)(0),
+      heights = Array.fill(size * size)(0),
       grid = fastGrid)
   }
 
