@@ -37,10 +37,8 @@ case class FastState(size: Int,
                      nextPlayer: Boolean = true) extends GameState[Boolean] {
 
 
-
-
-  val me=states(0)
-  val op=states(1)
+  val me = states(0)
+  val op = states(1)
 
   def applyAction(action: WondevAction): FastState = action match {
     case MoveBuild(unitIndex, moveDir, buildDir) =>
@@ -121,16 +119,21 @@ case class FastState(size: Int,
     for {
       moveDir <- Direction.all
       tgtPos = grid.neigborIn(unitPos, moveDir)
-      if grid.isValid(tgtPos)
-      if !otherUnits.contains(tgtPos)
-      if heights(tgtPos) <= startHeight + 1 && heights(tgtPos) < MAX_BUILT_HEIGHT && heights(tgtPos) != HOLE_HEIGHT
+      if validMoveTarget(tgtPos, otherUnits, startHeight)
       buildDir <- Direction.all
       buildPos = grid.neigborIn(tgtPos, buildDir)
-      if grid.isValid(buildPos)
-      if !otherUnits.contains(buildPos)
-      if heights(buildPos) < MAX_BUILT_HEIGHT && heights(buildPos) != HOLE_HEIGHT
+      if validBuildTarget(buildPos, otherUnits)
     } yield MoveBuild(unitId, moveDir, buildDir)
   }
+
+  private def validMoveTarget(tgtPos: Int, otherUnits: Vector[Int], startHeight: Int) =
+    validBuildTarget(tgtPos, otherUnits) && heights(tgtPos) <= startHeight + 1
+
+  private def validBuildTarget(tgtPos: Int, otherUnits: Vector[Int]) =
+    grid.isValid(tgtPos) &&
+      !otherUnits.contains(tgtPos) &&
+      heights(tgtPos) < MAX_BUILT_HEIGHT &&
+      heights(tgtPos) != HOLE_HEIGHT
 
   //TODO : make faster ! use grid.neighbors
   def pushActions(unitId: Int): Iterable[MovePush] = {
@@ -147,9 +150,7 @@ case class FastState(size: Int,
       startHeight = heights(tgtPos)
       pushDir <- moveDir.similar
       pushPos = grid.neigborIn(tgtPos, pushDir)
-      if grid.isValid(pushPos)
-      if heights(tgtPos) <= startHeight + 1 && heights(tgtPos) < MAX_BUILT_HEIGHT && heights(tgtPos) != HOLE_HEIGHT
-      if !otherUnits.contains(pushPos)
+      if validMoveTarget(pushPos, otherUnits, startHeight)
     } yield MovePush(unitId, moveDir, pushDir)
   }
 
