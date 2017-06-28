@@ -34,21 +34,13 @@ case class FastState(size: Int,
                      states: Seq[PlayerState],
                      heights: Vector[Int],
                      grid: FastGrid,
-                     nextPlayer: Boolean = true,
-                     myInactive: Boolean = false,
-                     opInactive: Boolean = false) extends GameState[Boolean] {
+                     nextPlayer: Boolean = true) extends GameState[Boolean] {
 
-  // myUnits : when nextPlayer == true
 
-  def myScore: Int = states(0).score
 
-  def opScore: Int = states(1).score
 
-  def myUnits: Vector[Int] = states(0).units
-
-  def opUnits: Vector[Int] = states(1).units
-
-  def state(mine: Boolean): PlayerState = states(if (mine) 0 else 1)
+  val me=states(0)
+  val op=states(1)
 
   def applyAction(action: WondevAction): FastState = action match {
     case MoveBuild(unitIndex, moveDir, buildDir) =>
@@ -58,8 +50,7 @@ case class FastState(size: Int,
       pushAndBuild(unitIndex, moveDir, pushDir)
 
     case Pass =>
-      val deactivated = if (nextPlayer) copy(myInactive = true) else copy(opInactive = true)
-      deactivated.endTurn
+      updatePlayerState(nextPlayer, _.copy(inactive = true)).endTurn
   }
 
   def validActions: Seq[WondevAction] = {
@@ -82,7 +73,7 @@ case class FastState(size: Int,
     pushActions(id) ++ moveActions(id)
 
   private def pushAndBuild(unitIndex: Int, moveDir: Direction, pushDir: Direction) = {
-    val unitPos = state(nextPlayer).units(unitIndex)
+    val unitPos = nextPlayerState.units(unitIndex)
     val tgtPos = grid.neigborIn(unitPos, moveDir)
     push(unitIndex, moveDir, pushDir)
       .build(tgtPos)
@@ -90,7 +81,7 @@ case class FastState(size: Int,
   }
 
   private def moveAndBuild(unitIndex: Int, moveDir: Direction, buildDir: Direction) = {
-    val unitPos = if (nextPlayer) myUnits(unitIndex) else opUnits(unitIndex)
+    val unitPos = nextPlayerState.units(unitIndex)
     val movedPos = grid.neigborIn(unitPos, moveDir)
     val builtPos = grid.neigborIn(movedPos, buildDir)
 
@@ -114,9 +105,9 @@ case class FastState(size: Int,
   }
 
   def push(unitIndex: Int, tgt: Direction, push: Direction): FastState = {
-    val unitPos = state(nextPlayer).units(unitIndex)
+    val unitPos = nextPlayerState.units(unitIndex)
     val tgtPos = grid.neigborIn(unitPos, tgt)
-    val otherUnits = state(!nextPlayer).units
+    val otherUnits = otherPlayerState.units
     val tgtId = if (otherUnits(0) == tgtPos) 0 else 1
     updatePlayerState(!nextPlayer, _.push(tgtId, push))
   }
@@ -124,7 +115,7 @@ case class FastState(size: Int,
   //TODO : make faster ! use grid.neighbors
   def moveActions(unitId: Int): Iterable[MoveBuild] = {
     val allUnits = myUnits ++ opUnits
-    val unitPos = if (nextPlayer) myUnits(unitId) else opUnits(unitId)
+    val unitPos = nextPlayerState.units(unitId)
     val startHeight = heights(unitPos)
     val otherUnits = allUnits diff Seq(unitPos)
     for {
@@ -143,11 +134,11 @@ case class FastState(size: Int,
 
   //TODO : make faster ! use grid.neighbors
   def pushActions(unitId: Int): Iterable[MovePush] = {
-    val unitPos = if (nextPlayer) myUnits(unitId) else opUnits(unitId)
+    val unitPos = nextPlayerState.units(unitId)
     val allUnits = myUnits ++ opUnits
     val otherUnits = allUnits diff Seq(unitPos)
 
-    val others = if (nextPlayer) opUnits else myUnits
+    val others = otherPlayerState.units
     val pushable = others.filter(grid.neighbors(unitPos).contains)
     for {
       moveDir <- Direction.all
@@ -161,6 +152,24 @@ case class FastState(size: Int,
       if !otherUnits.contains(pushPos)
     } yield MovePush(unitId, moveDir, pushDir)
   }
+
+  def myScore: Int = me.score
+
+  def opScore: Int = op.score
+
+  def myUnits: Vector[Int] = me.units
+
+  def opUnits: Vector[Int] = op.units
+
+  def myInactive: Boolean = me.inactive
+
+  def opInactive: Boolean = op.inactive
+
+  def playerState(mine: Boolean): PlayerState = states(if (mine) 0 else 1)
+
+  def nextPlayerState: PlayerState = playerState(nextPlayer)
+
+  def otherPlayerState: PlayerState = playerState(!nextPlayer)
 
 }
 
