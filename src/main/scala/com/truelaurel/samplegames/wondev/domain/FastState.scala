@@ -151,15 +151,10 @@ case class FastState(size: Int,
 
   private def validBuildTarget(tgtPos: Int, otherUnits: Array[Int]) =
     grid.isValid(tgtPos) &&
-      fastNotContains(otherUnits, tgtPos) &&
+      fastNotContains3(otherUnits, tgtPos) &&
       heights(tgtPos) < MAX_BUILT_HEIGHT &&
       heights(tgtPos) != HOLE_HEIGHT
 
-  private def fastNotContains(others: Array[Int], pos: Int) = {
-    if (others(0) == pos) false
-    else if (others(1) == pos) false
-    else others(2) != pos
-  }
 
   //TODO : make faster ! use grid.neighbors
   def pushActions(unitId: Int): Iterable[MovePush] = {
@@ -172,7 +167,7 @@ case class FastState(size: Int,
     while (dir < 8) {
       val moveDir = Direction.all(dir)
       val tgtPos = grid.neigborIn(unitPos, moveDir)
-      if (opUnits.contains(tgtPos))
+      if (fastContains2(opUnits, tgtPos))
         addPushMoves(moves, tgtPos, otherUnits, moveDir, unitId)
       dir += 1
     }
