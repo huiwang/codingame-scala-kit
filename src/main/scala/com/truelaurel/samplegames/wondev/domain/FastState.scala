@@ -34,8 +34,6 @@ case class PlayerState(units: Vector[Int],
 case class FastState(size: Int,
                      turn: Int,
                      states: Seq[PlayerState],
-                     myScore: Int,
-                     opScore: Int,
                      myUnits: Vector[Int],
                      opUnits: Vector[Int],
                      heights: Vector[Int],
@@ -45,6 +43,9 @@ case class FastState(size: Int,
                      opInactive: Boolean = false) extends GameState[Boolean] {
 
   // myUnits : when nextPlayer == true
+
+  def myScore: Int = states(0).score
+  def opScore: Int = states(1).score
 
 
   def applyAction(action: WondevAction): FastState = action match {
@@ -112,15 +113,13 @@ case class FastState(size: Int,
     if (nextPlayer) {
       val unitPos = myUnits(unitId)
       val nextPos = grid.neigborIn(unitPos, direction)
-      val score = if (heights(nextPos) == SCORE_HEIGHT) myScore + 1 else myScore
       val units = myUnits.updated(unitId, nextPos)
-      copy(myUnits = units, myScore = score)
+      copy(myUnits = units)
     } else {
       val unitPos = opUnits(unitId)
       val nextPos = grid.neigborIn(unitPos, direction)
-      val score = if (heights(nextPos) == SCORE_HEIGHT) opScore + 1 else opScore
       val units = opUnits.updated(unitId, nextPos)
-      copy(opUnits = units, opScore = score)
+      copy(opUnits = units)
     }
 
   def push(unitId: Int, tgt: Direction, push: Direction): FastState =
@@ -191,8 +190,6 @@ object FastState {
       states = Seq(
         PlayerState(myUnits, fastGrid),
         PlayerState(opUnits, fastGrid)),
-      myScore = 0,
-      opScore = 0,
       myUnits,
       opUnits,
       heights = Vector.fill(size * size)(0),
