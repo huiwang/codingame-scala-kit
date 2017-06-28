@@ -6,6 +6,8 @@ import com.truelaurel.math.geometry.Direction
 import com.truelaurel.math.geometry.grid.FastGrid
 import com.truelaurel.samplegames.wondev.domain.FastState._
 
+import scala.collection.mutable.ListBuffer
+
 case class PlayerState(units: Vector[Int],
                        grid: FastGrid,
                        score: Int = 0,
@@ -110,20 +112,34 @@ case class FastState(size: Int,
     updatePlayerState(!nextPlayer, _.push(tgtId, push))
   }
 
+
   //TODO : make faster ! use grid.neighbors
   def moveActions(unitId: Int): Iterable[MoveBuild] = {
     val allUnits = myUnits ++ opUnits
     val unitPos = nextPlayerState.units(unitId)
     val startHeight = heights(unitPos)
     val otherUnits = allUnits diff Seq(unitPos)
-    for {
-      moveDir <- Direction.all
-      tgtPos = grid.neigborIn(unitPos, moveDir)
-      if validMoveTarget(tgtPos, otherUnits, startHeight)
-      buildDir <- Direction.all
-      buildPos = grid.neigborIn(tgtPos, buildDir)
-      if validBuildTarget(buildPos, otherUnits)
-    } yield MoveBuild(unitId, moveDir, buildDir)
+    val moves = ListBuffer.empty[MoveBuild]
+    var dir = 0
+    while (dir < 8) {
+      val moveDir = Direction.all(dir)
+      val tgtPos = grid.neigborIn(unitPos, moveDir)
+      if (validMoveTarget(tgtPos, otherUnits, startHeight))
+        addBuildMoves(moves, tgtPos, otherUnits, moveDir, unitId)
+      dir += 1
+    }
+    moves
+  }
+
+  private def addBuildMoves(moves: ListBuffer[MoveBuild], tgtPos: Int, otherUnits: Vector[Int], moveDir: Direction, unitId: Int): Unit = {
+    var dir = 0
+    while (dir < 8) {
+      val buildDir = Direction.all(dir)
+      val buildPos = grid.neigborIn(tgtPos, buildDir)
+      if (validBuildTarget(buildPos, otherUnits))
+        moves += MoveBuild(unitId, moveDir, buildDir)
+      dir += 1
+    }
   }
 
   private def validMoveTarget(tgtPos: Int, otherUnits: Vector[Int], startHeight: Int) =
@@ -135,6 +151,7 @@ case class FastState(size: Int,
       heights(tgtPos) < MAX_BUILT_HEIGHT &&
       heights(tgtPos) != HOLE_HEIGHT
 
+
   //TODO : make faster ! use grid.neighbors
   def pushActions(unitId: Int): Iterable[MovePush] = {
     val unitPos = nextPlayerState.units(unitId)
@@ -143,16 +160,30 @@ case class FastState(size: Int,
 
     val others = otherPlayerState.units
     val pushable = others.filter(grid.neighbors(unitPos).contains)
-    for {
-      moveDir <- Direction.all
-      tgtPos = grid.neigborIn(unitPos, moveDir)
-      if pushable.contains(tgtPos)
-      startHeight = heights(tgtPos)
-      pushDir <- moveDir.similar
-      pushPos = grid.neigborIn(tgtPos, pushDir)
-      if validMoveTarget(pushPos, otherUnits, startHeight)
-    } yield MovePush(unitId, moveDir, pushDir)
+    val moves = ListBuffer.empty[MovePush]
+    var dir = 0
+    while (dir < 8) {
+      val moveDir = Direction.all(dir)
+      val tgtPos = grid.neigborIn(unitPos, moveDir)
+      if (pushable.contains(tgtPos))
+        addPushMoves(moves, tgtPos, otherUnits, moveDir, unitId)
+      dir += 1
+    }
+    moves
   }
+
+  private def addPushMoves(moves: ListBuffer[MovePush], tgtPos: Int, otherUnits: Vector[Int], moveDir: Direction , unitId: Int) = {
+    var dir = 0
+    val startHeight = heights(tgtPos)
+    while (dir < 3) {
+      val pushDir = moveDir.similar(dir)
+      val  pushPos = grid.neigborIn(tgtPos, pushDir)
+      if (validMoveTarget(pushPos, otherUnits, startHeight))
+        moves += MovePush(unitId, moveDir, pushDir)
+      dir += 1
+    }
+  }
+
 
   def myScore: Int = me.score
 
