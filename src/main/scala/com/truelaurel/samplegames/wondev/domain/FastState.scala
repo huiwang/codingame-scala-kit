@@ -33,7 +33,7 @@ case class PlayerState(units: Array[Int],
 
 case class FastState(size: Int,
                      turn: Int,
-                     states: Seq[PlayerState],
+                     states: Array[PlayerState],
                      heights: Array[Int],
                      grid: FastGrid,
                      nextPlayer: Boolean = true) extends GameState[Boolean] {
@@ -218,7 +218,7 @@ object FastState {
     val fastGrid = FastGrid(size)
     FastState(size,
       turn = 0,
-      states = Seq(
+      states = Array(
         PlayerState(myUnits, fastGrid),
         PlayerState(opUnits, fastGrid)),
       heights = Array.fill(size * size)(0),
