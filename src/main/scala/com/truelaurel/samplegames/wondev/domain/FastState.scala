@@ -115,10 +115,9 @@ case class FastState(size: Int,
 
   //TODO : make faster ! use grid.neighbors
   def moveActions(unitId: Int): Iterable[MoveBuild] = {
-    val allUnits = myUnits ++ opUnits
     val unitPos = nextPlayerState.units(unitId)
     val startHeight = heights(unitPos)
-    val otherUnits = allUnits diff Seq(unitPos)
+    val otherUnits: Vector[Int] = others(unitPos)
     val moves = ListBuffer.empty[MoveBuild]
     var dir = 0
     while (dir < 8) {
@@ -129,6 +128,11 @@ case class FastState(size: Int,
       dir += 1
     }
     moves
+  }
+
+  private def others(unitPos: Int) = {
+    if (unitPos == 0) Vector(nextPlayerState.units(1), otherPlayerState.units(0), otherPlayerState.units(1))
+    else Vector(nextPlayerState.units(0), otherPlayerState.units(0), otherPlayerState.units(1))
   }
 
   private def addBuildMoves(moves: ListBuffer[MoveBuild], tgtPos: Int, otherUnits: Vector[Int], moveDir: Direction, unitId: Int): Unit = {
@@ -147,10 +151,15 @@ case class FastState(size: Int,
 
   private def validBuildTarget(tgtPos: Int, otherUnits: Vector[Int]) =
     grid.isValid(tgtPos) &&
-      !otherUnits.contains(tgtPos) &&
+      fastNotContains(otherUnits, tgtPos) &&
       heights(tgtPos) < MAX_BUILT_HEIGHT &&
       heights(tgtPos) != HOLE_HEIGHT
 
+  private def fastNotContains(others: Vector[Int], pos: Int) = {
+    if (others(0) == pos) false
+    else if (others(1) == pos) false
+    else others(2) != pos
+  }
 
   //TODO : make faster ! use grid.neighbors
   def pushActions(unitId: Int): Iterable[MovePush] = {
@@ -159,25 +168,24 @@ case class FastState(size: Int,
     val otherUnits = allUnits diff Seq(unitPos)
 
     val others = otherPlayerState.units
-    val pushable = others.filter(grid.neighbors(unitPos).contains)
     val moves = ListBuffer.empty[MovePush]
     var dir = 0
     while (dir < 8) {
       val moveDir = Direction.all(dir)
       val tgtPos = grid.neigborIn(unitPos, moveDir)
-      if (pushable.contains(tgtPos))
+      if (others.contains(tgtPos))
         addPushMoves(moves, tgtPos, otherUnits, moveDir, unitId)
       dir += 1
     }
     moves
   }
 
-  private def addPushMoves(moves: ListBuffer[MovePush], tgtPos: Int, otherUnits: Vector[Int], moveDir: Direction , unitId: Int) = {
+  private def addPushMoves(moves: ListBuffer[MovePush], tgtPos: Int, otherUnits: Vector[Int], moveDir: Direction, unitId: Int) = {
     var dir = 0
     val startHeight = heights(tgtPos)
     while (dir < 3) {
       val pushDir = moveDir.similar(dir)
-      val  pushPos = grid.neigborIn(tgtPos, pushDir)
+      val pushPos = grid.neigborIn(tgtPos, pushDir)
       if (validMoveTarget(pushPos, otherUnits, startHeight))
         moves += MovePush(unitId, moveDir, pushDir)
       dir += 1
