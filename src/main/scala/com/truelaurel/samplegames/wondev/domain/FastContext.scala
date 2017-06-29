@@ -15,14 +15,16 @@ case class FastContext(size: Int, unitsperplayer: Int, stateAfterMyAction: Optio
         .find { i => state.heights(i) != previousHeights(i) }
     }
 
-  def guessOppPos(heights: Array[Int]): Option[Array[Int]] = stateAfterMyAction.map { state =>
+  def guessOppPos(heights: Array[Int], mine: Array[Int]): Option[Array[Int]] = stateAfterMyAction.map { state =>
     val delta = findHeightDelta(heights)
+    val inFog = FastContext.notSeenByMine(mine, state.grid, heights)
     val possibilities = for {
       p <- delta.toSeq
       n <- state.grid.neighbors(p)
-      if state.validUnitPos(n) && !state.opUnits.contains(n)
+      if state.validUnitPos(n) && inFog.contains(n)
     } yield n
-    possibilities.distinct.sortBy(state.heights).toArray
+    val previousPositions = state.opUnits.filter(inFog.contains)
+    (previousPositions ++ possibilities).distinct.sortBy(state.heights).toArray
   }
 }
 
