@@ -33,39 +33,39 @@ object Pos {
 
 
 sealed trait Direction {
-  def similar: Seq[Direction]
+  def similar: Array[Direction]
 }
 
 case object N extends Direction {
-  val similar: Seq[Direction] = Seq(NE, N, NW)
+  val similar: Array[Direction] = Array(NE, N, NW)
 }
 
 case object W extends Direction {
-  val similar: Seq[Direction] = Seq(NW, W, SW)
+  val similar: Array[Direction] = Array(NW, W, SW)
 }
 
 case object S extends Direction {
-  val similar: Seq[Direction] = Seq(SE, S, SW)
+  val similar: Array[Direction] = Array(SE, S, SW)
 }
 
 case object E extends Direction {
-  val similar: Seq[Direction] = Seq(NE, SE, E)
+  val similar: Array[Direction] = Array(NE, SE, E)
 }
 
 case object NW extends Direction {
-  val similar: Seq[Direction] = Seq(N, W, NW)
+  val similar: Array[Direction] = Array(N, W, NW)
 }
 
 case object NE extends Direction {
-  val similar: Seq[Direction] = Seq(NE, N, E)
+  val similar: Array[Direction] = Array(NE, N, E)
 }
 
 case object SW extends Direction {
-  val similar: Seq[Direction] = Seq(S, W, SW)
+  val similar: Array[Direction] = Array(S, W, SW)
 }
 
 case object SE extends Direction {
-  val similar: Seq[Direction] = Seq(SE, E, N)
+  val similar: Array[Direction] = Array(SE, E, S)
 }
 
 object Direction {

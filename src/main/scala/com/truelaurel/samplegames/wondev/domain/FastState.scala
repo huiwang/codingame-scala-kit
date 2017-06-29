@@ -194,8 +194,9 @@ case class FastState(size: Int,
   private def addPushMoves(moves: ListBuffer[WondevAction], tgtPos: Int, otherUnits: Array[Int], moveDir: Direction, unitId: Int) = {
     var dir = 0
     val startHeight = heights(tgtPos)
+    val directions = moveDir.similar
     while (dir < 3) {
-      val pushDir = moveDir.similar(dir)
+      val pushDir = directions(dir)
       val pushPos = grid.neigborIn(tgtPos, pushDir)
       if (validMoveTarget(pushPos, otherUnits, startHeight))
         moves += MovePush(unitId, moveDir, pushDir)
