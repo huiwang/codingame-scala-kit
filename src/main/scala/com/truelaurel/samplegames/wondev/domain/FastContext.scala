@@ -18,11 +18,11 @@ case class FastContext(size: Int, unitsperplayer: Int, stateAfterMyAction: Optio
   def guessOppPos(heights: Array[Int]): Option[Array[Int]] = stateAfterMyAction.map { state =>
     val delta = findHeightDelta(heights)
     val possibilities = for {
-      p <- delta.toArray
+      p <- delta.toSeq
       n <- state.grid.neighbors(p)
-      if state.validUnitPos(p) && !state.opUnits.contains(p)
-    } yield p
-    possibilities.sortBy(state.heights)
+      if state.validUnitPos(n) && !state.opUnits.contains(n)
+    } yield n
+    possibilities.distinct.sortBy(state.heights).toArray
   }
 }
 
@@ -32,9 +32,8 @@ object FastContext {
   def notSeenByMine(mine: Array[Int], grid: FastGrid, heights: Array[Int]): Array[Int] = {
     val seen = (mine ++ mine.flatMap(m => grid.neighbors(m))).distinct
     for {
-      p <- heights
-      if grid.isValid(p) &&
-        heights(p) < MAX_BUILT_HEIGHT &&
+      p <- (0 until grid.size2).toArray
+      if heights(p) < MAX_BUILT_HEIGHT &&
         heights(p) != HOLE_HEIGHT &&
         !seen.contains(p)
     } yield p

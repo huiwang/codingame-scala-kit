@@ -25,11 +25,12 @@ case class FastGrid(size: Int) {
 
   val center: Int = pos(Pos(size / 2, size / 2))
 
+  val size2: Int = size * size
   /**
     * Only valid neighbors are listed here.
     */
   val namedNeighbors: Array[Array[(Direction, Int)]] = for {
-    p <- (0 until size * size).toArray
+    p <- (0 until size2).toArray
     po = pos(p)
   } yield namedNeighborsImpl(po)
 
@@ -53,7 +54,7 @@ case class FastGrid(size: Int) {
     Pos(x, y)
   }
 
-  def isValid(p: Int): Boolean = p >= 0 && p < size * size
+  def isValid(p: Int): Boolean = p >= 0 && p < size2
   def isValid(pos: Pos): Boolean =pos.x < size && pos.x >= 0 && pos.y < size && pos.y >= 0
 }
 
