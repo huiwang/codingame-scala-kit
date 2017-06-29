@@ -127,7 +127,7 @@ case class FastState(size: Int,
     buffer
   }
 
-  def moveActions(unitId: Int, buffer: ListBuffer[WondevAction]) = {
+  def moveActions(unitId: Int, buffer: ListBuffer[WondevAction]): Unit = {
     val unitPos = nextPlayerState.units(unitId)
     val startHeight = heights(unitPos)
     val otherUnits = others(unitId)
@@ -163,8 +163,10 @@ case class FastState(size: Int,
     validBuildTarget(tgtPos, otherUnits) && heights(tgtPos) <= startHeight + 1
 
   private def validBuildTarget(tgtPos: Int, otherUnits: Array[Int]) =
+    validUnitPos(tgtPos) && fastNotContains3(otherUnits, tgtPos)
+
+  def validUnitPos(tgtPos: Int): Boolean =
     grid.isValid(tgtPos) &&
-      fastNotContains3(otherUnits, tgtPos) &&
       heights(tgtPos) < MAX_BUILT_HEIGHT &&
       heights(tgtPos) != HOLE_HEIGHT
 
@@ -175,7 +177,7 @@ case class FastState(size: Int,
     buffer
   }
 
-  def pushActions(unitId: Int, buffer: ListBuffer[WondevAction]) = {
+  def pushActions(unitId: Int, buffer: ListBuffer[WondevAction]): Unit = {
     val unitPos = nextPlayerState.units(unitId)
     val otherUnits = others(unitId)
 
@@ -240,6 +242,7 @@ case class FastState(size: Int,
     else if (heights(p) == HOLE_HEIGHT) ' '
     else heights(p).toString.head
   }
+
 }
 
 object FastState {

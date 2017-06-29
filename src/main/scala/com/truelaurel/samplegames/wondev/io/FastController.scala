@@ -1,6 +1,7 @@
 package com.truelaurel.samplegames.wondev.io
 
 import com.truelaurel.codingame.challenge.GameController
+import com.truelaurel.codingame.logging.CGLogger
 import com.truelaurel.math.geometry._
 import com.truelaurel.math.geometry.grid.FastGrid
 import com.truelaurel.samplegames.wondev.domain._
@@ -8,29 +9,36 @@ import com.truelaurel.samplegames.wondev.io.FastController._
 
 import scala.io.StdIn._
 
-case class FastController(size: Int) extends GameController[WondevContext, FastState, WondevAction] {
+case class FastController(size: Int) extends GameController[FastContext, FastState, WondevAction] {
   val grid = FastGrid(size)
 
-  def readContext: WondevContext = {
+  def readContext: FastContext = {
     val unitsperplayer = readInt
-    WondevContext(size, unitsperplayer)
+    FastContext(size, unitsperplayer)
   }
 
-  def readState(turn: Int, context: WondevContext): FastState =
+  def readState(turn: Int, context: FastContext): FastState =
     read(context).copy(turn = turn)
 
-  def nextContext(context: WondevContext, state: FastState, actions: Vector[WondevAction]): WondevContext = {
-    context //.copy(previousHeightMap = WondevArena.next(state, actions).heightMap)
+  def nextContext(context: FastContext, state: FastState, actions: Vector[WondevAction]): FastContext = {
+    val next = state.applyAction(actions.head)
+    context.copy(stateAfterMyAction = Some(next))
   }
 
-  def read(context: WondevContext): FastState = {
+  def hiddenInFog(mine: Array[Int], heights: Array[Int]): Array[Int] =
+    FastContext.notSeenByMine(mine, grid, heights)
+
+  def read(context: FastContext): FastState = {
     val heights = readHeights(context)
     val mine = readUnits(context.unitsperplayer).toArray.map(grid.pos)
-    val op = readUnits(context.unitsperplayer).toArray.map(p => if (p == Pos(-1, -1)) 3 else grid.pos(p))
+    val guess = context.guessOppPos(heights).getOrElse(hiddenInFog(mine, heights))
+    CGLogger.info(s"guessed opponent: ${guess.toSeq}")
+    val op = readUnits(context.unitsperplayer).toArray.map(p => if (p == Pos(-1, -1)) guess.head else grid.pos(p))
     val state = FastState(size, mine, op).copy(heights = heights)
     readActions
     state
   }
+
 
   private def readUnits(unitsperplayer: Int) = {
     Seq.fill(unitsperplayer) {
@@ -39,7 +47,7 @@ case class FastController(size: Int) extends GameController[WondevContext, FastS
     }
   }
 
-  private def readHeights(context: WondevContext) = {
+  private def readHeights(context: FastContext) = {
     val rows = Seq.fill(context.size)(readLine)
     parseHeights(rows, grid)
   }
