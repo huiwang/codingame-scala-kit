@@ -138,5 +138,25 @@ class FastStateTest extends FlatSpec with Matchers {
     s.pushActions(1).toSeq.map(_.toString).sorted shouldBe moves.toSeq.map(_.toString).sorted
   }
 
+  "fast state" should "not build outside grid (bug in CG)" in {
+    val myPos0 = Pos(1, 1)
+    val myPos1 = Pos(1, 2)
+    val opPos0 = Pos(2, 4)
+    val opPos1 = Pos(1, 3)
 
-}
+    // 0B0Z00
+    //  0001
+    // 000010
+    // 000000
+    // 1A  00
+
+//    val state = FastState(5,
+//      myUnits = Array(grid.pos(myPos0), grid.pos(myPos1)),
+//      opUnits = Array(grid.pos(opPos0), grid.pos(opPos1)))}
+//
+//    s.pushActions(1).toSeq.map(_.toString).sorted shouldBe moves.toSeq.map(_.toString).sorted
+  }
+
+
+
+
