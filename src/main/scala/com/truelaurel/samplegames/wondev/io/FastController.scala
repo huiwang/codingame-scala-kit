@@ -4,6 +4,7 @@ import com.truelaurel.codingame.challenge.GameController
 import com.truelaurel.math.geometry._
 import com.truelaurel.math.geometry.grid.FastGrid
 import com.truelaurel.samplegames.wondev.domain._
+import com.truelaurel.samplegames.wondev.io.FastController._
 
 import scala.io.StdIn._
 
@@ -40,17 +41,9 @@ case class FastController(size: Int) extends GameController[WondevContext, FastS
 
   private def readHeights(context: WondevContext) = {
     val rows = Seq.fill(context.size)(readLine)
-    parseHeights(rows).toArray
+    parseHeights(rows, grid)
   }
 
-  def parseHeights(rows: Seq[String]): Seq[Int] = {
-    val heights = for {
-      (row: String, y: Int) <- rows.zipWithIndex
-      (cell: Char, x) <- row.zipWithIndex
-      h = if (cell == '.') -1 else cell - '0'
-    } yield grid.pos(Pos(x, y)) -> h
-    heights.sortBy(_._1).map(_._2)
-  }
 
   private def readActions = {
     Seq.fill(readInt) {
@@ -67,7 +60,13 @@ case class FastController(size: Int) extends GameController[WondevContext, FastS
 
 }
 
-
-
-
-
+object FastController {
+  def parseHeights(rows: Seq[String], grid: FastGrid): Array[Int] = {
+    val heights = for {
+      (row: String, y: Int) <- rows.zipWithIndex
+      (cell: Char, x) <- row.zipWithIndex
+      h = if (cell == '.') -1 else cell - '0'
+    } yield grid.pos(Pos(x, y)) -> h
+    heights.sortBy(_._1).map(_._2)
+  }.toArray
+}

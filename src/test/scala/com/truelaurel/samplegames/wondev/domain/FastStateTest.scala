@@ -2,6 +2,7 @@ package com.truelaurel.samplegames.wondev.domain
 
 import com.truelaurel.math.geometry.grid.FastGrid
 import com.truelaurel.math.geometry.{Pos, _}
+import com.truelaurel.samplegames.wondev.io.FastController
 import org.scalatest.{FlatSpec, Matchers}
 
 class FastStateTest extends FlatSpec with Matchers {
@@ -121,7 +122,7 @@ class FastStateTest extends FlatSpec with Matchers {
     s.moveActions(1).toSeq.map(_.toString).sorted shouldBe moves.toSeq.map(_.toString).sorted
   }
 
- "fast state" should "list valid push actions for 1 unit, avoiding inaccessible heights" in {
+  "fast state" should "list valid push actions for 1 unit, avoiding inaccessible heights" in {
     val eastTooHigh = myPos1.neighborIn(E)
     val westHole = myPos1.neighborIn(W)
     val higher = state.heights
@@ -130,7 +131,7 @@ class FastStateTest extends FlatSpec with Matchers {
       .updated(grid.pos(westHole), HOLE_HEIGHT)
 
     val moves = for {
-      pushDir <- Seq(S,SW)
+      pushDir <- Seq(S, SW)
     } yield MovePush(1, S, pushDir)
 
     val s = state.copy(heights = higher)
@@ -138,25 +139,42 @@ class FastStateTest extends FlatSpec with Matchers {
     s.pushActions(1).toSeq.map(_.toString).sorted shouldBe moves.toSeq.map(_.toString).sorted
   }
 
-  "fast state" should "not build outside grid (bug in CG)" in {
-    val myPos0 = Pos(1, 1)
-    val myPos1 = Pos(1, 2)
-    val opPos0 = Pos(2, 4)
-    val opPos1 = Pos(1, 3)
+  "fast state" should "not build on a friendly unit grid (bug in CG)" in {
+    val myPos0 = Pos(3, 2)
+    val myPos1 = Pos(2, 4)
+    val opPos0 = Pos(1, 2)
+    val opPos1 = Pos(2, 2)
 
-    // 0B0Z00
-    //  0001
-    // 000010
-    // 000000
-    // 1A  00
 
-//    val state = FastState(5,
-//      myUnits = Array(grid.pos(myPos0), grid.pos(myPos1)),
-//      opUnits = Array(grid.pos(opPos0), grid.pos(opPos1)))}
-//
-//    s.pushActions(1).toSeq.map(_.toString).sorted shouldBe moves.toSeq.map(_.toString).sorted
+    val state = FastState(5,
+      myUnits = Array(grid.pos(myPos0), grid.pos(myPos1)),
+      opUnits = Array(grid.pos(opPos0), grid.pos(opPos1)))
+
+    val invalidAction = MoveBuild(0, S, SW)
+    state.moveActions(0) should not contain invalidAction
   }
 
+//  "fast state" should "not build outside grid (bug in CG)" in {
+//    val myPos0 = Pos(1, 1)
+//    val myPos1 = Pos(1, 2)
+//    val opPos0 = Pos(3, 4)
+//    val opPos1 = Pos(3, 3)
+//
+//    val heights = FastController.parseHeights(Seq(
+//      "00000",
+//      ".000.",
+//      "00000",
+//      "00000",
+//      "00.00"), grid)
+//
+//    val state = FastState(5,
+//      myUnits = Array(grid.pos(myPos0), grid.pos(myPos1)),
+//      opUnits = Array(grid.pos(opPos0), grid.pos(opPos1))).copy(heights = heights)
+//
+//    val invalidAction = MoveBuild(1, S, NW)
+//    state.moveActions(0) should not contain invalidAction
+//  }
+}
 
 
 

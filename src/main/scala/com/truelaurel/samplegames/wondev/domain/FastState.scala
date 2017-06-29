@@ -131,7 +131,7 @@ case class FastState(size: Int,
   def moveActions(unitId: Int, buffer: ListBuffer[WondevAction]) = {
     val unitPos = nextPlayerState.units(unitId)
     val startHeight = heights(unitPos)
-    val otherUnits = others(unitPos)
+    val otherUnits = others(unitId)
     var dir = 0
     while (dir < 8) {
       val moveDir = Direction.all(dir)
@@ -142,8 +142,8 @@ case class FastState(size: Int,
     }
   }
 
-  private def others(unitPos: Int) = {
-    if (unitPos == 0) Array(nextPlayerState.units(1), otherPlayerState.units(0), otherPlayerState.units(1))
+  private def others(unitId: Int) = {
+    if (unitId == 0) Array(nextPlayerState.units(1), otherPlayerState.units(0), otherPlayerState.units(1))
     else Array(nextPlayerState.units(0), otherPlayerState.units(0), otherPlayerState.units(1))
   }
 
@@ -177,7 +177,7 @@ case class FastState(size: Int,
   //TODO : make faster ! use grid.neighbors
   def pushActions(unitId: Int, buffer: ListBuffer[WondevAction]) = {
     val unitPos = nextPlayerState.units(unitId)
-    val otherUnits = others(unitPos)
+    val otherUnits = others(unitId)
 
     val opUnits = otherPlayerState.units
     var dir = 0
