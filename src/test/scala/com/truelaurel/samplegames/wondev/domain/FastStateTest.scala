@@ -92,8 +92,7 @@ class FastStateTest extends FlatSpec with Matchers {
       moveDir <- Direction.all diff Seq(N, S)
       buildDir <- Direction.all
       builtPos = myPos1.neighborIn(moveDir).neighborIn(buildDir)
-      builtP = grid.pos(builtPos)
-      if grid.isValid(builtP)
+      if grid.isValid(builtPos)
       if !Set(myPos0, opPos0, opPos1).contains(builtPos)
     } yield MoveBuild(1, moveDir, buildDir)
 
@@ -112,8 +111,7 @@ class FastStateTest extends FlatSpec with Matchers {
       moveDir <- Direction.all diff Seq(N, S, E, W)
       buildDir <- Direction.all
       builtPos = myPos1.neighborIn(moveDir).neighborIn(buildDir)
-      builtP = grid.pos(builtPos)
-      if grid.isValid(builtP)
+      if grid.isValid(builtPos)
       if !Set(myPos0, opPos0, opPos1, eastTooHigh, westHole).contains(builtPos)
     } yield MoveBuild(1, moveDir, buildDir)
 
@@ -154,26 +152,28 @@ class FastStateTest extends FlatSpec with Matchers {
     state.moveActions(0) should not contain invalidAction
   }
 
-//  "fast state" should "not build outside grid (bug in CG)" in {
-//    val myPos0 = Pos(1, 1)
-//    val myPos1 = Pos(1, 2)
-//    val opPos0 = Pos(3, 4)
-//    val opPos1 = Pos(3, 3)
-//
-//    val heights = FastController.parseHeights(Seq(
-//      "00000",
-//      ".000.",
-//      "00000",
-//      "00000",
-//      "00.00"), grid)
-//
-//    val state = FastState(5,
-//      myUnits = Array(grid.pos(myPos0), grid.pos(myPos1)),
-//      opUnits = Array(grid.pos(opPos0), grid.pos(opPos1))).copy(heights = heights)
-//
-//    val invalidAction = MoveBuild(1, S, NW)
-//    state.moveActions(0) should not contain invalidAction
-//  }
+  "fast state" should "not build outside grid (bug in CG)" in {
+    val grid = FastGrid(6)
+    val myPos0 = Pos(1, 3)
+    val myPos1 = Pos(2, 4)
+    val opPos0 = Pos(2, 1)
+    val opPos1 = Pos(3, 1)
+
+    val heights = FastController.parseHeights(Seq(
+      "000000",
+      ".0000.",
+      "0.00.0",
+      "00..00",
+      "0.00.0",
+      "000000"), grid)
+
+    val state = FastState(6,
+      myUnits = Array(grid.pos(myPos0), grid.pos(myPos1)),
+      opUnits = Array(grid.pos(opPos0), grid.pos(opPos1))).copy(heights = heights)
+
+    val invalidAction = MoveBuild(0, SW, NW)
+    state.moveActions(0) should not contain invalidAction
+  }
 }
 
 

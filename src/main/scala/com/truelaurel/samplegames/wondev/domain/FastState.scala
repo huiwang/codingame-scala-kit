@@ -148,10 +148,11 @@ case class FastState(size: Int,
   }
 
   private def addBuildMoves(moves: ListBuffer[WondevAction], tgtPos: Int, otherUnits: Array[Int], moveDir: Direction, unitId: Int): Unit = {
+    val neighbors = grid.namedNeighbors(tgtPos)
+    val size = neighbors.length
     var dir = 0
-    while (dir < 8) {
-      val buildDir = Direction.all(dir)
-      val buildPos = grid.neigborIn(tgtPos, buildDir)
+    while (dir < size) {
+      val (buildDir, buildPos) = neighbors(dir)
       if (validBuildTarget(buildPos, otherUnits))
         moves += MoveBuild(unitId, moveDir, buildDir)
       dir += 1
