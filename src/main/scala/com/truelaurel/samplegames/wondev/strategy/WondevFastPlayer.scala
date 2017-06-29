@@ -2,6 +2,7 @@ package com.truelaurel.samplegames.wondev.strategy
 
 import com.truelaurel.algorithm.mcts.MctsAi
 import com.truelaurel.codingame.challenge.GamePlayer
+import com.truelaurel.codingame.logging.CGLogger
 import com.truelaurel.math.geometry.Pos
 import com.truelaurel.samplegames.wondev.analysis.WondevAnalysis
 import com.truelaurel.samplegames.wondev.arena.WondevArena
@@ -17,7 +18,9 @@ case class WondevFastPlayer(side: Boolean, size: Int) extends GamePlayer[FastSta
   def mctsMove(s: FastState): WondevAction = {
     val chronometer = new Chronometer(40.millis)
     chronometer.start()
-    MctsAi(rules)(_ => chronometer.willOutOfTime).chooseMove(s)
+    val (move, count) = MctsAi(rules)(_ => chronometer.willOutOfTime).chooseMoveCount(s)
+    CGLogger.info(s"$count nodes explored")
+    move
   }
 
   override def reactTo(state: FastState): Vector[WondevAction] =
