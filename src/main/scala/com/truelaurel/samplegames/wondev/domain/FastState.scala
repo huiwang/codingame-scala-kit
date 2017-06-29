@@ -36,6 +36,7 @@ case class FastState(size: Int,
                      states: Array[PlayerState],
                      heights: Array[Int],
                      grid: FastGrid,
+                     possibleOpUnits: Array[Array[Int]] = Array(),
                      nextPlayer: Boolean = true) extends GameState[Boolean] {
 
 

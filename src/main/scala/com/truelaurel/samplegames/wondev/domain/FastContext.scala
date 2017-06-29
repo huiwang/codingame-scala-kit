@@ -24,7 +24,7 @@ case class FastContext(size: Int, unitsperplayer: Int, stateAfterMyAction: Optio
       if state.validUnitPos(n) && inFog.contains(n)
     } yield n
     val previousPositions = state.opUnits.filter(inFog.contains)
-    (previousPositions ++ possibilities).distinct.sortBy(state.heights).toArray
+    (previousPositions ++ possibilities).distinct.sortBy(state.heights)
   }
 }
 

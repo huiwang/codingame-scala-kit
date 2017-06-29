@@ -27,15 +27,21 @@ case class FastController(size: Int) extends GameController[FastContext, FastSta
 
   def read(context: FastContext): FastState = {
     val heights = readHeights(context)
-    val mine = readUnits(context.unitsperplayer).toArray.map(grid.pos)
-    val guess = context.guessOppPos(heights, mine).getOrElse(FastContext.notSeenByMine(mine, grid, heights))
-    CGLogger.info(s"guessed opponent: ${guess.toSeq.map(grid.pos)}")
-    val op = readUnits(context.unitsperplayer).toArray.map(p => if (p == Pos(-1, -1)) guess.head else grid.pos(p))
-    val state = FastState(size, mine, op).copy(heights = heights)
+    val mine = readUnits(context.unitsperplayer)
+    val op = readUnits(context.unitsperplayer)
     readActions
-    state
+    guessState(context, heights, mine, op)
   }
 
+  def guessState(context: FastContext, rows: Seq[String], myUnits: Seq[Pos], opUnits: Seq[Pos]): FastState = {
+    val heights = parseHeights(rows, grid)
+    val mine = myUnits.toArray.map(grid.pos)
+    val guess = context.guessOppPos(heights, mine).getOrElse(FastContext.notSeenByMine(mine, grid, heights))
+    CGLogger.info(s"guessed opponent: ${guess.toSeq.map(grid.pos)}")
+    val op = opUnits.toArray.map(p => if (p == Pos(-1, -1)) guess.head else grid.pos(p))
+    val state = FastState(size, mine, op).copy(heights = heights, possibleOpUnits = Array(guess, guess))
+    state
+  }
 
   private def readUnits(unitsperplayer: Int) = {
     Seq.fill(unitsperplayer) {
@@ -44,10 +50,8 @@ case class FastController(size: Int) extends GameController[FastContext, FastSta
     }
   }
 
-  private def readHeights(context: FastContext) = {
-    val rows = Seq.fill(context.size)(readLine)
-    parseHeights(rows, grid)
-  }
+  private def readHeights(context: FastContext) =
+    Seq.fill(context.size)(readLine)
 
 
   private def readActions = {
