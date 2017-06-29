@@ -127,15 +127,15 @@ case class FastState(size: Int,
     buffer
   }
 
-  //TODO : make faster ! use grid.neighbors
   def moveActions(unitId: Int, buffer: ListBuffer[WondevAction]) = {
     val unitPos = nextPlayerState.units(unitId)
     val startHeight = heights(unitPos)
     val otherUnits = others(unitId)
     var dir = 0
-    while (dir < 8) {
-      val moveDir = Direction.all(dir)
-      val tgtPos = grid.neigborIn(unitPos, moveDir)
+    val directions = grid.namedNeighbors(unitPos)
+    val size = directions.length
+    while (dir < size) {
+      val (moveDir, tgtPos) = directions(dir)
       if (validMoveTarget(tgtPos, otherUnits, startHeight))
         addBuildMoves(buffer, tgtPos, otherUnits, moveDir, unitId)
       dir += 1
@@ -175,16 +175,16 @@ case class FastState(size: Int,
     buffer
   }
 
-  //TODO : make faster ! use grid.neighbors
   def pushActions(unitId: Int, buffer: ListBuffer[WondevAction]) = {
     val unitPos = nextPlayerState.units(unitId)
     val otherUnits = others(unitId)
 
     val opUnits = otherPlayerState.units
+    val directions = grid.namedNeighbors(unitPos)
+    val size = directions.length
     var dir = 0
-    while (dir < 8) {
-      val moveDir = Direction.all(dir)
-      val tgtPos = grid.neigborIn(unitPos, moveDir)
+    while (dir < size) {
+      val (moveDir, tgtPos) = directions(dir)
       if (fastContains2(opUnits, tgtPos))
         addPushMoves(buffer, tgtPos, otherUnits, moveDir, unitId)
       dir += 1

@@ -174,6 +174,29 @@ class FastStateTest extends FlatSpec with Matchers {
     val invalidAction = MoveBuild(0, SW, NW)
     state.moveActions(0) should not contain invalidAction
   }
+
+  "fast state" should "not move outside grid (bug in CG)" in {
+    val grid = FastGrid(6)
+    val myPos0 = Pos(3, 4)
+    val myPos1 = Pos(0, 5)
+    val opPos0 = Pos(2, 1)
+    val opPos1 = Pos(3, 1)
+
+    val heights = FastController.parseHeights(Seq(
+      "0.00.0",
+      "000010",
+      ".1002.",
+      "030230",
+      "0.40.0",
+      "041020"), grid)
+
+    val state = FastState(6,
+      myUnits = Array(grid.pos(myPos0), grid.pos(myPos1)),
+      opUnits = Array(grid.pos(opPos0), grid.pos(opPos1))).copy(heights = heights)
+
+    val invalidAction = MoveBuild(1, NW, W)
+    state.moveActions(1) should not contain invalidAction
+  }
 }
 
 
