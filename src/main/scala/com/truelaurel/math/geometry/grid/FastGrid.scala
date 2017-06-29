@@ -28,21 +28,18 @@ case class FastGrid(size: Int) {
   /**
     * Only valid neighbors are listed here.
     */
-  val neighbors: Array[Array[Int]] = for {
-    p <- (0 until size * size).toArray
-  } yield Direction.neighborsOf(pos(p), size).map(pos).toArray
-
   val namedNeighbors: Array[Array[(Direction, Int)]] = for {
     p <- (0 until size * size).toArray
     po = pos(p)
   } yield namedNeighborsImpl(po)
 
+  val neighbors: Array[Array[Int]] = namedNeighbors.map(a => a.map(_._2))
 
   private def namedNeighborsImpl(p: Pos) = {
     for {
       d <- Direction.all.toArray
       r = p.neighborIn(d)
-      if r.x < size && r.x >= 0 && r.y < size && r.y >= 0
+      if isValid(r)
     } yield (d: Direction) -> pos(r)
   }
 
