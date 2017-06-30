@@ -36,12 +36,14 @@ case class FastController(size: Int) extends GameController[FastContext, FastSta
   def guessState(context: FastContext, rows: Seq[String], myUnits: Seq[Pos], opUnits: Seq[Pos]): FastState = {
     val heights = parseHeights(rows, grid)
     val mine = myUnits.toArray.map(grid.pos)
-    val guess = context.guessOppPos(heights, mine).getOrElse(FastContext.notSeenByMine(mine, grid, heights))
-    CGLogger.info(s"guessed opponent: ${guess.toSeq.map(grid.pos)}")
-    val op = opUnits.toArray.map(p => if (p == Pos(-1, -1)) guess.head else grid.pos(p))
+    val guess = context.guessOppPos(heights, mine, opUnits)
+    CGLogger.info(s"guessed opponent: ${guess.toSeq.map(_.toSeq.map(grid.pos))}")
+    val op = opUnits.toArray.zipWithIndex.map { case (p, i) =>
+      if (p == Pos(-1, -1)) guess(i).head else grid.pos(p)
+    }
     val state = FastState(size, mine, op).copy(
       heights = heights,
-      possibleOpUnits = Array(guess, guess))
+      possibleOpUnits = guess)
     state
   }
 

@@ -4,7 +4,7 @@ import com.truelaurel.math.geometry.Pos
 import com.truelaurel.math.geometry.grid.FastGrid
 
 case class FastContext(size: Int, unitsperplayer: Int, stateAfterMyAction: Option[FastState] = None) {
-
+  val grid = FastGrid(size)
   val center = Pos(size / 2, size / 2)
 
   def distToCenter(p: Pos): Int = (p.x - center.x).abs + (p.y - center.y).abs
@@ -15,20 +15,23 @@ case class FastContext(size: Int, unitsperplayer: Int, stateAfterMyAction: Optio
         .find { i => state.heights(i) != previousHeights(i) }
     }
 
-  def guessOppPos(heights: Array[Int], mine: Array[Int]): Option[Array[Int]] = stateAfterMyAction.map { state =>
-    val delta = findHeightDelta(heights)
-    val inFog = FastContext.notSeenByMine(mine, state.grid, heights)
-    val reachableFromLastTurn = state.possibleOpUnits.flatten.distinct.flatMap { p =>
-      state.grid.neighbors(p)
-    }.distinct
-    val possibilities = for {
-      p <- delta.toSeq
-      n <- state.grid.neighbors(p)
-      if state.validUnitPos(n) && inFog.contains(n) && reachableFromLastTurn.contains(n)
-    } yield n
-    //    val previousPositions = state.opUnits.filter(inFog.contains)
-    //    (previousPositions ++ possibilities).distinct.sortBy(state.heights)
-    possibilities.distinct.toArray
+  def guessOppPos(heights: Array[Int], mine: Array[Int], opUnits: Seq[Pos]): Array[Array[Int]] = {
+    val all = stateAfterMyAction.map { state =>
+      val delta = findHeightDelta(heights)
+      val inFog = FastContext.notSeenByMine(mine, state.grid, heights)
+      val reachableFromLastTurn = state.possibleOpUnits.flatten.distinct.flatMap { p =>
+        state.grid.neighbors(p)
+      }.distinct
+      val possibilities = for {
+        p <- delta.toSeq
+        n <- state.grid.neighbors(p)
+        if state.validUnitPos(n) && inFog.contains(n) && reachableFromLastTurn.contains(n)
+      } yield n
+      //    val previousPositions = state.opUnits.filter(inFog.contains)
+      //    (previousPositions ++ possibilities).distinct.sortBy(state.heights)
+      possibilities.distinct.toArray
+    }.getOrElse(FastContext.notSeenByMine(mine, grid, heights))
+    opUnits.map(_ => all).toArray
   }
 }
 
