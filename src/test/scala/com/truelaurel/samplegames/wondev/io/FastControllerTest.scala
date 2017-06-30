@@ -60,5 +60,24 @@ class FastControllerTest extends FlatSpec with Matchers {
 
     guessedState.possibleOpUnits(0).map(grid.pos) should contain theSameElementsAs Seq(Pos(2, 2), Pos(2, 0))
     guessedState.possibleOpUnits(1).map(grid.pos) should contain theSameElementsAs Seq(Pos(2, 1))
+    guessedState.opUnits(1) shouldBe grid.pos(Pos(2, 1))
+  }
+
+  it should "remember opponent position (only one can move)" in {
+    val guessedState = controller.guessState(
+      FastContext(s, 2), rows,
+      myUnits = Seq(Pos(0, 0), Pos(0, 1)),
+      opUnits = Seq(hiddenPos, Pos(2, 2)))
+
+    guessedState.possibleOpUnits(0).map(grid.pos) should contain theSameElementsAs Seq(Pos(2, 1), Pos(2, 0))
+    guessedState.opUnits(1) shouldBe grid.pos(Pos(2, 2))
+
+    val guessedState2 = controller.guessState(
+      FastContext(s, 2, Some(guessedState)), rows2,
+      myUnits = Seq(Pos(0, 0), Pos(0, 1)),
+      opUnits = Seq(Pos(1, 2), hiddenPos))
+    guessedState2.opUnits(0) shouldBe grid.pos(Pos(1, 2))
+    guessedState2.possibleOpUnits(0).map(grid.pos) should contain theSameElementsAs Seq(Pos(1, 2))
+    guessedState2.possibleOpUnits(1).map(grid.pos) should contain theSameElementsAs Seq(Pos(2, 2))
   }
 }

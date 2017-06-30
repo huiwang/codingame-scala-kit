@@ -19,33 +19,43 @@ case class FastContext(size: Int, unitsperplayer: Int, stateAfterMyAction: Optio
     val opponents = opUnits.map {
       case Pos(-1, -1) => -1
       case p => grid.pos(p)
-    }
-    val knownOpponents = opponents.filter(_ != -1)
-    val possibleOppPos = (stateAfterMyAction match {
-      case None => FastContext.notSeenByMine(mine, grid, heights)
-      case Some(state) => guessFromLastState(heights, mine, state)
-    }) diff knownOpponents
-    opponents.map {
-      case -1 => possibleOppPos
-      case p => Array(p)
     }.toArray
+    val knownOpponents = opponents.filter(_ != -1)
+    val possibleOppPos = stateAfterMyAction match {
+      case None => Array.fill(size)(FastContext.notSeenByMine(mine, grid, heights) diff knownOpponents)
+      case Some(state) => guessFromLastState(heights, mine, state, opponents)
+    }
+    opponents.zipWithIndex.map {
+      case (-1, i) => possibleOppPos(i)
+      case (p, _) => Array(p)
+    }
   }
 
-  private def guessFromLastState(heights: Array[Int], mine: Array[Int], state: FastState): Array[Int] = {
-    val delta = findHeightDelta(heights)
-    val inFog = FastContext.notSeenByMine(mine, state.grid, heights)
-    val reachableFromLastTurn = state.possibleOpUnits.flatten.distinct.flatMap { p =>
-      state.grid.neighbors(p)
-    }.distinct
-    val possibilities = for {
-      p <- delta.toSeq
-      n <- state.grid.neighbors(p)
-      if state.validUnitPos(n) && inFog.contains(n) && reachableFromLastTurn.contains(n)
-    } yield n
-    //    val previousPositions = state.opUnits.filter(inFog.contains)
-    //    (previousPositions ++ possibilities).distinct.sortBy(state.heights)
-    possibilities.distinct.toArray
-  }
+  private def guessFromLastState(heights: Array[Int],
+                                 mine: Array[Int],
+                                 state: FastState,
+                                 opponents: Array[Int]): Array[Array[Int]] =
+    opponents.zipWithIndex.map {
+      case (-1, i) =>
+        val otherMoved = unitsperplayer > 1 && !state.possibleOpUnits(1 - i).contains(opponents(i - 1))
+        if (otherMoved) state.possibleOpUnits(i)
+        else {
+          val delta = findHeightDelta(heights)
+          val inFog = FastContext.notSeenByMine(mine, state.grid, heights)
+          val reachableFromLastTurn = state.possibleOpUnits(i).flatMap { p =>
+            state.grid.neighbors(p)
+          }.distinct
+          val possibilities = for {
+            p <- delta.toSeq
+            n <- state.grid.neighbors(p)
+            if inFog.contains(n) &&
+              reachableFromLastTurn.contains(n) &&
+              !opponents.contains(n)
+          } yield n
+          possibilities.distinct.toArray
+        }
+      case (p, _) => Array(p)
+    }
 }
 
 import com.truelaurel.samplegames.wondev.domain.FastState._
