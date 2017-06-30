@@ -16,22 +16,35 @@ case class FastContext(size: Int, unitsperplayer: Int, stateAfterMyAction: Optio
     }
 
   def guessOppPos(heights: Array[Int], mine: Array[Int], opUnits: Seq[Pos]): Array[Array[Int]] = {
-    val all = stateAfterMyAction.map { state =>
-      val delta = findHeightDelta(heights)
-      val inFog = FastContext.notSeenByMine(mine, state.grid, heights)
-      val reachableFromLastTurn = state.possibleOpUnits.flatten.distinct.flatMap { p =>
-        state.grid.neighbors(p)
-      }.distinct
-      val possibilities = for {
-        p <- delta.toSeq
-        n <- state.grid.neighbors(p)
-        if state.validUnitPos(n) && inFog.contains(n) && reachableFromLastTurn.contains(n)
-      } yield n
-      //    val previousPositions = state.opUnits.filter(inFog.contains)
-      //    (previousPositions ++ possibilities).distinct.sortBy(state.heights)
-      possibilities.distinct.toArray
-    }.getOrElse(FastContext.notSeenByMine(mine, grid, heights))
-    opUnits.map(_ => all).toArray
+    val opponents = opUnits.map {
+      case Pos(-1, -1) => -1
+      case p => grid.pos(p)
+    }
+    val knownOpponents = opponents.filter(_ != -1)
+    val possibleOppPos = (stateAfterMyAction match {
+      case None => FastContext.notSeenByMine(mine, grid, heights)
+      case Some(state) => guessFromLastState(heights, mine, state)
+    }) diff knownOpponents
+    opponents.map {
+      case -1 => possibleOppPos
+      case p => Array(p)
+    }.toArray
+  }
+
+  private def guessFromLastState(heights: Array[Int], mine: Array[Int], state: FastState): Array[Int] = {
+    val delta = findHeightDelta(heights)
+    val inFog = FastContext.notSeenByMine(mine, state.grid, heights)
+    val reachableFromLastTurn = state.possibleOpUnits.flatten.distinct.flatMap { p =>
+      state.grid.neighbors(p)
+    }.distinct
+    val possibilities = for {
+      p <- delta.toSeq
+      n <- state.grid.neighbors(p)
+      if state.validUnitPos(n) && inFog.contains(n) && reachableFromLastTurn.contains(n)
+    } yield n
+    //    val previousPositions = state.opUnits.filter(inFog.contains)
+    //    (previousPositions ++ possibilities).distinct.sortBy(state.heights)
+    possibilities.distinct.toArray
   }
 }
 
