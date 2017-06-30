@@ -1,37 +1,44 @@
 package com.truelaurel.samplegames.wondev.io
 
 import com.truelaurel.math.geometry.Pos
+import com.truelaurel.math.geometry.grid.FastGrid
 import com.truelaurel.samplegames.wondev.domain.FastContext
 import org.scalatest.{FlatSpec, Matchers}
 
 class FastControllerTest extends FlatSpec with Matchers {
+  val s = 3
+  val grid = FastGrid(s)
 
   val rows = Seq(
-    "...0...",
-    "..122..",
-    ".01121.",
-    "0101412",
-    ".02330.",
-    "..211..",
-    "...0...")
+    "000",
+    "000",
+    "000")
 
-  "FastController" should "guess next state" in {
-    val guessed = FastController(7).guessState(FastContext(7, 2), rows, Seq(Pos(3, 3), Pos(3, 4)), Seq(Pos(-1, -1), Pos(-1, -1)))
-    val possibleOps = Array(3, 9, 10, 11, 15, 19, 21, 22, 26, 27, 29, 33, 45)
-    guessed.possibleOpUnits shouldBe Array(possibleOps, possibleOps)
+  val controller = FastController(s)
 
-    val rows2 = Seq(
-      "...0...",
-      "..123..",
-      ".01121.",
-      "0101412",
-      ".02330.",
-      "..211..",
-      "...0...")
+  val opPos = Seq(Pos(-1, -1))
 
-    val context2 = FastContext(7, 2, Some(guessed.copy(possibleOpUnits = Array(Array(3, 9), Array(15)))))
-    val guessed2 = FastController(7).guessState(context2, rows2, Seq(Pos(3, 3), Pos(3, 4)), Seq(Pos(-1, -1), Pos(-1, -1)))
-    guessed2.possibleOpUnits shouldBe Array(Array(3), Array(15))
-    guessed2.opUnits shouldBe Array(3, 15)
+  "FastController" should "guess opponent positions (initially)" in {
+    val guessedState = controller.guessState(FastContext(s, 1), rows, Seq(Pos(0, 0)), opPos)
+
+    val possibleOps = Seq(Pos(0, 2), Pos(1, 2), Pos(2, 2), Pos(2, 1), Pos(2, 0))
+    guessedState.possibleOpUnits(0).map(grid.pos) should contain theSameElementsAs possibleOps
+  }
+
+  val rows2 = Seq(
+    "000",
+    "001",
+    "000")
+  "FastController" should "guess opponent positions (after 1 move)" in {
+    val guessedState = controller.guessState(FastContext(s, 1), rows, Seq(Pos(1, 0)), opPos)
+    guessedState.possibleOpUnits(0).map(grid.pos) should contain theSameElementsAs
+      Seq(Pos(0, 2), Pos(1, 2), Pos(2, 2))
+
+    val context2 = FastContext(s, 1, Some(guessedState))
+    val guessed2 = controller.guessState(context2, rows2, Seq(Pos(0, 1)), opPos)
+
+    guessed2.possibleOpUnits(0).map(grid.pos) should contain theSameElementsAs
+      Seq(Pos(2, 2))
+
   }
 }
