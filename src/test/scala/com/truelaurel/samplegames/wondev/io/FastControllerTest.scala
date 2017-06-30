@@ -16,10 +16,12 @@ class FastControllerTest extends FlatSpec with Matchers {
 
   val controller = FastController(s)
 
-  val opPos = Seq(Pos(-1, -1))
+  val hiddenPos = Pos(-1, -1)
+  val oneHidden = Seq(hiddenPos)
+  val twoHidden = Seq(hiddenPos, hiddenPos)
 
-  "FastController" should "guess opponent positions (initially)" in {
-    val guessedState = controller.guessState(FastContext(s, 1), rows, Seq(Pos(0, 0)), opPos)
+  "FastController for 1 unit" should "guess opponent positions (initially)" in {
+    val guessedState = controller.guessState(FastContext(s, 1), rows, Seq(Pos(0, 0)), oneHidden)
 
     val possibleOps = Seq(Pos(0, 2), Pos(1, 2), Pos(2, 2), Pos(2, 1), Pos(2, 0))
     guessedState.possibleOpUnits(0).map(grid.pos) should contain theSameElementsAs possibleOps
@@ -29,16 +31,24 @@ class FastControllerTest extends FlatSpec with Matchers {
     "000",
     "001",
     "000")
-  "FastController" should "guess opponent positions (after 1 move)" in {
-    val guessedState = controller.guessState(FastContext(s, 1), rows, Seq(Pos(1, 0)), opPos)
+  it should "guess opponent positions (after 1 move)" in {
+    val guessedState = controller.guessState(FastContext(s, 1), rows, Seq(Pos(1, 0)), oneHidden)
     guessedState.possibleOpUnits(0).map(grid.pos) should contain theSameElementsAs
       Seq(Pos(0, 2), Pos(1, 2), Pos(2, 2))
 
     val context2 = FastContext(s, 1, Some(guessedState))
-    val guessed2 = controller.guessState(context2, rows2, Seq(Pos(0, 1)), opPos)
+    val guessed2 = controller.guessState(context2, rows2, Seq(Pos(0, 1)), oneHidden)
 
     guessed2.possibleOpUnits(0).map(grid.pos) should contain theSameElementsAs
       Seq(Pos(2, 2))
 
+  }
+
+  "FastController for 2 units" should "guess opponent positions (initially)" in {
+    val guessedState = controller.guessState(FastContext(s, 2), rows, Seq(Pos(0, 0), Pos(0, 1)), twoHidden)
+
+    val possibleOps = Seq(Pos(2, 2), Pos(2, 1), Pos(2, 0))
+    guessedState.possibleOpUnits(0).map(grid.pos) should contain theSameElementsAs possibleOps
+    guessedState.possibleOpUnits(1).map(grid.pos) should contain theSameElementsAs possibleOps
   }
 }
