@@ -20,16 +20,17 @@ case class FastContext(size: Int, unitsperplayer: Int, stateAfterMyAction: Optio
       case Pos(-1, -1) => -1
       case p => grid.pos(p)
     }.toArray
-    val knownOpponents = opponents.filter(_ != -1)
-    val possibleOppPos = stateAfterMyAction match {
-      case None => Array.fill(size)(FastContext.notSeenByMine(mine, grid, heights) diff knownOpponents)
+    stateAfterMyAction match {
+      case None => guessWithoutLastState(heights, mine, opponents)
       case Some(state) => guessFromLastState(heights, mine, state, opponents)
     }
-    opponents.zipWithIndex.map {
-      case (-1, i) => possibleOppPos(i)
-      case (p, _) => Array(p)
-    }
   }
+
+  private def guessWithoutLastState(heights: Array[Int], mine: Array[Int], opponents: Array[Int]) =
+    opponents.map {
+      case -1 => FastContext.notSeenByMine(mine, grid, heights) diff opponents
+      case p => Array(p)
+    }
 
   private def guessFromLastState(heights: Array[Int],
                                  mine: Array[Int],
