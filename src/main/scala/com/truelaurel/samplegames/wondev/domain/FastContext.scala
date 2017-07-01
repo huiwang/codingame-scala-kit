@@ -59,16 +59,10 @@ case class FastContext(size: Int, unitsperplayer: Int, stateAfterMyAction: Optio
     }
 }
 
-import com.truelaurel.samplegames.wondev.domain.FastState._
-
 object FastContext {
   def notSeenByMine(mine: Array[Int], grid: FastGrid, heights: Array[Int]): Array[Int] = {
     val seen = (mine ++ mine.flatMap(m => grid.neighbors(m))).distinct
-    for {
-      p <- (0 until grid.size2).toArray
-      if heights(p) < MAX_BUILT_HEIGHT &&
-        heights(p) != HOLE_HEIGHT &&
-        !seen.contains(p)
-    } yield p
+    val accessible=FastState.accessible(heights)
+    accessible diff seen
   }
 }

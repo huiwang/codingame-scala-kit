@@ -261,4 +261,10 @@ object FastState {
   val MAX_BUILT_HEIGHT = 4
   val HOLE_HEIGHT = -1
   val SCORE_HEIGHT = 3
+
+  def accessible(heights: Array[Int]): Array[Int] =
+    for {
+      (h, i) <- heights.zipWithIndex
+      if h != MAX_BUILT_HEIGHT && h != HOLE_HEIGHT
+    } yield i
 }
