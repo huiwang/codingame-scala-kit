@@ -35,8 +35,8 @@ case class FastContext(size: Int, unitsperplayer: Int, stateAfterMyAction: Optio
   private def guessFromLastState(heights: Array[Int],
                                  mine: Array[Int],
                                  state: FastState,
-                                 opponents: Array[Int]): Array[Array[Int]] =
-    opponents.zipWithIndex.map {
+                                 opponents: Array[Int]): Array[Array[Int]] = {
+    val guessesAssumingUnitBuilt = opponents.zipWithIndex.map {
       case (-1, i) =>
         if (unitsperplayer > 1) {
           val other = opponents(1 - i)
@@ -46,18 +46,28 @@ case class FastContext(size: Int, unitsperplayer: Int, stateAfterMyAction: Optio
         } else guessOnePos(heights, mine, state, -1, i)
       case (p, _) => Array(p)
     }
+    val hasSurePosition = guessesAssumingUnitBuilt.zipWithIndex.collect {
+      case (guess, i) if guess.size == 1 => i
+    }.headOption
+
+    guessesAssumingUnitBuilt
+  }
 
   private def guessOnePos(heights: Array[Int], mine: Array[Int], state: FastState, other: Int, i: Int): Array[Int] = {
     val inFog = FastContext.notSeenByMine(mine, state.grid, heights)
-    val possibleWithDelta = findHeightDelta(heights) match {
-      case Some(delta) => state.grid.neighbors(delta) intersect inFog
-      case None => inFog
-    }
+    (findHeightDelta(heights) match {
+      case Some(delta) => guessPosWithDelta(state, i, delta)
+      case None => state.possibleOpUnits(i)
+    }) intersect inFog diff Array(other)
+  }
+
+  private def guessPosWithDelta(state: FastState, i: Int, delta: Int) = {
+    val possibleWithDelta = state.grid.neighbors(delta)
+    //TODO : check height
     val reachableFromLastTurn = state.possibleOpUnits(i).flatMap { p =>
       state.grid.neighbors(p)
     }.distinct
-    val positions = possibleWithDelta intersect reachableFromLastTurn
-    positions.distinct diff (Array(other))
+    (possibleWithDelta intersect reachableFromLastTurn).distinct
   }
 }
 

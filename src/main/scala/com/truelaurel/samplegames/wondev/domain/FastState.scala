@@ -249,6 +249,13 @@ case class FastState(size: Int,
 }
 
 object FastState {
+  def apply(size: Int, myUnits: Seq[Pos], opUnits: Seq[Pos]): FastState = {
+    val fastGrid = FastGrid(size)
+    val mine = myUnits.map(fastGrid.pos).toArray
+    val op = opUnits.map(fastGrid.pos).toArray
+    apply(size, mine, op)
+  }
+
   def apply(size: Int, myUnits: Array[Int], opUnits: Array[Int]): FastState = {
     val fastGrid = FastGrid(size)
     FastState(size,
@@ -257,6 +264,7 @@ object FastState {
         PlayerState(myUnits, fastGrid),
         PlayerState(opUnits, fastGrid)),
       heights = Array.fill(size * size)(0),
+      possibleOpUnits = opUnits.map(u => Array(u)),
       grid = fastGrid)
   }
 
