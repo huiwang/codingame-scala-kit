@@ -39,7 +39,7 @@ case class FastContext(size: Int, unitsperplayer: Int, stateAfterMyAction: Optio
     opponents.zipWithIndex.map {
       case (-1, i) =>
         if (unitsperplayer > 1) {
-          val other = opponents(i - 1)
+          val other = opponents(1 - i)
           val otherMoved = unitsperplayer > 1 && !state.possibleOpUnits(1 - i).contains(other)
           if (otherMoved) state.possibleOpUnits(i)
           else guessOnePos(heights, mine, state, other, i)

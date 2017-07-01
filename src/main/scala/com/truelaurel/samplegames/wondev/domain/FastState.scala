@@ -200,9 +200,11 @@ case class FastState(size: Int,
     val directions = moveDir.similar
     while (dir < 3) {
       val pushDir = directions(dir)
-      val pushPos = grid.neigborIn(tgtPos, pushDir)
-      if (validMoveTarget(pushPos, otherUnits, startHeight))
-        moves += MovePush(unitId, moveDir, pushDir)
+      grid.checkedNeigborIn(tgtPos, pushDir) match {
+        case Some(pushPos) if validMoveTarget(pushPos, otherUnits, startHeight) =>
+          moves += MovePush(unitId, moveDir, pushDir)
+        case _ =>
+      }
       dir += 1
     }
   }

@@ -23,6 +23,26 @@ case class FastGrid(size: Int) {
     case SE => pos + size + 1
   }
 
+  def checkedNeigborIn(p: Int, d: Direction): Option[Int] = {
+    val po = pos(p)
+    val canN = po.y > 0
+    val canS = po.y < size - 1
+    val canE = po.x < size - 1
+    val canW = po.x > 0
+    d match {
+      case N if canN => Some(p - size)
+      case W if canW => Some(p - 1)
+      case S if canS => Some(p + size)
+      case E if canE => Some(p + 1)
+      case NW if canN && canW => Some(p - size - 1)
+      case NE if canE && canN => Some(p - size + 1)
+      case SW if canW && canS => Some(p + size - 1)
+      case SE if canE && canS => Some(p + size + 1)
+      case _ => None
+    }
+  }
+
+
   val center: Int = pos(Pos(size / 2, size / 2))
 
   val size2: Int = size * size
@@ -55,6 +75,7 @@ case class FastGrid(size: Int) {
   }
 
   def isValid(p: Int): Boolean = p >= 0 && p < size2
-  def isValid(pos: Pos): Boolean =pos.x < size && pos.x >= 0 && pos.y < size && pos.y >= 0
+
+  def isValid(pos: Pos): Boolean = pos.x < size && pos.x >= 0 && pos.y < size && pos.y >= 0
 }
 
