@@ -38,31 +38,33 @@ case class FastContext(size: Int, unitsperplayer: Int, stateAfterMyAction: Optio
                                  opponents: Array[Int]): Array[Array[Int]] =
     opponents.zipWithIndex.map {
       case (-1, i) =>
-        val otherMoved = unitsperplayer > 1 && !state.possibleOpUnits(1 - i).contains(opponents(i - 1))
-        if (otherMoved) state.possibleOpUnits(i)
-        else {
-          val delta = findHeightDelta(heights)
-          val inFog = FastContext.notSeenByMine(mine, state.grid, heights)
-          val reachableFromLastTurn = state.possibleOpUnits(i).flatMap { p =>
-            state.grid.neighbors(p)
-          }.distinct
-          val possibilities = for {
-            p <- delta.toSeq
-            n <- state.grid.neighbors(p)
-            if inFog.contains(n) &&
-              reachableFromLastTurn.contains(n) &&
-              !opponents.contains(n)
-          } yield n
-          possibilities.distinct.toArray
-        }
+        if (unitsperplayer > 1) {
+          val other = opponents(i - 1)
+          val otherMoved = unitsperplayer > 1 && !state.possibleOpUnits(1 - i).contains(other)
+          if (otherMoved) state.possibleOpUnits(i)
+          else guessOnePos(heights, mine, state, other, i)
+        } else guessOnePos(heights, mine, state, -1, i)
       case (p, _) => Array(p)
     }
+
+  private def guessOnePos(heights: Array[Int], mine: Array[Int], state: FastState, other: Int, i: Int): Array[Int] = {
+    val inFog = FastContext.notSeenByMine(mine, state.grid, heights)
+    val possibleWithDelta = findHeightDelta(heights) match {
+      case Some(delta) => state.grid.neighbors(delta) intersect inFog
+      case None => inFog
+    }
+    val reachableFromLastTurn = state.possibleOpUnits(i).flatMap { p =>
+      state.grid.neighbors(p)
+    }.distinct
+    val positions = possibleWithDelta intersect reachableFromLastTurn
+    positions.distinct diff (Array(other))
+  }
 }
 
 object FastContext {
   def notSeenByMine(mine: Array[Int], grid: FastGrid, heights: Array[Int]): Array[Int] = {
     val seen = (mine ++ mine.flatMap(m => grid.neighbors(m))).distinct
-    val accessible=FastState.accessible(heights)
+    val accessible = FastState.accessible(heights)
     accessible diff seen
   }
 }
