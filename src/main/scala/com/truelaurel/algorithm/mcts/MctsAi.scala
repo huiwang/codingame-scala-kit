@@ -12,9 +12,18 @@ case class MctsAi[S <: GameState[Boolean], M](rules: RulesFor2p[S, M])
     @tailrec
     def iterate(node: MctsNode[S, M]): M =
       if (stopCondition(node)) {
-//        println(node.debugText)
         node.bestMove
       } else iterate(node.step)
+
+    iterate(makeNode(state))
+  }
+
+  def chooseMoveCount(state: S): (M, Int) = {
+    @tailrec
+    def iterate(node: MctsNode[S, M], nodes: Int = 0): (M, Int) =
+      if (stopCondition(node)) {
+        (node.bestMove, nodes)
+      } else iterate(node.step, nodes + 1)
 
     iterate(makeNode(state))
   }
