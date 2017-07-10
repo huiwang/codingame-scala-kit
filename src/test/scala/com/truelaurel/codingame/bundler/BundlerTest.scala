@@ -2,7 +2,7 @@ package com.truelaurel.codingame.bundler
 
 import java.io.File
 
-import com.truelaurel.codingame.tool.bundle.{Bundler, BundlerIo}
+import com.truelaurel.codingame.tool.bundle.{Bundler, BundlerIo, StdBundlerIo}
 import com.truelaurel.compilation.Compilation._
 import org.scalactic._
 import org.scalatest.{FlatSpec, Matchers}
@@ -19,6 +19,20 @@ class BundlerTest extends FlatSpec with Matchers {
     val output = Bundler(inputName, io).buildOutput
     //THEN
     output should equal(content)(after being linefeedNormalised)
+    compiles(output) shouldBe true
+  }
+
+ it should "move simple content in root package" in {
+    //GIVEN
+    val inputName = "pkg/Demo.scala"
+    val content =
+      """package pkg
+        |object Demo extends App""".stripMargin
+    val io = prepareMockIo(Map(inputName -> content))
+    //WHEN
+    val output = Bundler(inputName, io).buildOutput
+    //THEN
+    output should equal("object Demo extends App")(after being linefeedNormalised)
     compiles(output) shouldBe true
   }
 
@@ -212,6 +226,11 @@ class BundlerTest extends FlatSpec with Matchers {
         |}
         |""".stripMargin
     output should equal(expected)(after being linefeedNormalised)
+    compiles(output) shouldBe true
+  }
+
+  it should "compile Wondev sample code" in {
+    val output = Bundler("WondevChallenge.scala", StdBundlerIo()).buildOutput
     compiles(output) shouldBe true
   }
 
