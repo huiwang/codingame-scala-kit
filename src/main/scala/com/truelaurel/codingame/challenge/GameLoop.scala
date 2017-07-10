@@ -10,16 +10,16 @@ import com.truelaurel.codingame.logging.CGLogger
   * @param readState        reads current state from the referee system. A state provides information for the current turn
   * @param writeAction      to the referee system
   */
+object GameLoop {
+  def run[State, Action](
+                          readInitialState: () => State,
+                          readState: (Int, State) => State,
+                          writeAction: Action => Unit,
+                          myPlayer: State => Vector[Action],
+                          accumulator: (State, Vector[Action]) => State = defaultAccumulator[State, Action] _,
+                          turns: Int = 200
+                        ): Unit = {
 
-class GameLoop[State, Action](
-                               readInitialState: () => State,
-                               readState: (Int, State) => State,
-                               writeAction: Action => Unit,
-                               myPlayer: State => Vector[Action],
-                               accumulator: (State, Vector[Action]) => State,
-                               turns: Int = 200
-                             ) {
-  def run(): Unit = {
     val time = System.nanoTime()
     val initialState = readInitialState()
     CGLogger.info("GameInit elt: " + (System.nanoTime() - time) / 1000000 + "ms")
@@ -35,4 +35,7 @@ class GameLoop[State, Action](
     }
   }
 
+  def defaultAccumulator[State, Action](s: State, a: Vector[Action]): State = s
+
 }
+
