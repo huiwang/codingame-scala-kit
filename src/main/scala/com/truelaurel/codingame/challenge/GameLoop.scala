@@ -2,15 +2,15 @@ package com.truelaurel.codingame.challenge
 
 import com.truelaurel.codingame.logging.CGLogger
 
-/**
-  * @param myPlayer         implementation of strategy
-  * @param accumulator      defines how state can keep hidden information like fog of war
-  * @param turns            max turns to play
-  * @param readInitialState called at start to read the configuration from the referee
-  * @param readState        reads current state from the referee system. A state provides information for the current turn
-  * @param writeAction      to the referee system
-  */
 object GameLoop {
+  /**
+    * @param myPlayer         implementation of strategy
+    * @param accumulator      defines how state can keep hidden information like fog of war
+    * @param turns            max turns to play
+    * @param readInitialState called at start to read the configuration from the referee
+    * @param readState        reads current state from the referee system. A state provides information for the current turn
+    * @param writeAction      to the referee system
+    */
   def run[State, Action](
                           readInitialState: () => State,
                           readState: (Int, State) => State,
