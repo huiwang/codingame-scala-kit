@@ -15,8 +15,8 @@ object GameLoop {
                           readInitialState: () => State,
                           readState: (Int, State) => State,
                           writeAction: Action => Unit,
-                          myPlayer: State => Vector[Action],
-                          accumulator: (State, Vector[Action]) => State = defaultAccumulator[State, Action] _,
+                          myPlayer: State => Action,
+                          accumulator: (State, Action) => State = defaultAccumulator[State, Action] _,
                           turns: Int = 200
                         ): Unit = {
 
@@ -28,14 +28,14 @@ object GameLoop {
         val state = readState(turn, s)
         CGLogger.info(state)
         val time = System.nanoTime()
-        val actions = myPlayer(state)
+        val action = myPlayer(state)
         CGLogger.info("GameReact elt: " + (System.nanoTime() - time) / 1000000 + "ms")
-        actions.foreach(writeAction)
-        accumulator(state, actions)
+        writeAction(action)
+        accumulator(state, action)
     }
   }
 
-  def defaultAccumulator[State, Action](s: State, a: Vector[Action]): State = s
+  def defaultAccumulator[State, Action](s: State, a: Action): State = s
 
 }
 
