@@ -14,9 +14,9 @@ trait GameAccumulator[Context, State, Action] {
     *
     * @param context the current context which may contain historical events.
     * @param state   the current state
-    * @param actions actions performed for the current round
+    * @param action actions performed for the current round
     * @return a new context accumulated with historical events including those generated from the current round
     */
-  def accumulate(context: Context, state: State, actions: Vector[Action]): Context
+  def accumulate(context: Context, state: State, action: Action): Context
 }
 

@@ -10,5 +10,5 @@ trait GameBot[State, Action] {
     * @param state current state of the game
     * @return one or more actions to play
     */
-  def react(state: State): Vector[Action]
+  def react(state: State): Action
 }
