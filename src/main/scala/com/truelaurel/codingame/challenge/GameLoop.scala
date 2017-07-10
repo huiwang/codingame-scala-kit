@@ -2,23 +2,30 @@ package com.truelaurel.codingame.challenge
 
 import com.truelaurel.codingame.logging.CGLogger
 
+/**
+  * Glues together the stragegy (myPlayer) and IO related to CodinGame referee.
+  */
 object GameLoop {
   /**
+    * Runs the given number of turns, interacting with CodinGame referee through IO.
+    *
     * @param myPlayer         implementation of strategy
     * @param accumulator      defines how state can keep hidden information like fog of war
     * @param turns            max turns to play
     * @param readInitialState called at start to read the configuration from the referee
     * @param readState        reads current state from the referee system. A state provides information for the current turn
     * @param writeAction      to the referee system
+    * @tparam S related game state
+    * @tparam A action or actions; can be chosen by the player and applied to the game state
     */
-  def run[State, Action](
-                          readInitialState: () => State,
-                          readState: (Int, State) => State,
-                          writeAction: Action => Unit,
-                          myPlayer: State => Action,
-                          accumulator: (State, Action) => State = defaultAccumulator[State, Action] _,
-                          turns: Int = 200
-                        ): Unit = {
+  def run[S, A](
+                 readInitialState: () => S,
+                 readState: (Int, S) => S,
+                 writeAction: A => Unit,
+                 myPlayer: S => A,
+                 accumulator: (S, A) => S = defaultAccumulator[S, A] _,
+                 turns: Int = 200
+               ): Unit = {
 
     val time = System.nanoTime()
     val initialState = readInitialState()
