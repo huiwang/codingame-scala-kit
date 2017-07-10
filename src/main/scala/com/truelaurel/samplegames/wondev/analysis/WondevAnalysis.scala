@@ -1,6 +1,6 @@
 package com.truelaurel.samplegames.wondev.analysis
 
-import com.truelaurel.math.geometry.Pos
+import com.truelaurel.math.geometry._
 import com.truelaurel.samplegames.wondev.domain._
 
 /**

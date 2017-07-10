@@ -1,23 +1,23 @@
 package com.truelaurel.samplegames.wondev.io
 
 import com.truelaurel.codingame.challenge.GameIO
-import com.truelaurel.math.geometry.Pos
+import com.truelaurel.math.geometry.{Direction, Pos}
 import com.truelaurel.samplegames.wondev.domain._
 
 import scala.io.StdIn._
 
-object WondevIO extends GameIO[WondevContext, WondevState, WondevAction] {
-  def readContext: WondevContext = {
+object WondevIO extends GameIO[WondevState, WondevAction] {
+  def readInitialState: WondevState = {
     val size = readInt
     val unitsperplayer = readInt
-    WondevContext(size, unitsperplayer)
+    WondevState(WondevContext(size, unitsperplayer))
   }
 
-  def readState(turn: Int, context: WondevContext): WondevState =
-    read(context).copy(turn = turn)
+  def readState(turn: Int, previous: WondevState): WondevState =
+    read(previous).copy(turn = turn)
 
-  def read(context: WondevContext): WondevState = {
-    import context._
+  def read(previous: WondevState): WondevState = {
+    import previous.context._
 
     val rows = Seq.fill(size)(readLine)
     val myUnits = Seq.fill(unitsperplayer) {
@@ -44,7 +44,7 @@ object WondevIO extends GameIO[WondevContext, WondevState, WondevAction] {
       (cell: Char, x) <- row.zipWithIndex
       h = if (cell == '.') -1 else cell.toInt
     } yield Pos(x, y) -> h).toMap
-    WondevState(context, 0, heights, myUnits, opUnits, legalactions)
+    WondevState(previous.context, 0, heights, myUnits, opUnits, legalactions)
   }
 
   override def writeAction(action: WondevAction): Unit = ???
