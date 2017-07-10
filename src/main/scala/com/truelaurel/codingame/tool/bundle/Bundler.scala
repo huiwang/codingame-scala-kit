@@ -37,7 +37,8 @@ case class Bundler(fileName: String, io: BundlerIo) {
   def transformFile(file: File): List[String] = {
     val allFiles = filesList(List(file), Map.empty).distinct
     val packageContents = allFiles.foldLeft(Map.empty[String, String]) {
-      case (contents, file) => transformSingleFile(file, contents)
+      case (contents, `file`) => transformSingleFile(file, contents, forceToRoot = true)
+      case (contents, otherFile) => transformSingleFile(otherFile, contents)
     }
     packageContents.map { case (n, c) => formatPackage(n, c) }.toList
   }
@@ -61,14 +62,14 @@ case class Bundler(fileName: String, io: BundlerIo) {
     else stripComments(x.take(a) + x.drop(b + e.length), s, e)
   }
 
-  private def transformSingleFile(f: File, packagesContents: PackageContents): PackageContents = {
+  private def transformSingleFile(f: File, packagesContents: PackageContents, forceToRoot:Boolean=false): PackageContents = {
     val lines = io.readFile(f)
     val (pkgLines, rest) = lines.span(_.startsWith("package"))
     val result = rest.map(_.trim).filterNot("".==).mkString("\n")
     pkgLines match {
       case Nil => add("", result, packagesContents)
       case List(pkgLine) =>
-        val pkgName = pkgLine.drop("package ".size)
+        val pkgName = if(forceToRoot) "" else pkgLine.drop("package ".size)
         add(pkgName, result, packagesContents)
       case _ => throw new Exception("Bundler does not support multiple packages declaration")
     }

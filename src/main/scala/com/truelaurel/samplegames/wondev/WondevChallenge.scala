@@ -1,3 +1,5 @@
+package com.truelaurel.samplegames.wondev
+
 import com.truelaurel.codingame.challenge.GameLoop
 import com.truelaurel.codingame.logging.CGLogger
 import com.truelaurel.samplegames.wondev.io.WondevController
