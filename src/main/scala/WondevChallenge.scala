@@ -9,7 +9,12 @@ import com.truelaurel.samplegames.wondev.strategy.WondevBot
 object Player {
   def main(args: Array[String]): Unit = {
     CGLogger.current = CGLogger.info
-    val gameLoop = new GameLoop(WondevIO, WondevBot(true).react, WondevAccumulator.accumulate)
+    val gameLoop = new GameLoop(
+      WondevIO.readInitialState,
+      WondevIO.readState,
+      WondevIO.writeAction,
+      WondevBot(true).react,
+      WondevAccumulator.accumulate)
     gameLoop.run()
   }
 }
