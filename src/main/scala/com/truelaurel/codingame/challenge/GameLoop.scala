@@ -32,13 +32,13 @@ object GameLoop {
     CGLogger.info("GameInit elt: " + (System.nanoTime() - time) / 1000000 + "ms")
     (1 to turns).foldLeft(initialState) {
       case (s, turn) =>
-        val state = readState(turn, s)
-        CGLogger.info(state)
+        CGLogger.info(s)
         val time = System.nanoTime()
-        val action = myPlayer(state)
+        val action = myPlayer(s)
         CGLogger.info("GameReact elt: " + (System.nanoTime() - time) / 1000000 + "ms")
         writeAction(action)
-        accumulator(state, action)
+        val state = accumulator(s, action)
+        readState(turn, state)
     }
   }
 

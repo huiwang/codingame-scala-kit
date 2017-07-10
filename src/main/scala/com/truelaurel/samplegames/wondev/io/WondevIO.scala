@@ -9,14 +9,15 @@ object WondevIO {
   def readInitialState(): WondevState = {
     val size = readInt
     val unitsperplayer = readInt
-    WondevState(WondevContext(size, unitsperplayer))
+    val context = WondevContext(size, unitsperplayer)
+    read(context)
   }
 
   def readState(turn: Int, previous: WondevState): WondevState =
-    read(previous).copy(turn = turn)
+    read(previous.context).copy(turn = turn)
 
-  def read(previous: WondevState): WondevState = {
-    import previous.context._
+  def read(context: WondevContext): WondevState = {
+    import context._
 
     val rows = Seq.fill(size)(readLine)
     val myUnits = Seq.fill(unitsperplayer) {
@@ -43,7 +44,7 @@ object WondevIO {
       (cell: Char, x) <- row.zipWithIndex
       h = if (cell == '.') -1 else cell.toInt
     } yield Pos(x, y) -> h).toMap
-    WondevState(previous.context, 0, heights, myUnits, opUnits, legalactions)
+    WondevState(context, 0, heights, myUnits, opUnits, legalactions)
   }
 
   def writeAction(action: WondevAction): Unit = ???
