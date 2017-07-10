@@ -1,6 +1,7 @@
 package com.truelaurel.samplegames.wondev.strategy
 
-import com.truelaurel.math.geometry.Pos
+
+import com.truelaurel.math.geometry._
 import com.truelaurel.samplegames.wondev.domain._
 
 /**

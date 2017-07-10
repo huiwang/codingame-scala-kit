@@ -5,6 +5,6 @@ import com.truelaurel.codingame.challenge.GameAccumulator
 /**
   * Created by hwang on 09/07/2017.
   */
-object WondevAccumulator extends GameAccumulator[WondevContext, WondevState, WondevAction]{
-  override def accumulate(context: WondevContext, state: WondevState, actions: Vector[WondevAction]): WondevContext = context
+object WondevAccumulator extends GameAccumulator[WondevState, WondevAction] {
+  override def accumulate(previous: WondevState, actions: Vector[WondevAction]): WondevState = previous
 }
