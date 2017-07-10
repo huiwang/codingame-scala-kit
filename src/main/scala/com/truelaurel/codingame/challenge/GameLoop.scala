@@ -4,11 +4,11 @@ import com.truelaurel.codingame.logging.CGLogger
 
 
 class GameLoop[State, Action](
-                         gameIO: GameIO[State, Action],
-                         myPlayer: GameBot[State, Action],
-                         accumulator: (State, Vector[Action]) => State,
-                         turns: Int = 200
-                       ) {
+                               gameIO: GameIO[State, Action],
+                               myPlayer: State => Vector[Action],
+                               accumulator: (State, Vector[Action]) => State,
+                               turns: Int = 200
+                             ) {
   def run(): Unit = {
     val time = System.nanoTime()
     val initialState = gameIO.readInitialState
@@ -18,7 +18,7 @@ class GameLoop[State, Action](
         val state = gameIO.readState(turn, s)
         CGLogger.info(state)
         val time = System.nanoTime()
-        val actions = myPlayer.react(state)
+        val actions = myPlayer(state)
         CGLogger.info("GameReact elt: " + (System.nanoTime() - time) / 1000000 + "ms")
         actions.foreach(a => gameIO.writeAction(a))
         accumulator(state, actions)
