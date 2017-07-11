@@ -2,27 +2,43 @@ package com.truelaurel.codingame.challenge
 
 import com.truelaurel.codingame.logging.CGLogger
 
+/**
+  * Glues together the stragegy (myPlayer) and IO related to CodinGame referee.
+  */
+object GameLoop {
+  /**
+    * Runs the given number of turns, interacting with CodinGame referee through IO.
+    *
+    * @param myPlayer    implementation of strategy
+    * @param accumulator defines how state can keep hidden information like fog of war
+    * @param turns       max turns to play
+    * @param io          handles read state and write actions
+    * @tparam S related game state
+    * @tparam A action or actions; can be chosen by the player and applied to the game state
+    */
+  def run[S, A](
+                 io: GameIO[S, A],
+                 myPlayer: S => A,
+                 accumulator: (S, A) => S = defaultAccumulator[S, A] _,
+                 turns: Int = 200
+               ): Unit = {
 
-class GameLoop[State, Action](
-                         gameIO: GameIO[State, Action],
-                         myPlayer: GameBot[State, Action],
-                         accumulator: GameAccumulator[State, Action],
-                         turns: Int = 200
-                       ) {
-  def run(): Unit = {
     val time = System.nanoTime()
-    val initialState = gameIO.readInitialState
+    val initialState = io.readInitialState()
     CGLogger.info("GameInit elt: " + (System.nanoTime() - time) / 1000000 + "ms")
     (1 to turns).foldLeft(initialState) {
       case (s, turn) =>
-        val state = gameIO.readState(turn, s)
-        CGLogger.info(state)
+        CGLogger.info(s)
         val time = System.nanoTime()
-        val actions = myPlayer.react(state)
+        val action = myPlayer(s)
         CGLogger.info("GameReact elt: " + (System.nanoTime() - time) / 1000000 + "ms")
-        actions.foreach(a => gameIO.writeAction(a))
-        accumulator.accumulate(state, actions)
+        io.writeAction(action)
+        val state = accumulator(s, action)
+        io.readState(turn, state)
     }
   }
 
+  def defaultAccumulator[State, Action](s: State, a: Action): State = s
+
 }
+
