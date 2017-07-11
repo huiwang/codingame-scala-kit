@@ -9,7 +9,9 @@ object Card {
 
 sealed trait Card {
   def score(others: Seq[Card]): Int
-  val meat:Boolean=false
+
+  val meatValue: Option[Int] = None
+  lazy val meat: Boolean = meatValue.isDefined
 }
 
 case object Noodles extends Card {
@@ -45,7 +47,7 @@ case object Chicken extends Card {
     else if (others.contains(Onion)) 5
     else 2
 
-  override val meat=true
+  override val meatValue = Some(2)
 }
 
 case object Pork extends Card {
@@ -53,7 +55,7 @@ case object Pork extends Card {
     if (others.contains(Mushrooms)) 8
     else 5
 
-  override val meat=true
+  override val meatValue = Some(3)
 }
 
 case object Shrimp extends Card {
@@ -62,5 +64,5 @@ case object Shrimp extends Card {
     else if (others.contains(Ginger)) 9
     else 6
 
-  override val meat=true
+  override val meatValue = Some(4)
 }
