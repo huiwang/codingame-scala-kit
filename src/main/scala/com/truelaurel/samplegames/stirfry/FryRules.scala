@@ -1,15 +1,17 @@
 package com.truelaurel.samplegames.stirfry
 
 import com.truelaurel.algorithm.game._
-import com.truelaurel.math.geometry.Pos
 
-case object FryRules extends RulesFor2p[FryBoard, Pos] {
+case object FryRules extends GameRules[Int, FryBoard, FryMove] {
 
 
-  def validMoves(state: FryBoard): Seq[Pos] = ???
+  def validMoves(state: FryBoard): Seq[FryMove] = ???
 
-  def applyMove(state: FryBoard, move: Pos): FryBoard =
-    ???
+  def applyMove(state: FryBoard, move: FryMove): FryBoard =
+    move match {
+      case DiscardPair(c1, c2) => state.discard(Seq(c1, c2)).draw(3)
+      case DiscardMeat(c, meat) => state.discard(Seq(c)).draw(meat.meatValue.get)
+    }
 
   def outcome(b: FryBoard) =
     Undecided

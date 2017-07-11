@@ -5,6 +5,7 @@ import com.truelaurel.collection.IterableUtil._
 
 case class FryBoard(hands: Seq[CardStack[Card]],
                     drawStack: CardStack[Card],
+                    scores: Seq[Int],
                     discardStack: CardStack[Card] = CardStack(),
                     nextPlayer: Int = 0)
   extends GameState[Int] {
@@ -20,9 +21,12 @@ case class FryBoard(hands: Seq[CardStack[Card]],
     copy(hands = newHands)
   }
 
-  def applyMove(move: FryMove) = move match {
-    case DiscardPair(c1, c2) => discard(Seq(c1, c2)).draw(3)
-    case DiscardMeat(c, meat) => discard(Seq(c)).draw(meat.meatValue.get)
-  }
+
 
 }
+
+object FryBoard {
+  def apply(hands: Seq[CardStack[Card]], drawStack: CardStack[Card]): FryBoard =
+    FryBoard(hands, drawStack, scores = Seq.fill(hands.size)(0))
+}
+
