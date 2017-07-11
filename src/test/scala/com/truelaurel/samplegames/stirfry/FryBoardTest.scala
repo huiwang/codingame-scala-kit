@@ -13,4 +13,14 @@ class FryBoardTest extends FlatSpec with Matchers {
     nextBoard.drawStack.empty shouldBe true
     nextBoard.hands.head.cards should contain theSameElementsAs Seq(Pork, Chicken, Shrimp)
   }
+
+  it should "handle discard pork" in {
+    val board = FryBoard(
+      hands = Seq(CardStack(List(Soja, Noodles))),
+      drawStack = CardStack(List(Ginger, Chicken, Shrimp)))
+
+    val nextBoard = board.applyMove(DiscardMeat(Soja, Pork))
+    nextBoard.drawStack.empty shouldBe true
+    nextBoard.hands.head.cards should contain theSameElementsAs Seq(Ginger, Noodles, Chicken, Shrimp)
+  }
 }

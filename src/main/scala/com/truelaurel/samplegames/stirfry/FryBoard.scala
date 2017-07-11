@@ -22,6 +22,7 @@ case class FryBoard(hands: Seq[CardStack[Card]],
 
   def applyMove(move: FryMove) = move match {
     case DiscardPair(c1, c2) => discard(Seq(c1, c2)).draw(3)
+    case DiscardMeat(c, meat) => discard(Seq(c)).draw(meat.meatValue.get)
   }
 
 }
