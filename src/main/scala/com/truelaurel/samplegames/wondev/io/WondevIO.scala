@@ -1,11 +1,12 @@
 package com.truelaurel.samplegames.wondev.io
 
+import com.truelaurel.codingame.challenge.GameIO
 import com.truelaurel.math.geometry.{Direction, Pos}
 import com.truelaurel.samplegames.wondev.domain._
 
 import scala.io.StdIn._
 
-object WondevIO {
+object WondevIO extends GameIO[WondevState, WondevAction] {
   def readInitialState(): WondevState = {
     val size = readInt
     val unitsperplayer = readInt
