@@ -19,6 +19,6 @@ class CountStopperTest extends FlatSpec with Matchers {
   }
 
   it should "return true after counter ran out" in {
-      cs.willOutOfTime should equal(true)
+    cs.willOutOfTime should equal(true)
   }
 }
