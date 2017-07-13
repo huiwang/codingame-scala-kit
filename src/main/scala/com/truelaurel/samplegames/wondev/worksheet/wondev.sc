@@ -1,0 +1,1 @@
+val result = Array(1, 2) -- Array(2)

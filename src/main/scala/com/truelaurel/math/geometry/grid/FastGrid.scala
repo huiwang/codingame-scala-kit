@@ -12,7 +12,7 @@ case class FastGrid(size: Int) {
   /**
     * This may return an invalid neighbor if called in a direction outside grid !
     */
-  def neigborIn(pos: Int, d: Direction): Int = d match {
+  def neighborIn(pos: Int, d: Direction): Int = d match {
     case N => pos - size
     case W => pos - 1
     case S => pos + size
@@ -23,7 +23,7 @@ case class FastGrid(size: Int) {
     case SE => pos + size + 1
   }
 
-  def checkedNeigborIn(p: Int, d: Direction): Option[Int] = {
+  def checkedNeighborIn(p: Int, d: Direction): Option[Int] = {
     val po = pos(p)
     val canN = po.y > 0
     val canS = po.y < size - 1
