@@ -26,11 +26,11 @@ class WondevMinimax(val initial: WondevState) extends RulesFor2p[WondevState, Wo
 
 object MinimaxPlayer extends GameBot[WondevState, WondevAction] {
   override def react(state: WondevState): WondevAction = {
-    val cleaned = WondevAnalysis.removeFog(state)
+/*    val cleaned = WondevAnalysis.removeFog(state)
     val rules = new WondevMinimax(cleaned)
     val minimax = AlphaBetaAi2(rules, WondevAnalysis.evaluate, moveScore)
-    val action = minimax.bestMove(rules.initial, depth = 2)
-    action
+    val action = minimax.bestMove(rules.initial, depth = 2)*/
+    state.legalActions.maxBy(action => WondevAnalysis.evaluate(WondevArena.next(state, action)))
   }
 
   def moveScore(action: WondevAction, state: WondevState): Double = {

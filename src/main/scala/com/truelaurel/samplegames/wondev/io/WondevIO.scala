@@ -54,9 +54,19 @@ object WondevIO extends GameIO[WondevContext, WondevState, WondevAction] {
     WondevState(context, heights, units, legalactions)
   }
 
-  override def writeAction(action: WondevAction): Unit = action match {
-    case MoveBuild(unitIndex, move, build) => System.out.println(s"MOVE&BUILD $unitIndex $move $build")
-    case PushBuild(unitIndex, build, push) => System.out.println(s"PUSH&BUILD $unitIndex $build $push")
+  override def writeAction(state: WondevState, action: WondevAction): Unit = {
+    action match {
+      case MoveBuild(unitIndex, move, build) =>
+        val pos = state.units(unitIndex)
+        val d1 = Direction.all.find(d => pos.neighborIn(d) == move).get
+        val d2 = Direction.all.find(d => move.neighborIn(d) == build).get
+        System.out.println(s"MOVE&BUILD $unitIndex $d1 $d2")
+      case PushBuild(unitIndex, build, push) =>
+        val pos = state.units(unitIndex)
+        val d1 = Direction.all.find(d => pos.neighborIn(d) == build).get
+        val d2 = Direction.all.find(d => build.neighborIn(d) == push).get
+        System.out.println(s"PUSH&BUILD $unitIndex $d1 $d2")
+    }
   }
 }
 

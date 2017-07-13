@@ -6,10 +6,7 @@ import com.truelaurel.samplegames.wondev.analysis.WondevAnalysis
 
 
 case class WondevContext(size: Int,
-                         unitsperplayer: Int,
-                         previousMyUnits : Seq[Pos] = Seq.empty,
-                         previousOpUnits : Seq[Pos] = Seq.empty,
-                         previousHeightMap: Map[Pos, Int] = Map.empty) {
+                         unitsperplayer: Int) {
 }
 
 
@@ -57,13 +54,6 @@ object WondevContext {
   def isPlayable(height: Int): Boolean = height > -1 && height < 4
 }
 
-sealed trait LegalActionType
-
-case object Build extends LegalActionType
-
-case object Push extends LegalActionType
-
-case class LegalAction(actionType: LegalActionType, unitIndex: Int, target1: Pos, target2: Pos) {}
 
 case class WondevState(context: WondevContext,
                        heightMap: Map[Pos, Int],

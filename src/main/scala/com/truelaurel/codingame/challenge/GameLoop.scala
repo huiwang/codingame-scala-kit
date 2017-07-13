@@ -20,7 +20,7 @@ class GameLoop[Context, State, Action](
         val time = System.nanoTime()
         val actions = myPlayer.react(state)
         CGLogger.info("GameReact elt: " + (System.nanoTime() - time) / 1000000 + "ms")
-        gameIO.writeAction(actions)
+        gameIO.writeAction(state, actions)
         accumulator.accumulate(c, state, actions)
     }
   }

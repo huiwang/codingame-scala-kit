@@ -22,21 +22,14 @@ object WondevAnalysis {
 
 
   def evaluate(state: WondevState): Double = {
-    ???
+    evaluateUnits(state, state.units.take(2)) - 2.0 * evaluateUnits(state, state.units.takeRight(2).filter(isVisible))
   }
 
 
-  private def evaluateUnits(state: WondevState, myUnits: Seq[Pos]): Double = {
-    myUnits.map(unit => {
+  private def evaluateUnits(state: WondevState, units: Seq[Pos]): Double = {
+    units.map(unit => {
       countExits(state, unit, 3) + state.heightOf(unit)
     }).sum
-  }
-
-  def findDelta(state: WondevState): Option[Pos] = {
-    state.heightMap.find {
-      case (pos, height) =>
-        state.context.previousHeightMap.get(pos).exists(h => height - h == 1)
-    }.map(p => p._1)
   }
 
   def countExits(state: WondevState, unit: Pos, depth: Int): Double = {

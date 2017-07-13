@@ -11,6 +11,7 @@ import com.truelaurel.samplegames.wondev.strategy.MinimaxPlayer
 object Player {
   def main(args: Array[String]): Unit = {
     CGLogger.current = CGLogger.info
+
     val gameLoop = new GameLoop(WondevIO, MinimaxPlayer, WondevAccumulator)
     gameLoop.run()
   }
