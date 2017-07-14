@@ -4,7 +4,9 @@ object Card {
   def score(meal: Seq[Card]) =
     meal.map(_.score(meal)).sum
 
-  def all: Set[Card] = Set(Noodles, Mushrooms, Soja, Ginger, Onion, Chicken, Pork, Shrimp)
+  val all: Set[Card] = Set(Noodles, Mushrooms, Soja, Ginger, Onion, Chicken, Pork, Shrimp)
+
+  val meats = all.filter(_.meat)
 }
 
 sealed trait Card {

@@ -45,4 +45,18 @@ class FryRulesTest extends FlatSpec with Matchers {
     nextBoard.drawStack.cards should contain theSameElementsAs List(Pork, Chicken)
     nextBoard.discardStack.empty shouldBe true
   }
+
+  it should "list all possible valid moves" in {
+    val board = FryBoard(
+      hands = Seq(CardStack(List(Noodles, Soja, Onion, Chicken))),
+      drawStack = CardStack())
+
+    val moves = FryRules.validMoves(board)
+    moves.count { case DiscardMeat(Onion, _) => true; case _ => false } shouldBe 3
+    moves.count { case DiscardMeat(_, Pork) => true; case _ => false } shouldBe 4
+    val allPairs = List(Noodles, Soja, Onion, Chicken).combinations(2).toList
+    moves.collect { case DiscardPair(a, b) => List(a, b) } should contain theSameElementsAs allPairs
+    moves.count { case Cook(_) => true; case _ => false } shouldBe 4
+
+  }
 }

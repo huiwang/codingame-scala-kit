@@ -4,8 +4,7 @@ import com.truelaurel.algorithm.game._
 
 case object FryRules extends GameRules[Int, FryBoard, FryMove] {
 
-
-  def validMoves(state: FryBoard): Seq[FryMove] = ???
+  def validMoves(state: FryBoard): Seq[FryMove] = state.validMoves
 
   def applyMove(state: FryBoard, move: FryMove): FryBoard =
     move match {

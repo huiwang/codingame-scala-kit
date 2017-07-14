@@ -29,6 +29,24 @@ case class FryBoard(hands: Seq[CardStack[Card]],
       drawStack = newDraw,
       discardStack = CardStack())
   }
+
+  def validMoves: List[FryMove] =
+    Pass :: discardPairMoves ::: discardMeatMoves ::: cookMoves
+
+  private def discardMeatMoves: List[DiscardMeat] = for {
+    actual <- hands(nextPlayer).cards
+    meat <- Card.meats
+  } yield DiscardMeat(actual, meat)
+
+  private def discardPairMoves: List[DiscardPair] = hands(nextPlayer).cards.combinations(2).map {
+    case (List(a, b)) => DiscardPair(a, b)
+  }.toList
+
+  private def cookMoves: List[Cook] = if (hands(nextPlayer).cards.contains(Noodles)) {
+    val rest = hands(nextPlayer).cards.filter(Noodles.!=).distinct
+    (rest.combinations(2) ++ rest.combinations(3) ++ rest.combinations(4)).map(cards => Cook((Noodles :: cards).toSet)).toList
+  } else Nil
+
 }
 
 object FryBoard {
