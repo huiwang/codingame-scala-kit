@@ -3,31 +3,34 @@ package com.truelaurel.samplegames.stirfry
 import com.truelaurel.algorithm.game.GameState
 import com.truelaurel.collection.IterableUtil._
 
-case class FryBoard(hands: Seq[CardStack[Card]],
-                    drawStack: CardStack[Card],
-                    scores: Seq[Int],
+case class FryBoard(drawStack: CardStack[Card],
+                    players: Seq[FryPlayer],
                     discardStack: CardStack[Card] = CardStack(),
                     nextPlayer: Int = 0)
+
   extends GameState[Int] {
+
+  def hands: Seq[CardStack[Card]] = players.map(_.hand)
+
+  def scores: Seq[Int] = players.map(_.score)
 
   def draw(n: Int): FryBoard = {
     val (newCards, newDraw) = drawStack.take(n)
-    val newHands = hands.updatef(nextPlayer, _.addAll(newCards))
-    copy(hands = newHands, drawStack = newDraw)
+    updatePlayer(_.draw(newCards)).copy(drawStack = newDraw)
   }
 
-  def discard(cards: Seq[Card]): FryBoard = {
-    val newHands = hands.updatef(nextPlayer, _.remove(cards))
-    copy(hands = newHands)
+  def discard(cards: List[Card]): FryBoard = {
+    updatePlayer(_.discard(cards))
   }
 
-  def score(n: Int): FryBoard = copy(scores = scores.updatef(nextPlayer, n.+))
+  def mark(n: Int): FryBoard = copy().updatePlayer(_.mark(n))
+
+  private def updatePlayer(f: FryPlayer => FryPlayer): FryBoard =
+    copy(players = players.updatef(nextPlayer, f))
 
   def passTurn: FryBoard = {
     val newDraw = drawStack.addAll(discardStack.cards).shuffle
-    copy(nextPlayer = (nextPlayer + 1) % hands.size,
-      drawStack = newDraw,
-      discardStack = CardStack())
+    copy(drawStack = newDraw, discardStack = CardStack(), nextPlayer = (nextPlayer + 1) % players.size)
   }
 
   def validMoves: List[FryMove] =
@@ -51,6 +54,6 @@ case class FryBoard(hands: Seq[CardStack[Card]],
 
 object FryBoard {
   def apply(hands: Seq[CardStack[Card]], drawStack: CardStack[Card]): FryBoard =
-    FryBoard(hands, drawStack, scores = Seq.fill(hands.size)(0))
+    FryBoard(drawStack, players = hands.map(h => FryPlayer(h, 0)))
 }
 

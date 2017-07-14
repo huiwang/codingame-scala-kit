@@ -35,11 +35,9 @@ class FryRulesTest extends FlatSpec with Matchers {
 
   it should "shuffle at end of turn" in {
     val board = FryBoard(
-      hands = Seq(CardStack()),
       drawStack = CardStack(List(Pork)),
-      discardStack = CardStack(List(Chicken)),
-      scores = Seq(0)
-    )
+      players = Seq(FryPlayer()),
+      discardStack = CardStack(List(Chicken)))
 
     val nextBoard = FryRules.applyMove(board, Pass)
     nextBoard.drawStack.cards should contain theSameElementsAs List(Pork, Chicken)

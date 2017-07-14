@@ -8,9 +8,9 @@ case object FryRules extends GameRules[Int, FryBoard, FryMove] {
 
   def applyMove(state: FryBoard, move: FryMove): FryBoard =
     move match {
-      case DiscardPair(c1, c2) => state.discard(Seq(c1, c2)).draw(3)
-      case DiscardMeat(c, meat) => state.discard(Seq(c)).draw(meat.meatValue.get)
-      case Cook(meal) => state.discard(meal.toSeq).draw(1).score(Card.score(meal.toSeq)).passTurn
+      case DiscardPair(c1, c2) => state.discard(List(c1, c2)).draw(3)
+      case DiscardMeat(c, meat) => state.discard(List(c)).draw(meat.meatValue.get)
+      case Cook(meal) => state.discard(meal.toList).draw(1).mark(Card.score(meal.toSeq)).passTurn
       case Pass => state.passTurn
     }
 
