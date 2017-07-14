@@ -17,8 +17,6 @@ case class CardStack[+T](cards: List[T] = Nil) {
     (h, CardStack(t))
   }
 
-  def all: (List[T], CardStack[T]) = take(cards.size)
-
   def add[U >: T](c: U): CardStack[U] =
     CardStack(c :: cards)
 

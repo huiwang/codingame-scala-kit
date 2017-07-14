@@ -23,4 +23,26 @@ class FryRulesTest extends FlatSpec with Matchers {
     nextBoard.drawStack.empty shouldBe true
     nextBoard.hands.head.cards should contain theSameElementsAs Seq(Ginger, Noodles, Chicken, Shrimp)
   }
+
+  it should "score and draw for cook" in {
+    val board = FryBoard(hands = Seq(CardStack(List(Soja, Noodles, Chicken)), CardStack()), drawStack = CardStack(List(Pork)))
+
+    val nextBoard = FryRules.applyMove(board, Cook(Set(Soja, Noodles, Chicken)))
+    nextBoard.hands.head.cards should contain theSameElementsAs Seq(Pork)
+    nextBoard.scores.head shouldBe 4
+    nextBoard.nextPlayer shouldBe 1
+  }
+
+  it should "shuffle at end of turn" in {
+    val board = FryBoard(
+      hands = Seq(CardStack()),
+      drawStack = CardStack(List(Pork)),
+      discardStack = CardStack(List(Chicken)),
+      scores = Seq(0)
+    )
+
+    val nextBoard = FryRules.applyMove(board, Pass)
+    nextBoard.drawStack.cards should contain theSameElementsAs List(Pork, Chicken)
+    nextBoard.discardStack.empty shouldBe true
+  }
 }

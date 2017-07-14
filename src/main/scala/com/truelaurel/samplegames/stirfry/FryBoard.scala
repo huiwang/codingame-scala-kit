@@ -21,8 +21,14 @@ case class FryBoard(hands: Seq[CardStack[Card]],
     copy(hands = newHands)
   }
 
+  def score(n: Int): FryBoard = copy(scores = scores.updatef(nextPlayer, n.+))
 
-
+  def passTurn: FryBoard = {
+    val newDraw = drawStack.addAll(discardStack.cards).shuffle
+    copy(nextPlayer = (nextPlayer + 1) % hands.size,
+      drawStack = newDraw,
+      discardStack = CardStack())
+  }
 }
 
 object FryBoard {
