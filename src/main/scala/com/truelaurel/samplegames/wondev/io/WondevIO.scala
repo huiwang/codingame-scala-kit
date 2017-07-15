@@ -4,7 +4,6 @@ import com.truelaurel.codingame.challenge.GameIO
 import com.truelaurel.math.geometry.{Direction, Pos}
 import com.truelaurel.samplegames.wondev.domain._
 
-import scala.io.StdIn._
 
 object WondevIO extends GameIO[WondevContext, WondevState, WondevAction] {
   def readContext: WondevContext = {
@@ -13,18 +12,14 @@ object WondevIO extends GameIO[WondevContext, WondevState, WondevAction] {
     WondevContext(size, unitsperplayer)
   }
 
-  def readState(turn: Int, context: WondevContext): WondevState =
-    read(context)
+  def readState(turn: Int, context: WondevContext): WondevState = {
 
-  def read(context: WondevContext): WondevState = {
-    import context._
-
-    val rows = Seq.fill(size)(readLine)
-    val myUnits = Seq.fill(unitsperplayer) {
+    val rows = Seq.fill(context.size)(readLine)
+    val myUnits = Seq.fill(context.unitsperplayer) {
       val Array(unitx, unity) = for (i <- readLine split " ") yield i.toInt
       Pos(unitx, unity)
     }
-    val opUnits = Seq.fill(unitsperplayer) {
+    val opUnits = Seq.fill(context.unitsperplayer) {
       val Array(unitx, unity) = for (i <- readLine split " ") yield i.toInt
       Pos(unitx, unity)
     }
@@ -66,6 +61,7 @@ object WondevIO extends GameIO[WondevContext, WondevState, WondevAction] {
         val d1 = Direction.all.find(d => pos.neighborIn(d) == build).get
         val d2 = Direction.all.find(d => build.neighborIn(d) == push).get
         System.out.println(s"PUSH&BUILD $unitIndex $d1 $d2")
+      case AcceptDefeat => System.out.println("ACCEPT-DEFEAT")
     }
   }
 }
