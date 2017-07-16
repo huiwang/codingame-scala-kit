@@ -12,15 +12,28 @@ trait GameRules[P, S <: GameState[P], M] {
 
   def outcome(state: S): Outcome[P]
 
-  def randomPlay(state: S): Outcome[P] = {
-    def randomMove(s: S): M = {
-      val moves = validMoves(s)
-      require(moves.nonEmpty, "no valid moves in state " + s)
-      moves(Random.nextInt(moves.size))
+  @tailrec
+  final def judge(players: Map[P, S => M],
+                  debug: S => Unit,
+                  state: S = initial): Outcome[P] = {
+    debug(state)
+    outcome(state) match {
+      case Undecided =>
+        val p = players(state.nextPlayer)
+        val m = p(state)
+        judge(players, debug, applyMove(state, m))
+      case o => o
     }
-
-    playUntilEnd(randomMove)(state)
   }
+
+  def randomMove(s: S): M = {
+    val moves = validMoves(s)
+    require(moves.nonEmpty, "no valid moves in state " + s)
+    moves(Random.nextInt(moves.size))
+  }
+
+  def randomPlay(state: S): Outcome[P] =
+    playUntilEnd(randomMove)(state)
 
   def playUntilEnd(selectMove: S => M)(state: S): Outcome[P] = {
     @tailrec
