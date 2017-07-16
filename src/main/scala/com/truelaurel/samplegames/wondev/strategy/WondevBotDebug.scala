@@ -9,7 +9,7 @@ object WondevBotDebug {
 
     val bot = MinimaxPlayer
     val state = ???
-    bot.react(state)
+
 
   }
 }

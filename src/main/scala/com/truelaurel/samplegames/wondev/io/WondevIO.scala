@@ -15,11 +15,11 @@ object WondevIO extends GameIO[WondevContext, WondevState, WondevAction] {
   def readState(turn: Int, context: WondevContext): WondevState = {
 
     val rows = Seq.fill(context.size)(readLine)
-    val myUnits = Seq.fill(context.unitsperplayer) {
+    val myUnits = Seq.fill(context.players) {
       val Array(unitx, unity) = for (i <- readLine split " ") yield i.toInt
       Pos(unitx, unity)
     }
-    val opUnits = Seq.fill(context.unitsperplayer) {
+    val opUnits = Seq.fill(context.players) {
       val Array(unitx, unity) = for (i <- readLine split " ") yield i.toInt
       Pos(unitx, unity)
     }
@@ -44,9 +44,9 @@ object WondevIO extends GameIO[WondevContext, WondevState, WondevAction] {
     val heights = (for {
       (row: String, y: Int) <- rows.zipWithIndex
       (cell: Char, x) <- row.zipWithIndex
-      h = if (cell == '.') -1 else cell.toInt
+      h = if (cell == '.') -1 else (cell - '0')
     } yield Pos(x, y) -> h).toMap
-    WondevState(context, heights, units, legalactions)
+    WondevState(context.size, heights, units, legalactions)
   }
 
   override def writeAction(state: WondevState, action: WondevAction): Unit = {

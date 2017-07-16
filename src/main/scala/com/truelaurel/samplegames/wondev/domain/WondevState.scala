@@ -6,9 +6,7 @@ import com.truelaurel.samplegames.wondev.analysis.WondevAnalysis
 
 
 case class WondevContext(size: Int,
-                         unitsperplayer: Int) {
-}
-
+                         players: Int) {}
 
 object WondevContext {
 
@@ -55,7 +53,7 @@ object WondevContext {
 }
 
 
-case class WondevState(context: WondevContext,
+case class WondevState(size: Int,
                        heightMap: Map[Pos, Int],
                        units: Seq[Pos],
                        legalActions: Seq[WondevAction],
@@ -66,7 +64,7 @@ case class WondevState(context: WondevContext,
 
   private def extractFreeCellTable = {
 
-    val occupyTable: Array[Array[Boolean]] = Array.fill(context.size, context.size)(true)
+    val occupyTable: Array[Array[Boolean]] = Array.fill(size, size)(true)
     units.foreach(u => if (u.x != -1) occupyTable(u.x)(u.y) = false)
     occupyTable
 
@@ -78,12 +76,12 @@ case class WondevState(context: WondevContext,
 
   def heightOf(pos: Pos): Int = heights(pos.x)(pos.y)
 
-  private val neighborTable = WondevContext.neighborMapBySize(context.size)
+  private val neighborTable = WondevContext.neighborMapBySize(size)
 
   def neighborOf(pos: Pos): Array[Pos] = {
     neighborTable(pos.x)(pos.y)
   }
 
-  lazy val pushTargets: Map[(Pos, Pos), Array[Pos]] = WondevContext.pushTargets(context.size)
+  lazy val pushTargets: Map[(Pos, Pos), Array[Pos]] = WondevContext.pushTargets(size)
 
 }

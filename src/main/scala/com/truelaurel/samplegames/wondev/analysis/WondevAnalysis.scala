@@ -62,7 +62,7 @@ object WondevAnalysis {
   }
 
   def extractArrayHeight(state: WondevState): Array[Array[Int]] = {
-    val heights: Array[Array[Int]] = Array.ofDim(state.context.size, state.context.size)
+    val heights: Array[Array[Int]] = Array.ofDim(state.size, state.size)
     state.heightMap.foreach { case (pos, h) => heights(pos.x)(pos.y) = h }
     heights
   }

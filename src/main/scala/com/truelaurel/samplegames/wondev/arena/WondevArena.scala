@@ -23,6 +23,8 @@ object WondevArena {
         heightMap = fromState.heightMap.updated(build, fromState.heightOf(build) + 1),
         nextPlayer = !fromState.nextPlayer
       )
+    case AcceptDefeat =>
+      throw new IllegalStateException("Unable to simulate this defeat action")
   }
 
   def nextLegalActions(state: WondevState): Seq[WondevAction] = {
@@ -51,7 +53,7 @@ object WondevArena {
       target1 = units(opId)
       h1 = state.heightOf(target1)
       if WondevAnalysis.isVisible(target1) && unit.distance(target1) == 1
-      pushTargets: Array[Pos] = WondevContext.pushTargets(state.context.size)(unit, target1)
+      pushTargets: Array[Pos] = WondevContext.pushTargets(state.size)(unit, target1)
       target2 <- pushTargets
       h2 = state.heightOf(target2)
       if WondevContext.isPlayable(h2) && h1 + 1 >= h2 && state.isFree(target2)

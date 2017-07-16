@@ -3,6 +3,7 @@ package com.truelaurel.samplegames.wondev.strategy
 import com.truelaurel.algorithm.alphabeta.{AlphaBetaAi, AlphaBetaAi2}
 import com.truelaurel.algorithm.game.{Outcome, RulesFor2p, Undecided}
 import com.truelaurel.codingame.challenge.GameBot
+import com.truelaurel.math.geometry.Pos
 import com.truelaurel.samplegames.wondev.analysis.WondevAnalysis
 import com.truelaurel.samplegames.wondev.arena.WondevArena
 import com.truelaurel.samplegames.wondev.domain._
@@ -24,8 +25,8 @@ class WondevMinimax(val initial: WondevState) extends RulesFor2p[WondevState, Wo
   override def outcome(state: WondevState): Outcome[Boolean] = Undecided
 }
 
-object MinimaxPlayer extends GameBot[WondevState, WondevAction] {
-  override def react(state: WondevState): WondevAction = {
+object MinimaxPlayer {
+  def react(state: WondevState): WondevAction = {
     /*    val cleaned = WondevAnalysis.removeFog(state)
         val rules = new WondevMinimax(cleaned)
         val minimax = AlphaBetaAi2(rules, WondevAnalysis.evaluate, moveScore)
