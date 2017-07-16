@@ -15,8 +15,10 @@ case class FryRules(players: Int = 2) extends GameRules[Int, FryBoard, FryMove] 
     }
 
   def outcome(b: FryBoard): Outcome[Int] =
-    if (b.scores(b.nextPlayer) >= 50) Wins(b.nextPlayer)
-    else Undecided
+    b.winner match {
+      case Some(p) => Wins(p)
+      case _ => Undecided
+    }
 
   def initial: FryBoard = {
     val draw = CardStack(Chicken :: Pork :: Shrimp ::

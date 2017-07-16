@@ -25,6 +25,10 @@ case class FryBoard(drawStack: CardStack[Card],
     updatePlayer(_.discard(cards)).copy(discardStack = discardStack.addAll(cards))
   }
 
+  def winner: Option[Int] = players.zipWithIndex.collect {
+    case (p, i) if p.score >= 50 => i
+  }.headOption
+
   def mark(n: Int): FryBoard = copy().updatePlayer(_.mark(n))
 
   private def updatePlayer(f: FryPlayer => FryPlayer): FryBoard =
