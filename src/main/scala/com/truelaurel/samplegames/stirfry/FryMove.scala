@@ -10,4 +10,4 @@ case class DiscardMeat(actual: Card, namedMeat: Card) extends FryMove
 
 case class Cook(meal: Set[Card]) extends FryMove
 
-case object Pass extends FryMove
+case class Pass(discards: List[Card] = Nil) extends FryMove

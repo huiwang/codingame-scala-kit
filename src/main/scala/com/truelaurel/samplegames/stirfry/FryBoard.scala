@@ -41,7 +41,13 @@ case class FryBoard(drawStack: CardStack[Card],
   }
 
   def validMoves: List[FryMove] =
-    Pass :: discardPairMoves ::: discardMeatMoves ::: cookMoves
+    passMoves ::: discardPairMoves ::: discardMeatMoves ::: cookMoves
+
+  private def passMoves: List[Pass] = {
+    val hand = hands(nextPlayer).cards
+    if (hand.size <= 3) List(Pass())
+    else hand.combinations(hand.size - 3).map(Pass).toList
+  }
 
   private def discardMeatMoves: List[DiscardMeat] =
     if (hasDiscardedMeat) Nil

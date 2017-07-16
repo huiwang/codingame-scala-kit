@@ -11,7 +11,7 @@ case class FryRules(players: Int = 2) extends GameRules[Int, FryBoard, FryMove] 
       case DiscardPair(c1, c2) => state.discard(List(c1, c2)).draw(3).copy(hasDiscardedPair = true)
       case DiscardMeat(c, meat) => state.discard(List(c)).draw(meat.meatValue.get).copy(hasDiscardedMeat = true)
       case Cook(meal) => state.discard(meal.toList).draw(1).mark(Card.score(meal.toSeq)).passTurn
-      case Pass => state.passTurn
+      case Pass(discard) => state.discard(discard).passTurn
     }
 
   def outcome(b: FryBoard): Outcome[Int] =

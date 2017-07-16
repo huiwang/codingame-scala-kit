@@ -34,13 +34,14 @@ class FryRulesTest extends FlatSpec with Matchers {
     nextBoard.nextPlayer shouldBe 1
   }
 
-  it should "shuffle at end of turn" in {
+  it should "discard to 3 then shuffle at end of turn" in {
     val board = FryBoard(
       drawStack = CardStack(List(Pork, Soja)),
-      players = Seq(FryPlayer()),
+      players = Seq(FryPlayer(CardStack(List(Noodles, Noodles, Noodles, Noodles))), FryPlayer()),
       discardStack = CardStack(List(Chicken)))
 
-    val nextBoard = rules.applyMove(board, Pass)
+    val nextBoard = rules.applyMove(board, Pass(List(Noodles)))
+    nextBoard.players.head.hand.cards.size shouldBe 3
     nextBoard.drawStack.cards.size shouldBe 2
     nextBoard.discardStack.empty shouldBe true
   }
@@ -51,6 +52,7 @@ class FryRulesTest extends FlatSpec with Matchers {
       drawStack = CardStack())
 
     val moves = rules.validMoves(board)
+    moves.collect{ case Pass(discards) => discards.head} should contain theSameElementsAs List(Noodles, Soja, Onion, Chicken)
     moves.count { case DiscardMeat(Onion, _) => true; case _ => false } shouldBe 3
     moves.count { case DiscardMeat(_, Pork) => true; case _ => false } shouldBe 4
     val allPairs = List(Noodles, Soja, Onion, Chicken).combinations(2).toList
