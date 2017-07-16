@@ -22,7 +22,7 @@ case class FryBoard(drawStack: CardStack[Card],
   }
 
   def discard(cards: List[Card]): FryBoard = {
-    updatePlayer(_.discard(cards))
+    updatePlayer(_.discard(cards)).copy(discardStack = discardStack.addAll(cards))
   }
 
   def mark(n: Int): FryBoard = copy().updatePlayer(_.mark(n))

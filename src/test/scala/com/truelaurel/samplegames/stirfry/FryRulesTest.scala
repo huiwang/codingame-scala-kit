@@ -12,6 +12,7 @@ class FryRulesTest extends FlatSpec with Matchers {
 
     val nextBoard = rules.applyMove(board, DiscardPair(Noodles, Noodles))
     nextBoard.drawStack.empty shouldBe true
+    nextBoard.discardStack.cards should contain theSameElementsAs Seq(Noodles, Noodles)
     nextBoard.hands.head.cards should contain theSameElementsAs Seq(Pork, Chicken, Shrimp)
   }
 
@@ -22,6 +23,7 @@ class FryRulesTest extends FlatSpec with Matchers {
 
     val nextBoard = rules.applyMove(board, DiscardMeat(Soja, Pork))
     nextBoard.drawStack.empty shouldBe true
+    nextBoard.discardStack.cards should contain theSameElementsAs Seq(Soja)
     nextBoard.hands.head.cards should contain theSameElementsAs Seq(Ginger, Noodles, Chicken, Shrimp)
   }
 
@@ -42,7 +44,7 @@ class FryRulesTest extends FlatSpec with Matchers {
 
     val nextBoard = rules.applyMove(board, Pass(List(Noodles)))
     nextBoard.players.head.hand.cards.size shouldBe 3
-    nextBoard.drawStack.cards.size shouldBe 2
+    nextBoard.drawStack.cards.size shouldBe 3
     nextBoard.discardStack.empty shouldBe true
   }
 
@@ -52,7 +54,7 @@ class FryRulesTest extends FlatSpec with Matchers {
       drawStack = CardStack())
 
     val moves = rules.validMoves(board)
-    moves.collect{ case Pass(discards) => discards.head} should contain theSameElementsAs List(Noodles, Soja, Onion, Chicken)
+    moves.collect { case Pass(discards) => discards.head } should contain theSameElementsAs List(Noodles, Soja, Onion, Chicken)
     moves.count { case DiscardMeat(Onion, _) => true; case _ => false } shouldBe 3
     moves.count { case DiscardMeat(_, Pork) => true; case _ => false } shouldBe 4
     val allPairs = List(Noodles, Soja, Onion, Chicken).combinations(2).toList

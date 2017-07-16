@@ -1,16 +1,19 @@
 package com.truelaurel.samplegames.stirfry
 
 object FryDemo {
-  val rules = FryRules(2)
+  val count = 3
+  val rules = FryRules(count)
+  val players = (0 until count).map(p => p -> randomMove _).toMap
 
   def main(args: Array[String]): Unit = {
-    val outcome = rules.judge(
-      Map(0 -> randomMove, 1 -> randomMove),
-      s => println(s))
+    val outcome = rules.judge(players, s => println(s))
     println(outcome)
   }
 
-  def randomMove(s: FryBoard): FryMove =
-    rules.randomMove(s)
+  def randomMove(s: FryBoard): FryMove = {
+    val move = rules.randomMove(s)
+    println(move)
+    move
+  }
 
 }
