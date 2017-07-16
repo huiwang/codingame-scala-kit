@@ -6,7 +6,9 @@ import com.truelaurel.collection.IterableUtil._
 case class FryBoard(drawStack: CardStack[Card],
                     players: Seq[FryPlayer],
                     discardStack: CardStack[Card] = CardStack(),
-                    nextPlayer: Int = 0)
+                    nextPlayer: Int = 0,
+                    hasDiscardedPair: Boolean = false,
+                    hasDiscardedMeat: Boolean = false)
 
   extends GameState[Int] {
 
@@ -30,20 +32,29 @@ case class FryBoard(drawStack: CardStack[Card],
 
   def passTurn: FryBoard = {
     val newDraw = drawStack.addAll(discardStack.cards).shuffle
-    copy(drawStack = newDraw, discardStack = CardStack(), nextPlayer = (nextPlayer + 1) % players.size)
+    copy(
+      drawStack = newDraw,
+      discardStack = CardStack(),
+      nextPlayer = (nextPlayer + 1) % players.size,
+      hasDiscardedMeat = false,
+      hasDiscardedPair = false).draw(1)
   }
 
   def validMoves: List[FryMove] =
     Pass :: discardPairMoves ::: discardMeatMoves ::: cookMoves
 
-  private def discardMeatMoves: List[DiscardMeat] = for {
-    actual <- hands(nextPlayer).cards
-    meat <- Card.meats
-  } yield DiscardMeat(actual, meat)
+  private def discardMeatMoves: List[DiscardMeat] =
+    if (hasDiscardedMeat) Nil
+    else for {
+      actual <- hands(nextPlayer).cards
+      meat <- Card.meats
+    } yield DiscardMeat(actual, meat)
 
-  private def discardPairMoves: List[DiscardPair] = hands(nextPlayer).cards.combinations(2).map {
-    case (List(a, b)) => DiscardPair(a, b)
-  }.toList
+  private def discardPairMoves: List[DiscardPair] =
+    if (hasDiscardedPair) Nil
+    else hands(nextPlayer).cards.combinations(2).map {
+      case (List(a, b)) => DiscardPair(a, b)
+    }.toList
 
   private def cookMoves: List[Cook] = if (hands(nextPlayer).cards.contains(Noodles)) {
     val rest = hands(nextPlayer).cards.filter(Noodles.!=).distinct
