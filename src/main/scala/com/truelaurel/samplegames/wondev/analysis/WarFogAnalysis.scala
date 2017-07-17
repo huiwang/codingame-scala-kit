@@ -4,6 +4,8 @@ import com.truelaurel.math.geometry.Pos
 import com.truelaurel.samplegames.wondev.arena.WondevArena
 import com.truelaurel.samplegames.wondev.domain.{WondevAction, WondevContext, WondevState}
 
+import scala.collection.mutable.ArrayBuffer
+
 /**
   * Created by hwang on 15/07/2017.
   */
@@ -32,12 +34,31 @@ object WarFogAnalysis {
         oppoScope.filter(oppoSet => visibleOppo.forall(oppoSet.contains))
       }
     } else {
-      previousOppoScope.filter(oppoSet => {
-        val possibleState = previousState.copy(units = myUnits ++ oppoSet.toSeq)
+      val restricted = collection.mutable.ArrayBuffer.empty[Set[Pos]]
+      var i = 0
+      val previousScope = previousOppoScope.toArray
+      while (i < previousScope.length) {
+        val oppoSet = previousScope(i)
+        val possibleState = previousState.copy(units = myUnits ++ oppoSet)
         val updatedStateByMe = WondevArena.next(possibleState, previousAction)
         val oppoLegalActions = WondevArena.nextLegalActions(updatedStateByMe)
-        oppoLegalActions.exists(action => consistent(WondevArena.next(updatedStateByMe, action), observed))
-      })
+        findConsistentState(oppoLegalActions, updatedStateByMe, observed, restricted)
+        i += 1
+      }
+      restricted.toSet
+    }
+  }
+
+
+  def findConsistentState(legalActions: Seq[WondevAction], afterMe: WondevState, observed: WondevState, restricted: ArrayBuffer[Set[Pos]]): Unit = {
+    var i = 0
+    while (i < legalActions.size) {
+      val action = legalActions(i)
+      val simulated = WondevArena.next(afterMe, action)
+      if (consistent(simulated, observed)) {
+        restricted.append(simulated.units.takeRight(2).toSet)
+      }
+      i += 1
     }
   }
 
@@ -52,7 +73,7 @@ object WarFogAnalysis {
       observed.heightMap == simulated.heightMap
   }
 
-  private def hasSameUnvisibleOppo(observedOppo: Iterable[Pos], simulatedOppo: Iterable[Pos], observedSelf : Iterable[Pos]) = {
+  private def hasSameUnvisibleOppo(observedOppo: Iterable[Pos], simulatedOppo: Iterable[Pos], observedSelf: Iterable[Pos]) = {
     observedOppo.count(pos => !WondevAnalysis.isVisible(pos)) == simulatedOppo.count(pos => observedSelf.forall(_.distance(pos) > 1))
   }
 

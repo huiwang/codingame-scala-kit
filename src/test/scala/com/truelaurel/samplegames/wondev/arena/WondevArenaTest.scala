@@ -5,7 +5,9 @@ import com.truelaurel.samplegames.wondev.domain.{MoveBuild, PushBuild, WondevSta
 import org.scalatest.{FlatSpec, Matchers}
 
 /**
-  * Created by hwang on 16/07/2017.
+  * data copied from
+  * mapIndex=0
+  * seed=168724840
   */
 class WondevArenaTest extends FlatSpec with Matchers {
 

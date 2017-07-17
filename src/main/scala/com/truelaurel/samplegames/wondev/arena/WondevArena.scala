@@ -12,17 +12,27 @@ object WondevArena {
     case MoveBuild(unitIndex, move, build) =>
       fromState.copy(
         units = fromState.units.updated(unitIndex, move),
-        heightMap = fromState.heightMap.updated(build, fromState.heightOf(build) + 1),
+        heightMap = {
+          if (fromState.isFree(build)) {
+            fromState.heightMap.updated(build, fromState.heightOf(build) + 1)
+          } else {
+            fromState.heightMap
+          }
+        },
         nextPlayer = !fromState.nextPlayer
       )
 
     case PushBuild(unitIndex, build, push) =>
       val pushedUnitIndex = fromState.units.indexOf(build)
-      fromState.copy(
-        units = fromState.units.updated(pushedUnitIndex, push),
-        heightMap = fromState.heightMap.updated(build, fromState.heightOf(build) + 1),
-        nextPlayer = !fromState.nextPlayer
-      )
+      if (fromState.isFree(push)) {
+        fromState.copy(
+          units = fromState.units.updated(pushedUnitIndex, push),
+          heightMap = fromState.heightMap.updated(build, fromState.heightOf(build) + 1),
+          nextPlayer = !fromState.nextPlayer
+        )
+      } else {
+        fromState.copy(nextPlayer = !fromState.nextPlayer)
+      }
     case AcceptDefeat =>
       throw new IllegalStateException("Unable to simulate this defeat action")
   }
