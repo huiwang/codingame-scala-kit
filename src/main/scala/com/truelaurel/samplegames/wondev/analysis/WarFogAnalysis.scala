@@ -10,19 +10,20 @@ import com.truelaurel.samplegames.wondev.domain.{WondevAction, WondevContext, Wo
 object WarFogAnalysis {
 
 
-  def restrictOppoScope(state: WondevState,
+  def restrictOppoScope(observed: WondevState,
                         previousState: WondevState,
                         previousAction: WondevAction,
-                        previousOppoScope: Iterator[Set[Pos]]): Iterator[Set[Pos]] = {
-    val myUnits = state.units.take(2)
-    val visibleOppo = state.units.takeRight(2).filter(WondevAnalysis.isVisible)
+                        previousOppoScope: Set[Set[Pos]]): Set[Set[Pos]] = {
+    val myUnits = observed.units.take(2)
+    val oppoUnits = observed.units.takeRight(2)
+    val visibleOppo = oppoUnits.filter(WondevAnalysis.isVisible)
     if (previousAction == null) {
-      val occupables = state.heightMap.keySet.filter(
-        pos => WondevContext.isPlayable(state.heightOf(pos)) &&
+      val occupables = observed.heightMap.keySet.filter(
+        pos => WondevContext.isPlayable(observed.heightOf(pos)) &&
           myUnits.forall(myPos => myPos.distance(pos) > 0)
       )
-      val oppoScope = occupables.subsets(2)
-      val increased = state.heightMap.find(_._2 == 1)
+      val oppoScope = occupables.subsets(2).toSet.filter(set => hasSameUnvisibleOppo(oppoUnits, set, myUnits))
+      val increased = observed.heightMap.find(_._2 == 1)
       if (increased.isDefined) {
         //oppo started the game
         oppoScope.filter(oppoSet => visibleOppo.forall(oppoSet.contains)
@@ -35,18 +36,27 @@ object WarFogAnalysis {
         val possibleState = previousState.copy(units = myUnits ++ oppoSet.toSeq)
         val updatedStateByMe = WondevArena.next(possibleState, previousAction)
         val oppoLegalActions = WondevArena.nextLegalActions(updatedStateByMe)
-        oppoLegalActions.exists(action => consistent(WondevArena.next(updatedStateByMe, action), state))
+        oppoLegalActions.exists(action => consistent(WondevArena.next(updatedStateByMe, action), observed))
       })
     }
   }
 
   def consistent(simulated: WondevState, observed: WondevState): Boolean = {
-    observed.units.take(2) == simulated.units.take(2) &&
-      observed.units.takeRight(2).filter(WondevAnalysis.isVisible).forall(simulated.units.takeRight(2).contains) &&
+    val observedOppo = observed.units.takeRight(2)
+    val simulatedOppo = simulated.units.takeRight(2)
+    val observedSelf = observed.units.take(2)
+    val simulatedSelf = simulated.units.take(2)
+    observedSelf == simulatedSelf &&
+      observedOppo.filter(WondevAnalysis.isVisible).forall(simulatedOppo.contains) &&
+      hasSameUnvisibleOppo(observedOppo, simulatedOppo, observedSelf) &&
       observed.heightMap == simulated.heightMap
   }
 
-  def removeFog(state: WondevState, oppoScope: Iterator[Set[Pos]]): WondevState = {
+  private def hasSameUnvisibleOppo(observedOppo: Iterable[Pos], simulatedOppo: Iterable[Pos], observedSelf : Iterable[Pos]) = {
+    observedOppo.count(pos => !WondevAnalysis.isVisible(pos)) == simulatedOppo.count(pos => observedSelf.forall(_.distance(pos) > 1))
+  }
+
+  def removeFog(state: WondevState, oppoScope: Set[Set[Pos]]): WondevState = {
     state
   }
 

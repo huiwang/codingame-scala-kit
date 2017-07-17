@@ -41,6 +41,7 @@ object WondevIO extends GameIO[WondevContext, WondevState, WondevAction] {
       }
     }
 
+
     val heights = (for {
       (row: String, y: Int) <- rows.zipWithIndex
       (cell: Char, x) <- row.zipWithIndex

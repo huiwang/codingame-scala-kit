@@ -44,7 +44,7 @@ object WondevContext {
       pos = Pos(x, y)
       neighbor <- neighborMapBySize(size)(x)(y)
       neighborNeighbor = neighborMapBySize(size)(neighbor.x)(neighbor.y)
-      pushable = neighborNeighbor.filter(nn => nn.distanceEuclide(pos) >= 2.0)
+      pushable = neighborNeighbor.filter(nn => nn.distanceEuclide(pos) > 2.0 || (nn.distance(pos) == 2 && pos.distanceEuclide(neighbor) == 1.0))
     } yield (pos, neighbor) -> pushable).toMap
     map
   }
@@ -65,7 +65,9 @@ case class WondevState(size: Int,
   private def extractFreeCellTable = {
 
     val occupyTable: Array[Array[Boolean]] = Array.fill(size, size)(true)
-    units.foreach(u => if (u.x != -1) occupyTable(u.x)(u.y) = false)
+    units.foreach(u => if (u.x != -1) {
+      occupyTable(u.x)(u.y) = false
+    })
     occupyTable
 
   }
