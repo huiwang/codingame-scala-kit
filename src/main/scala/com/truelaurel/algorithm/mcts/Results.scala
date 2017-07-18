@@ -2,23 +2,28 @@ package com.truelaurel.algorithm.mcts
 
 import com.truelaurel.algorithm.game.{Outcome, Wins}
 
-// score is delta of trueWins - falseWins
-case class Results(played: Int = 0,
-                   score: Int = 0) {
+// score is delta of myWins - otherWins
+case class Results(played: Int = 0, score: Int = 0) {
 
-  def withOutcome(outcome: Outcome[Boolean]): Results = copy(
+  def withOutcome(outcome: Outcome[Boolean]): Results =
+    withOutcome(true, outcome)
+
+  def withOutcome[P](player: P, outcome: Outcome[P]): Results = copy(
     played = played + 1,
-    score = score + (if (outcome == Wins(true)) 1 else if (outcome == Wins(false)) -1 else 0)
-  )
+    score = score + (outcome match {
+      case Wins(`player`) => 1
+      case Wins(_) => -1
+      case _ => 0
+    }))
 
-  def uct(total: Int, next: Boolean): Double = {
+  def uct(total: Int, me: Boolean): Double = {
     if (played == 0) Double.MaxValue
-    else wins(next) / played + math.sqrt(2 * math.log(total) / played)
+    else wins(me) / played + math.sqrt(2 * math.log(total) / played)
   }
 
 
-  def wins(player: Boolean): Double =
-    (played + (if (player) score else -score)) / 2.0
+  def wins(me: Boolean): Double =
+    (played + (if (me) score else -score)) / 2.0
 
 
   /*
@@ -47,12 +52,12 @@ t = (p+s)/2
 object Results {
   // faster using a (sorted) TreeMap ?
   // results must be a non empty map
-  def mostPromisingMove[M](next: Boolean, results: Iterable[(M, Results)]): M = {
+  def mostPromisingMove[M](me: Boolean, results: Iterable[(M, Results)]): M = {
     val total = results.map(_._2.played).sum
-    mostPromisingMove(next, results, total)
+    mostPromisingMove(me, results, total)
   }
 
-  def mostPromisingMove[M](next: Boolean, results: Iterable[(M, Results)], total: Int): M = {
-    results.maxBy(_._2.uct(total, next))._1
+  def mostPromisingMove[M](me: Boolean, results: Iterable[(M, Results)], total: Int): M = {
+    results.maxBy(_._2.uct(total, me))._1
   }
 }
