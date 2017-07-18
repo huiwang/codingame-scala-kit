@@ -39,7 +39,7 @@ object WarFogAnalysis {
       val previousScope = previousOppoScope.toArray
       while (i < previousScope.length) {
         val oppoSet = previousScope(i)
-        val possibleState = previousState.copy(units = myUnits ++ oppoSet)
+        val possibleState = previousState.copy(units = previousState.units.take(2) ++ oppoSet)
         val updatedStateByMe = WondevArena.next(possibleState, previousAction)
         val oppoLegalActions = WondevArena.nextLegalActions(updatedStateByMe)
         findConsistentState(oppoLegalActions, updatedStateByMe, observed, restricted)
@@ -78,7 +78,7 @@ object WarFogAnalysis {
   }
 
   def removeFog(state: WondevState, oppoScope: Set[Set[Pos]]): WondevState = {
-    state
+    state.copy(units = state.units.take(2) ++ oppoScope.head.toSeq)
   }
 
 }
