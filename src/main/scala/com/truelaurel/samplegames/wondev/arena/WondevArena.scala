@@ -40,6 +40,7 @@ object WondevArena {
   def nextLegalActions(state: WondevState): Seq[WondevAction] = {
     val myStart = if (state.nextPlayer) 0 else 2
     val opStart = if (state.nextPlayer) 2 else 0
+    val myUnits = state.units.slice(myStart, myStart + 2)
 
     val buildActions = for {
       id <- myStart until myStart + 2
@@ -50,7 +51,7 @@ object WondevArena {
       if WondevContext.isPlayable(h1) && h + 1 >= h1 && state.isFree(target1)
       target2 <- state.neighborOf(target1)
       h2 = state.heightOf(target2)
-      if WondevContext.isPlayable(h2) && (unit.distance(target2) > 1 || state.isFree(target2) || target2 == unit)
+      if WondevContext.isPlayable(h2) && (state.isFree(target2) || target2 == unit || myUnits.forall(_.distance(target2) > 1))
     } yield MoveBuild(id, target1, target2)
 
     val pushActions = for {
@@ -62,7 +63,7 @@ object WondevArena {
       pushTargets: Array[Pos] = WondevContext.pushTargets(state.size)(unit, target1)
       target2 <- pushTargets
       h2 = state.heightOf(target2)
-      if WondevContext.isPlayable(h2) && state.heightOf(target1) + 1 >= h2 && (unit.distance(target2) > 1 || state.isFree(target2))
+      if WondevContext.isPlayable(h2) && state.heightOf(target1) + 1 >= h2 && (myUnits.forall(_.distance(target2) > 1) || state.isFree(target2))
     } yield PushBuild(id, target1, target2)
 
     buildActions ++ pushActions

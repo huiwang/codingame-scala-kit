@@ -23,29 +23,33 @@ object Player {
     var previousState: WondevState = null
     var previousAction: WondevAction = null
     var previousOppoScope: Set[Set[Pos]] = null
-    while (true) {
-      val state = WondevIO.readState(turn, initContext)
+    try {
+      while (true) {
+        val state = WondevIO.readState(turn, initContext)
 
-      val predictedActions = WondevArena.nextLegalActions(state)
-      if (state.legalActions.toSet != predictedActions.toSet) {
-        CGLogger.info("action prediction not working")
+        val predictedActions = WondevArena.nextLegalActions(state)
+        if (state.legalActions.toSet != predictedActions.toSet) {
+          CGLogger.info("action prediction not working")
+        }
+
+        CGLogger.info(state)
+
+        CGLogger.info("previous action " + previousAction)
+        CGLogger.info("previous oppo scope " + previousOppoScope)
+        val oppoScope = WarFogAnalysis.restrictOppoScope(state, previousState, previousAction, previousOppoScope)
+
+        CGLogger.info("restricted " + oppoScope)
+        val clearedState = WarFogAnalysis.removeFog(state, oppoScope)
+        val action = MinimaxPlayer.react(clearedState)
+        previousState = state
+        previousAction = action
+        previousOppoScope = oppoScope
+
+        WondevIO.writeAction(state, action)
+        turn += 1
       }
-
-      CGLogger.info(state)
-
-      CGLogger.info("previous action " + previousAction)
-      CGLogger.info("previous oppo scope " + previousOppoScope)
-      val oppoScope = WarFogAnalysis.restrictOppoScope(state, previousState, previousAction, previousOppoScope)
-
-      CGLogger.info("restricted " + oppoScope)
-      val clearedState = WarFogAnalysis.removeFog(state, oppoScope)
-      val action = MinimaxPlayer.react(clearedState)
-      previousState = state
-      previousAction = action
-      previousOppoScope = oppoScope
-
-      WondevIO.writeAction(state, action)
-      turn += 1
+    } catch {
+      case e => e.printStackTrace()
     }
   }
 }
