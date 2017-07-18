@@ -365,6 +365,50 @@ class WarFogAnalysisTest extends FlatSpec with Matchers {
 
   }
 
+  it should "restrict oppo scope with history event 7" in {
+
+    val observed = WondevState(5,Map(Pos(0,2) -> 2, Pos(0,0) -> 0, Pos(4,0) -> 4, Pos(3,4) -> 2, Pos(3,1) -> 4, Pos(4,1) -> 3, Pos(2,0) -> 4, Pos(0,3) -> 1, Pos(4,4) -> 3, Pos(3,0) -> 4, Pos(1,1) -> 3, Pos(1,4) -> 0, Pos(0,4) -> 0, Pos(3,2) -> 4, Pos(1,3) -> 1, Pos(2,2) -> 4, Pos(4,2) -> 4, Pos(2,4) -> 1, Pos(0,1) -> 3, Pos(3,3) -> 4, Pos(2,3) -> 4, Pos(1,2) -> 4, Pos(2,1) -> 3, Pos(4,3) -> 1, Pos(1,0) -> 3),List(Pos(3,4), Pos(0,3), Pos(-1,-1), Pos(-1,-1)),List(MoveBuild(0,Pos(4,4),Pos(4,3)), MoveBuild(0,Pos(4,4),Pos(3,4)), MoveBuild(0,Pos(4,3),Pos(4,4)), MoveBuild(0,Pos(4,3),Pos(3,4)), MoveBuild(0,Pos(2,4),Pos(3,4)), MoveBuild(0,Pos(2,4),Pos(1,3)), MoveBuild(0,Pos(2,4),Pos(1,4)), MoveBuild(1,Pos(1,3),Pos(0,2)), MoveBuild(1,Pos(1,3),Pos(1,4)), MoveBuild(1,Pos(1,3),Pos(2,4)), MoveBuild(1,Pos(1,3),Pos(0,4)), MoveBuild(1,Pos(1,3),Pos(0,3)), MoveBuild(1,Pos(0,2),Pos(0,1)), MoveBuild(1,Pos(0,2),Pos(1,1)), MoveBuild(1,Pos(0,2),Pos(0,3)), MoveBuild(1,Pos(0,2),Pos(1,3)), MoveBuild(1,Pos(0,4),Pos(1,4)), MoveBuild(1,Pos(0,4),Pos(0,3)), MoveBuild(1,Pos(0,4),Pos(1,3)), MoveBuild(1,Pos(1,4),Pos(2,4)), MoveBuild(1,Pos(1,4),Pos(1,3)), MoveBuild(1,Pos(1,4),Pos(0,3)), MoveBuild(1,Pos(1,4),Pos(0,4))),true)
+
+
+    val previousAction = MoveBuild(1,Pos(0,3),Pos(0,2))
+
+    val previousOppoScope = Set(Set(Pos(0,0), Pos(4,1)))
+
+    val previousState = WondevState(5,Map(Pos(0,2) -> 1, Pos(0,0) -> 0, Pos(4,0) -> 4, Pos(3,4) -> 2, Pos(3,1) -> 4, Pos(4,1) -> 3, Pos(2,0) -> 4, Pos(0,3) -> 1, Pos(4,4) -> 3, Pos(3,0) -> 4, Pos(1,1) -> 3, Pos(1,4) -> 0, Pos(0,4) -> 0, Pos(3,2) -> 4, Pos(1,3) -> 1, Pos(2,2) -> 4, Pos(4,2) -> 4, Pos(2,4) -> 1, Pos(0,1) -> 3, Pos(3,3) -> 4, Pos(2,3) -> 4, Pos(1,2) -> 4, Pos(2,1) -> 3, Pos(4,3) -> 1, Pos(1,0) -> 3),List(Pos(3,4), Pos(0,2), Pos(-1,-1), Pos(-1,-1)),List(MoveBuild(0,Pos(4,4),Pos(4,3)), MoveBuild(0,Pos(4,4),Pos(3,4)), MoveBuild(0,Pos(4,3),Pos(4,4)), MoveBuild(0,Pos(4,3),Pos(3,4)), MoveBuild(0,Pos(2,4),Pos(3,4)), MoveBuild(0,Pos(2,4),Pos(1,3)), MoveBuild(0,Pos(2,4),Pos(1,4)), MoveBuild(1,Pos(0,3),Pos(1,3)), MoveBuild(1,Pos(0,3),Pos(0,2)), MoveBuild(1,Pos(0,3),Pos(0,4)), MoveBuild(1,Pos(0,3),Pos(1,4)), MoveBuild(1,Pos(1,3),Pos(0,2)), MoveBuild(1,Pos(1,3),Pos(1,4)), MoveBuild(1,Pos(1,3),Pos(2,4)), MoveBuild(1,Pos(1,3),Pos(0,4)), MoveBuild(1,Pos(1,3),Pos(0,3))),true)
+
+
+
+
+    val restricted = WarFogAnalysis.restrictOppoScope(observed, previousState, previousAction, previousOppoScope)
+
+    restricted should be(Set(Set(Pos(4, 1), Pos(0, 0))))
+
+
+  }
+
+  it should "restrict oppo scope with history event 8" in {
+
+    val observed = WondevState(5,Map(Pos(0,2) -> 2, Pos(0,0) -> 0, Pos(4,0) -> 4, Pos(3,4) -> 2, Pos(3,1) -> 4, Pos(4,1) -> 3, Pos(2,0) -> 4, Pos(0,3) -> 1, Pos(4,4) -> 3, Pos(3,0) -> 4, Pos(1,1) -> 3, Pos(1,4) -> 0, Pos(0,4) -> 0, Pos(3,2) -> 4, Pos(1,3) -> 2, Pos(2,2) -> 4, Pos(4,2) -> 4, Pos(2,4) -> 1, Pos(0,1) -> 3, Pos(3,3) -> 4, Pos(2,3) -> 4, Pos(1,2) -> 4, Pos(2,1) -> 3, Pos(4,3) -> 1, Pos(1,0) -> 3),List(Pos(3,4), Pos(0,1), Pos(-1,-1), Pos(0,0)),List(MoveBuild(0,Pos(4,4),Pos(4,3)), MoveBuild(0,Pos(4,4),Pos(3,4)), MoveBuild(0,Pos(4,3),Pos(4,4)), MoveBuild(0,Pos(4,3),Pos(3,4)), MoveBuild(0,Pos(2,4),Pos(3,4)), MoveBuild(0,Pos(2,4),Pos(1,3)), MoveBuild(0,Pos(2,4),Pos(1,4)), MoveBuild(1,Pos(1,1),Pos(2,1)), MoveBuild(1,Pos(1,1),Pos(1,0)), MoveBuild(1,Pos(1,1),Pos(0,2)), MoveBuild(1,Pos(1,1),Pos(0,1)), MoveBuild(1,Pos(1,0),Pos(1,1)), MoveBuild(1,Pos(1,0),Pos(2,1)), MoveBuild(1,Pos(1,0),Pos(0,1)), MoveBuild(1,Pos(0,2),Pos(0,1)), MoveBuild(1,Pos(0,2),Pos(1,1)), MoveBuild(1,Pos(0,2),Pos(0,3)), MoveBuild(1,Pos(0,2),Pos(1,3))),true)
+
+
+
+    val previousAction = MoveBuild(1,Pos(0,1),Pos(0,0))
+
+    val previousOppoScope = Set(Set(Pos(0,0), Pos(4,1)))
+
+    val previousState = WondevState(5,Map(Pos(0,2) -> 2, Pos(0,0) -> 0, Pos(4,0) -> 4, Pos(3,4) -> 2, Pos(3,1) -> 4, Pos(4,1) -> 3, Pos(2,0) -> 4, Pos(0,3) -> 1, Pos(4,4) -> 3, Pos(3,0) -> 4, Pos(1,1) -> 3, Pos(1,4) -> 0, Pos(0,4) -> 0, Pos(3,2) -> 4, Pos(1,3) -> 2, Pos(2,2) -> 4, Pos(4,2) -> 4, Pos(2,4) -> 1, Pos(0,1) -> 3, Pos(3,3) -> 4, Pos(2,3) -> 4, Pos(1,2) -> 4, Pos(2,1) -> 3, Pos(4,3) -> 1, Pos(1,0) -> 3),List(Pos(3,4), Pos(0,2), Pos(-1,-1), Pos(-1,-1)),List(MoveBuild(0,Pos(4,4),Pos(4,3)), MoveBuild(0,Pos(4,4),Pos(3,4)), MoveBuild(0,Pos(4,3),Pos(4,4)), MoveBuild(0,Pos(4,3),Pos(3,4)), MoveBuild(0,Pos(2,4),Pos(3,4)), MoveBuild(0,Pos(2,4),Pos(1,3)), MoveBuild(0,Pos(2,4),Pos(1,4)), MoveBuild(1,Pos(0,1),Pos(1,1)), MoveBuild(1,Pos(0,1),Pos(0,0)), MoveBuild(1,Pos(0,1),Pos(1,0)), MoveBuild(1,Pos(0,1),Pos(0,2)), MoveBuild(1,Pos(1,1),Pos(2,1)), MoveBuild(1,Pos(1,1),Pos(1,0)), MoveBuild(1,Pos(1,1),Pos(0,0)), MoveBuild(1,Pos(1,1),Pos(0,2)), MoveBuild(1,Pos(1,1),Pos(0,1)), MoveBuild(1,Pos(0,3),Pos(1,3)), MoveBuild(1,Pos(0,3),Pos(0,2)), MoveBuild(1,Pos(0,3),Pos(0,4)), MoveBuild(1,Pos(0,3),Pos(1,4)), MoveBuild(1,Pos(1,3),Pos(0,2)), MoveBuild(1,Pos(1,3),Pos(1,4)), MoveBuild(1,Pos(1,3),Pos(2,4)), MoveBuild(1,Pos(1,3),Pos(0,4)), MoveBuild(1,Pos(1,3),Pos(0,3))),true)
+
+
+
+
+
+    val restricted = WarFogAnalysis.restrictOppoScope(observed, previousState, previousAction, previousOppoScope)
+
+    restricted should be(Set(Set(Pos(4, 1), Pos(0, 0))))
+
+
+  }
+
 
 
 

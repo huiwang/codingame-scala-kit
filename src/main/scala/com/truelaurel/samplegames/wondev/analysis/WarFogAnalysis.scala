@@ -45,7 +45,7 @@ object WarFogAnalysis {
         findConsistentState(oppoLegalActions, updatedStateByMe, observed, restricted)
         i += 1
       }
-      restricted.toSet
+      if(restricted.isEmpty) previousOppoScope else restricted.toSet
     }
   }
 
