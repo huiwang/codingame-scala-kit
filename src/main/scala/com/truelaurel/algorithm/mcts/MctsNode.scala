@@ -28,7 +28,7 @@ case class MctsNode[P, State <: GameState[P], Move](state: State,
       case Some(unexploredMove) => unexploredMove
       case None =>
         val movesResults = validMoves.map(m => m -> children(m).results)
-        Results.mostPromisingMove(false, movesResults, results.played)
+        Results.mostPromisingMove(movesResults)
     }
   }
 
@@ -36,7 +36,7 @@ case class MctsNode[P, State <: GameState[P], Move](state: State,
     for {
       (move, n) <- children
       r@Results(played, _) = n.results
-      wins = r.wins(true).toInt
+      wins = r.won.toInt
     } yield s"$wins/$played for $move\n"
   }.mkString
 

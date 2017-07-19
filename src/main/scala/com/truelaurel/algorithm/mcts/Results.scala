@@ -16,15 +16,13 @@ case class Results(played: Int = 0, score: Int = 0) {
       case _ => 0
     }))
 
-  def uct(total: Int, me: Boolean): Double = {
+  def uct(total: Int): Double = {
     if (played == 0) Double.MaxValue
-    else wins(me) / played + math.sqrt(2 * math.log(total) / played)
+    else lost / played + math.sqrt(2 * math.log(total) / played)
   }
 
-
-  def wins(me: Boolean): Double =
-    (played + (if (me) score else -score)) / 2.0
-
+  def lost: Double = (played - score) / 2.0
+  def won: Double = (played + score) / 2.0
 
   /*
 Ex :
@@ -52,12 +50,8 @@ t = (p+s)/2
 object Results {
   // faster using a (sorted) TreeMap ?
   // results must be a non empty map
-  def mostPromisingMove[M](me: Boolean, results: Iterable[(M, Results)]): M = {
+  def mostPromisingMove[M](results: Iterable[(M, Results)]): M = {
     val total = results.map(_._2.played).sum
-    mostPromisingMove(me, results, total)
-  }
-
-  def mostPromisingMove[M](me: Boolean, results: Iterable[(M, Results)], total: Int): M = {
-    results.maxBy(_._2.uct(total, me))._1
+    results.maxBy(_._2.uct(total))._1
   }
 }
