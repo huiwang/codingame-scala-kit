@@ -12,7 +12,7 @@ case class MctsNode[P, State <: GameState[P], Move](state: State,
                                                     children: Map[Move, MctsNode[P, State, Move]] = Map.empty[Move, MctsNode[P, State, Move]]) {
 
   def bestMove: Move =
-    children.mapValues(_.results.played).maxBy(_._2)._1
+    children.mapValues(_.results.score).minBy(_._2)._1
 
   @tailrec
   final def steps(count: Int): MctsNode[P, State, Move] =
@@ -28,7 +28,7 @@ case class MctsNode[P, State <: GameState[P], Move](state: State,
       case Some(unexploredMove) => unexploredMove
       case None =>
         val movesResults = validMoves.map(m => m -> children(m).results)
-        Results.mostPromisingMove(true, movesResults, results.played)
+        Results.mostPromisingMove(false, movesResults, results.played)
     }
   }
 

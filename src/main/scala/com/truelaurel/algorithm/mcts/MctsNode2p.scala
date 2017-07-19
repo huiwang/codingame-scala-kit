@@ -7,8 +7,8 @@ class MctsNode2p[State <: GameState[Boolean], Move](state: State,
                                                     rules: RulesFor2p[State, Move],
                                                     randomPlay: State => Outcome[Boolean],
                                                     results: Results = Results(),
-                                                    children: Map[Move, MctsNode2p[State, Move]] = Map.empty[Move, MctsNode2p[State, Move]])
-  extends MctsNode[Boolean, State, Move](state, rules, randomPlay, results)
+                                                    children: Map[Move, MctsNode[Boolean, State, Move]] = Map.empty[Move, MctsNode[Boolean, State, Move]])
+  extends MctsNode[Boolean, State, Move](state, rules, randomPlay, results, children)
 
 
 object MctsNode2p {
