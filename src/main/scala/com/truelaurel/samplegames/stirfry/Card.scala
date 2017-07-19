@@ -6,7 +6,7 @@ object Card {
 
   val all: Set[Card] = Set(Noodles, Mushrooms, Soja, Ginger, Onion, Chicken, Pork, Shrimp)
 
-  val meats = all.filter(_.meat)
+  val meats = Seq(Shrimp, Pork, Chicken)
 }
 
 sealed trait Card {
