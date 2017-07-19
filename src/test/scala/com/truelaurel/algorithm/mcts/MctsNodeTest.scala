@@ -21,7 +21,7 @@ class MctsNodeTest extends FlatSpec with Matchers {
     }
 
   }
-  val rootNode = new MctsNode2p(dummyRules.initial, dummyRules, randomPlay)
+  val rootNode = MctsNode(dummyRules.initial, dummyRules, randomPlay)
 
   def randomPlay(state: DummyState): Outcome[Boolean] = dummyRules.outcome(state)
 
@@ -29,8 +29,8 @@ class MctsNodeTest extends FlatSpec with Matchers {
 
 
   it should "select least played node" in {
-    val child1 = new MctsNode2p(DummyState(Seq(2), false), dummyRules, randomPlay, Results(1, 0))
-    val root = new MctsNode2p(DummyState(Seq(1, 2), true), dummyRules, randomPlay, Results(1, 0), Map(1 -> child1))
+    val child1 = MctsNode(DummyState(Seq(2), false), dummyRules, randomPlay, Results(1, 0))
+    val root = MctsNode(DummyState(Seq(1, 2), true), dummyRules, randomPlay, Results(1, 0), Map(1 -> child1))
 
     root.moveToExplore shouldBe 2
   }
