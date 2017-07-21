@@ -4,6 +4,8 @@ import com.truelaurel.math.geometry.Pos
 import com.truelaurel.samplegames.wondev.analysis.WondevAnalysis
 import com.truelaurel.samplegames.wondev.domain._
 
+import scala.collection.mutable.ArrayBuffer
+
 /**
   * Created by hwang on 24/06/2017.
   */
@@ -38,35 +40,59 @@ object WondevArena {
   }
 
   def nextLegalActions(state: WondevState): Seq[WondevAction] = {
+
     val myStart = if (state.nextPlayer) 0 else 2
     val opStart = if (state.nextPlayer) 2 else 0
     val myUnits = state.units.slice(myStart, myStart + 2)
 
-    val buildActions = for {
-      id <- myStart until myStart + 2
-      unit = state.units(id)
-      h = state.heightOf(unit)
-      target1 <- state.neighborOf(unit)
-      h1 = state.heightOf(target1)
-      if WondevContext.isPlayable(h1) && h + 1 >= h1 && state.isFree(target1)
-      target2 <- state.neighborOf(target1)
-      h2 = state.heightOf(target2)
-      if WondevContext.isPlayable(h2) && (state.isFree(target2) || target2 == unit || myUnits.forall(_.distance(target2) > 1))
-    } yield MoveBuild(id, target1, target2)
+    val actions: ArrayBuffer[WondevAction] = ArrayBuffer.empty
+    var id = myStart
+    while (id < myStart + 2) {
+      val unit = state.units(id)
+      val h = state.heightOf(unit)
+      var nid = 0
+      val neighbors1 = state.neighborOf(unit)
+      while (nid < neighbors1.length) {
+        val target1 = neighbors1(nid)
+        val h1 = state.heightOf(target1)
+        if (WondevContext.isPlayable(h1) && h + 1 >= h1 && state.isFree(target1)) {
+          val neighbors2 = state.neighborOf(target1)
+          var nid2 = 0
+          while (nid2 < neighbors2.length) {
+            val target2 = neighbors2(nid2)
+            val h2 = state.heightOf(target2)
+            if (WondevContext.isPlayable(h2) && (state.isFree(target2) || target2 == unit || myUnits.forall(_.distance(target2) > 1))) {
+              actions.append(MoveBuild(id, target1, target2))
+            }
+            nid2 += 1
+          }
+        }
+        nid += 1
+      }
 
-    val pushActions = for {
-      id <- myStart until (myStart + 2)
-      unit = state.units(id)
-      opId <- opStart until (opStart + 2)
-      target1 = state.units(opId)
-      if WondevAnalysis.isVisible(target1) && unit.distance(target1) == 1
-      pushTargets: Array[Pos] = WondevContext.pushTargets(state.size)(unit, target1)
-      target2 <- pushTargets
-      h2 = state.heightOf(target2)
-      if WondevContext.isPlayable(h2) && state.heightOf(target1) + 1 >= h2 && (myUnits.forall(_.distance(target2) > 1) || state.isFree(target2))
-    } yield PushBuild(id, target1, target2)
+      var oid = opStart
+      while (oid < opStart + 2) {
+        val target1 = state.units(oid)
+        if(WondevAnalysis.isVisible(target1) && unit.distance(target1) == 1) {
+          val pushTargets: Array[Pos] = WondevContext.pushTargets(state.size)(unit, target1)
 
-    buildActions ++ pushActions
+          var pid = 0
+          while(pid < pushTargets.length) {
+            val target2 = pushTargets(pid)
+            val h2 = state.heightOf(target2)
+            if (WondevContext.isPlayable(h2) && state.heightOf(target1) + 1 >= h2 && (myUnits.forall(_.distance(target2) > 1) || state.isFree(target2))) {
+              actions.append(PushBuild(id, target1, target2))
+            }
+            pid += 1
+          }
+        }
+
+        oid += 1
+      }
+      id += 1
+    }
+    actions
   }
+
 
 }

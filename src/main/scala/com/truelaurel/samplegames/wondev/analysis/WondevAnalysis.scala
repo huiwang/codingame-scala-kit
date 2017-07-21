@@ -9,7 +9,6 @@ import com.truelaurel.samplegames.wondev.domain._
   * Created by hwang on 24/06/2017.
   */
 object WondevAnalysis {
-  def removeFog(state: WondevState) = ???
 
   def neighborsOf(pos: Pos, size: Int): Set[Pos] = {
     Direction.all
