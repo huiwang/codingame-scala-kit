@@ -1,15 +1,14 @@
 package com.truelaurel.samplegames.wondev.domain
 
-import java.util
-
 import com.truelaurel.math.geometry.Pos
 
+import scala.collection.mutable.ArrayBuffer
 
-class FastWondevState(private val size: Int,
+
+class FastWondevState(val size: Int,
                       private val units: Array[Pos],
                       private val height: Array[Array[Int]],
-                      private var nextPlayer: Boolean) {
-
+                      var nextPlayer: Boolean) {
   private val neighborTable = WondevContext.neighborMapBySize(size)
 
   private val freeCellTable: Array[Array[Boolean]] = extractFreeCellTable
@@ -24,7 +23,47 @@ class FastWondevState(private val size: Int,
 
   def unitAt(id: Int): Pos = units(id)
 
-  def unitIdOf(pos: Pos) : Int = units.indexOf(pos)
+  def unitIdOf(pos: Pos): Int = units.indexOf(pos)
+
+  def feasibleOppo(): Set[Pos] = {
+    val feasible: ArrayBuffer[Pos] = ArrayBuffer.empty
+    var i = 0
+    while (i < size) {
+      var j = 0
+      while (j < size) {
+        val pos = Pos(i, j)
+        if (WondevContext.isPlayable(heightOf(pos)) && units(0) != pos && units(1) != pos) {
+          feasible.append(pos)
+        }
+        j += 1
+      }
+      i += 1
+    }
+    feasible.toSet
+  }
+
+
+  def myUnits: Array[Pos] = units.take(2)
+
+  def opUnits: Array[Pos] = units.takeRight(2)
+
+  def hasSameHeightMap(that: FastWondevState): Boolean = {
+    var i = 0
+    while (i < height.length) {
+      val row = height(i)
+      var j = 0
+      while (j < row.length) {
+        val h = row(j)
+        if (that.height(i)(j) != h) {
+          return false
+        }
+        j += 1
+      }
+      i += 1
+    }
+    true
+  }
+
 
   def moveUnit(id: Int, to: Pos): () => Unit = {
     val from = units(id)
@@ -50,14 +89,18 @@ class FastWondevState(private val size: Int,
     }
   }
 
-  private def extractFreeCellTable = {
+  def setOppo(oppo : Set[Pos]): Unit = {
+    val oppoSeq = oppo.toSeq
+    units(3) = oppoSeq(1)
+    units(4) = oppoSeq(2)
+  }
 
+  private def extractFreeCellTable = {
     val occupyTable: Array[Array[Boolean]] = Array.fill(size, size)(true)
     units.foreach(u => if (u.x != -1) {
       occupyTable(u.x)(u.y) = false
     })
     occupyTable
-
   }
 
 
@@ -88,12 +131,12 @@ class FastWondevState(private val size: Int,
 
 object FastWondevState {
   def fromSlowState(wondevState: WondevState): FastWondevState = {
-    val height: Array[Int] = Array.ofDim(wondevState.size * wondevState.size)
+    val height: Array[Array[Int]] = Array.fill(wondevState.size)(Array.fill(wondevState.size)(0))
     for {
       (pos, h) <- wondevState.heightMap
     } {
-      height(pos.x + pos.y * wondevState.size) = h
+      height(pos.x)(pos.y) = h
     }
-    new FastWondevState(wondevState.size, wondevState.units.toArray, null, wondevState.nextPlayer)
+    new FastWondevState(wondevState.size, wondevState.units.toArray, height, wondevState.nextPlayer)
   }
 }
