@@ -1,8 +1,8 @@
 package com.truelaurel.samplegames.wondev.analysis
 
 import com.truelaurel.math.geometry.Pos
-import com.truelaurel.samplegames.wondev.arena.{UndoWondevArena, WondevArena}
-import com.truelaurel.samplegames.wondev.domain.{FastWondevState, WondevAction, WondevContext, WondevState}
+import com.truelaurel.samplegames.wondev.arena.UndoWondevArena
+import com.truelaurel.samplegames.wondev.domain.{FastWondevState, WondevAction, WondevState}
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -17,25 +17,29 @@ object WarFogAnalysis {
                         previousAction: WondevAction,
                         previousOppoScope: Set[Set[Pos]]): Set[Set[Pos]] = {
     val observed = FastWondevState.fromSlowState(observedRaw)
-    val myUnits = observed.myUnits
-    val oppoUnits = observed.opUnits
+    val myUnits = observed.readable.myUnits
+    val oppoUnits = observed.readable.opUnits
     val visibleOppo = oppoUnits.filter(WondevAnalysis.isVisible)
     if (previousAction == null) {
-      val occupables = observed.feasibleOppo()
+      val occupables = observed.readable.feasibleOppo()
       val oppoScope = occupables.subsets(2).toSet.filter(set => hasSameUnvisibleOppo(oppoUnits, set, myUnits))
       val result = oppoScope.filter(oppoSet => visibleOppo.forall(oppoSet.contains))
       result
     } else {
       val previousState = FastWondevState.fromSlowState(previousStateRaw)
       val restricted = collection.mutable.ArrayBuffer.empty[Set[Pos]]
-      var i = 0
       val previousScope = previousOppoScope.toArray
+      var i = 0
       while (i < previousScope.length) {
         val oppoSet = previousScope(i)
-        previousState.setOppo(oppoSet)
-        val undo = UndoWondevArena.next(previousState, previousAction)
+        previousState.undoable.start()
+        val oppoUpdated = previousState.undoable.setOppo(oppoSet)
+        previousState.undoable.end()
+        val myActionApplied = UndoWondevArena.next(oppoUpdated, previousAction)
         val oppoLegalActions = UndoWondevArena.nextLegalActions(previousState)
-        findConsistentState(oppoLegalActions, previousState, observed, restricted)
+        findConsistentState(oppoLegalActions, myActionApplied, observed, restricted)
+        myActionApplied.undoable.undo()
+        oppoUpdated.undoable.undo()
         i += 1
       }
       if (restricted.isEmpty) previousOppoScope else restricted.toSet
@@ -43,27 +47,28 @@ object WarFogAnalysis {
   }
 
 
-  def findConsistentState(legalActions: Seq[WondevAction], afterMe: FastWondevState, observed: FastWondevState, restricted: ArrayBuffer[Set[Pos]]): Unit = {
+  def findConsistentState(legalActions: Seq[WondevAction], myActionApplied: FastWondevState, observed: FastWondevState, restricted: ArrayBuffer[Set[Pos]]): Unit = {
     var i = 0
     while (i < legalActions.size) {
       val action = legalActions(i)
-      UndoWondevArena.next(afterMe, action)
-      if (consistent(afterMe, observed)) {
-        restricted.append(afterMe.opUnits.toSet)
+      val simulated = UndoWondevArena.next(myActionApplied, action)
+      if (consistent(simulated, observed)) {
+        restricted.append(simulated.readable.opUnits.toSet)
       }
+      simulated.undoable.undo()
       i += 1
     }
   }
 
   def consistent(simulated: FastWondevState, observed: FastWondevState): Boolean = {
-    val observedOppo = observed.opUnits
-    val simulatedOppo = simulated.opUnits
-    val observedSelf = observed.myUnits
-    val simulatedSelf = simulated.myUnits
+    val observedOppo = observed.readable.opUnits
+    val simulatedOppo = simulated.readable.opUnits
+    val observedSelf = observed.readable.myUnits
+    val simulatedSelf = simulated.readable.myUnits
     (observedSelf sameElements simulatedSelf) &&
       observedOppo.filter(WondevAnalysis.isVisible).forall(simulatedOppo.contains) &&
       hasSameUnvisibleOppo(observedOppo, simulatedOppo, observedSelf) &&
-      observed.hasSameHeightMap(simulated)
+      observed.readable.hasSameHeightMap(simulated)
   }
 
   private def hasSameUnvisibleOppo(observedOppo: Iterable[Pos], simulatedOppo: Iterable[Pos], observedSelf: Iterable[Pos]) = {

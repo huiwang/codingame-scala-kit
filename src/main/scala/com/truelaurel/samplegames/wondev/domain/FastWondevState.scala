@@ -9,100 +9,157 @@ class FastWondevState(val size: Int,
                       private val units: Array[Pos],
                       private val height: Array[Array[Int]],
                       var nextPlayer: Boolean) {
+
   private val neighborTable = WondevContext.neighborMapBySize(size)
 
   private val freeCellTable: Array[Array[Boolean]] = extractFreeCellTable
 
-  def heightOf(p: Pos): Int = height(p.x)(p.y)
+  val undoable = new Undoable()
 
-  def neighborOf(pos: Pos): Array[Pos] = {
-    neighborTable(pos.x)(pos.y)
-  }
+  val readable = new Readable()
 
-  def isFree(pos: Pos): Boolean = freeCellTable(pos.x)(pos.y)
+  class Undoable {
 
-  def unitAt(id: Int): Pos = units(id)
+    type Operation = () => Unit
 
-  def unitIdOf(pos: Pos): Int = units.indexOf(pos)
+    private var stack: List[List[Operation]] = Nil
+    private var current: List[Operation] = Nil
 
-  def feasibleOppo(): Set[Pos] = {
-    val feasible: ArrayBuffer[Pos] = ArrayBuffer.empty
-    var i = 0
-    while (i < size) {
-      var j = 0
-      while (j < size) {
-        val pos = Pos(i, j)
-        if (WondevContext.isPlayable(heightOf(pos)) && units(0) != pos && units(1) != pos) {
-          feasible.append(pos)
-        }
-        j += 1
-      }
-      i += 1
+    def start(): Unit = {
+      current = Nil
     }
-    feasible.toSet
-  }
 
-
-  def myUnits: Array[Pos] = units.take(2)
-
-  def opUnits: Array[Pos] = units.takeRight(2)
-
-  def hasSameHeightMap(that: FastWondevState): Boolean = {
-    var i = 0
-    while (i < height.length) {
-      val row = height(i)
-      var j = 0
-      while (j < row.length) {
-        val h = row(j)
-        if (that.height(i)(j) != h) {
-          return false
-        }
-        j += 1
-      }
-      i += 1
+    def setOppo(oppo: Set[Pos]): FastWondevState = {
+      val oldUnit2 = units(2)
+      val oldUnit3 = units(3)
+      push(() => {
+        units(2) = oldUnit2
+        units(3) = oldUnit3
+        setOccupied(freeCellTable, oldUnit2)
+        setOccupied(freeCellTable, oldUnit3)
+      })
+      val oppoSeq = oppo.toSeq
+      units(2) = oppoSeq.head
+      units(3) = oppoSeq(1)
+      setOccupied(freeCellTable, units(2))
+      setOccupied(freeCellTable, units(3))
+      FastWondevState.this
     }
-    true
+
+    def moveUnit(id: Int, to: Pos): FastWondevState = {
+      val from: Pos = doMove(id, to)
+      push(() => {
+        doMove(id, from)
+      })
+    }
+
+    def increaseHeight(pos: Pos): FastWondevState = {
+      height(pos.x)(pos.y) += 1
+      push(() => {
+        height(pos.x)(pos.y) -= 1
+      })
+    }
+
+    def swapPlayer(): FastWondevState = {
+      doSwap()
+      push(() => {
+        doSwap()
+      })
+    }
+
+    private def doSwap() = {
+      nextPlayer = !nextPlayer
+    }
+
+    def end(): Unit = {
+      stack = current :: stack
+    }
+
+    def undo(): Unit = {
+      stack.head.foreach(operation => operation.apply())
+      stack = stack.tail
+    }
+
+    private def push(operation: Operation): FastWondevState = {
+      current = operation :: current
+      FastWondevState.this
+    }
   }
 
-
-  def moveUnit(id: Int, to: Pos): () => Unit = {
+  private def doMove(id: Int, to: Pos) = {
     val from = units(id)
     units(id) = to
     freeCellTable(from.x)(from.y) = true
     freeCellTable(to.x)(to.y) = false
-    () => {
-      moveUnit(id, from)
+    from
+  }
+
+  class Readable {
+    def heightOf(p: Pos): Int = height(p.x)(p.y)
+
+    def neighborOf(pos: Pos): Array[Pos] = {
+      neighborTable(pos.x)(pos.y)
+    }
+
+    def isFree(pos: Pos): Boolean = freeCellTable(pos.x)(pos.y)
+
+    def unitAt(id: Int): Pos = units(id)
+
+    def unitIdOf(pos: Pos): Int = units.indexOf(pos)
+
+    def feasibleOppo(): Set[Pos] = {
+      val feasible: ArrayBuffer[Pos] = ArrayBuffer.empty
+      var i = 0
+      while (i < size) {
+        var j = 0
+        while (j < size) {
+          val pos = Pos(i, j)
+          if (WondevContext.isPlayable(heightOf(pos)) && units(0) != pos && units(1) != pos) {
+            feasible.append(pos)
+          }
+          j += 1
+        }
+        i += 1
+      }
+      feasible.toSet
+    }
+
+
+    def myUnits: Array[Pos] = units.take(2)
+
+    def opUnits: Array[Pos] = units.takeRight(2)
+
+    def hasSameHeightMap(that: FastWondevState): Boolean = {
+      var i = 0
+      while (i < height.length) {
+        val row = height(i)
+        var j = 0
+        while (j < row.length) {
+          val h = row(j)
+          if (that.height(i)(j) != h) {
+            return false
+          }
+          j += 1
+        }
+        i += 1
+      }
+      true
     }
   }
 
-  def increaseHeight(pos: Pos): () => Unit = {
-    height(pos.x)(pos.y) += 1
-    () => {
-      height(pos.x)(pos.y) -= 1
-    }
-  }
-
-  def swapPlayer(): () => Unit = {
-    nextPlayer = !nextPlayer
-    () => {
-      swapPlayer()
-    }
-  }
-
-  def setOppo(oppo : Set[Pos]): Unit = {
-    val oppoSeq = oppo.toSeq
-    units(3) = oppoSeq(1)
-    units(4) = oppoSeq(2)
-  }
 
   private def extractFreeCellTable = {
     val occupyTable: Array[Array[Boolean]] = Array.fill(size, size)(true)
-    units.foreach(u => if (u.x != -1) {
-      occupyTable(u.x)(u.y) = false
-    })
+    units.foreach(u => setOccupied(occupyTable, u))
     occupyTable
   }
 
+
+  private def setOccupied(occupyTable: Array[Array[Boolean]], u: Pos) = {
+    if (u.x != -1) {
+      occupyTable(u.x)(u.y) = false
+    }
+  }
 
   def canEqual(other: Any): Boolean = other.isInstanceOf[FastWondevState]
 

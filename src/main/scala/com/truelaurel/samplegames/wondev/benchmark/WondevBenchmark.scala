@@ -3,7 +3,7 @@ package com.truelaurel.samplegames.wondev.benchmark
 import java.util.concurrent.TimeUnit
 
 import com.truelaurel.math.geometry.Pos
-import com.truelaurel.samplegames.wondev.analysis.FastWarFogAnalysis
+import com.truelaurel.samplegames.wondev.analysis.WarFogAnalysis
 import com.truelaurel.samplegames.wondev.domain._
 import com.truelaurel.samplegames.wondev.strategy.MinimaxPlayer
 import org.openjdk.jmh.annotations._
@@ -29,7 +29,7 @@ class WondevBenchmark {
   @BenchmarkMode(Array(Mode.AverageTime))
   @OutputTimeUnit(TimeUnit.MILLISECONDS)
   def wondevMinimax(): Unit = {
-    FastWarFogAnalysis.restrictOppoScope(observed, previousState, previousAction, previousOppoScope)
+    WarFogAnalysis.restrictOppoScope(observed, previousState, previousAction, previousOppoScope)
   }
 
 }
