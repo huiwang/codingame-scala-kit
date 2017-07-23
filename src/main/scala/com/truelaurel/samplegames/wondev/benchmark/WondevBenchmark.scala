@@ -27,7 +27,7 @@ class WondevBenchmark {
 
   @Benchmark
   @BenchmarkMode(Array(Mode.AverageTime))
-  @OutputTimeUnit(TimeUnit.MILLISECONDS)
+  @OutputTimeUnit(TimeUnit.MICROSECONDS)
   def wondevMinimax(): Unit = {
     WarFogAnalysis.restrictOppoScope(observed, previousState, previousAction, previousOppoScope)
   }

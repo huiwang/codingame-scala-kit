@@ -17,12 +17,12 @@ object WarFogAnalysis {
                         previousAction: WondevAction,
                         previousOppoScope: Set[Set[Pos]]): Set[Set[Pos]] = {
     val observed = FastWondevState.fromSlowState(observedRaw)
-    val myUnits = observed.readable.myUnits
-    val oppoUnits = observed.readable.opUnits
-    val visibleOppo = oppoUnits.filter(WondevAnalysis.isVisible)
     if (previousAction == null) {
+      val oppoUnits = observed.readable.opUnits
+      val visibleOppo = oppoUnits.filter(WondevAnalysis.isVisible)
+      val myUnits = observed.readable.myUnits
       val occupables = observed.readable.feasibleOppo()
-      val oppoScope = occupables.subsets(2).toSet.filter(set => hasSameUnvisibleOppo(oppoUnits, set, myUnits))
+      val oppoScope = occupables.subsets(2).toSet.filter(set => hasSameUnvisibleOppo(2 - visibleOppo.length, set, myUnits))
       val increased = observed.readable.findIncreasedCell
       if (increased.isDefined) {
         //oppo started the game
@@ -31,10 +31,13 @@ object WarFogAnalysis {
       } else {
         oppoScope.filter(oppoSet => visibleOppo.forall(oppoSet.contains))
       }
-    }  else {
+    } else {
       val previousState = FastWondevState.fromSlowState(previousStateRaw)
       val restricted = collection.mutable.ArrayBuffer.empty[Set[Pos]]
       val previousScope = previousOppoScope.toArray
+      val observedOppo = observed.readable.opUnits
+      val visibleOppo = observedOppo.filter(WondevAnalysis.isVisible)
+      val observedSelf = observed.readable.myUnits
       var i = 0
       while (i < previousScope.length) {
         val oppoSet = previousScope(i)
@@ -43,7 +46,7 @@ object WarFogAnalysis {
         previousState.undoable.end()
         val myActionApplied = UndoWondevArena.next(oppoUpdated, previousAction)
         val oppoLegalActions = UndoWondevArena.nextLegalActions(previousState)
-        findConsistentState(oppoLegalActions, myActionApplied, observed, restricted)
+        findConsistentState(oppoLegalActions, myActionApplied, observed, visibleOppo, observedSelf, observedOppo, restricted)
         myActionApplied.undoable.undo()
         oppoUpdated.undoable.undo()
         i += 1
@@ -53,12 +56,18 @@ object WarFogAnalysis {
   }
 
 
-  def findConsistentState(legalActions: Seq[WondevAction], myActionApplied: FastWondevState, observed: FastWondevState, restricted: ArrayBuffer[Set[Pos]]): Unit = {
+  def findConsistentState(legalActions: Seq[WondevAction],
+                          myActionApplied: FastWondevState,
+                          observed: FastWondevState,
+                          visibleOppo: Array[Pos],
+                          observedSelf: Array[Pos],
+                          observedOppo: Array[Pos],
+                          restricted: ArrayBuffer[Set[Pos]]): Unit = {
     var i = 0
     while (i < legalActions.size) {
       val action = legalActions(i)
       val simulated = UndoWondevArena.next(myActionApplied, action)
-      if (consistent(simulated, observed)) {
+      if (consistent(simulated, observed, visibleOppo, observedSelf, observedOppo)) {
         restricted.append(simulated.readable.opUnits.toSet)
       }
       simulated.undoable.undo()
@@ -66,19 +75,17 @@ object WarFogAnalysis {
     }
   }
 
-  def consistent(simulated: FastWondevState, observed: FastWondevState): Boolean = {
-    val observedOppo = observed.readable.opUnits
+  def consistent(simulated: FastWondevState, observed: FastWondevState, visibleOppo: Array[Pos], observedSelf: Array[Pos], observedOppo: Array[Pos]): Boolean = {
     val simulatedOppo = simulated.readable.opUnits
-    val observedSelf = observed.readable.myUnits
     val simulatedSelf = simulated.readable.myUnits
     (observedSelf sameElements simulatedSelf) &&
-      observedOppo.filter(WondevAnalysis.isVisible).forall(simulatedOppo.contains) &&
-      hasSameUnvisibleOppo(observedOppo, simulatedOppo, observedSelf) &&
+      visibleOppo.forall(simulatedOppo.contains) &&
+      hasSameUnvisibleOppo(2 - visibleOppo.length, simulatedOppo, observedSelf) &&
       observed.readable.hasSameHeightMap(simulated)
   }
 
-  private def hasSameUnvisibleOppo(observedOppo: Iterable[Pos], simulatedOppo: Iterable[Pos], observedSelf: Iterable[Pos]) = {
-    observedOppo.count(pos => !WondevAnalysis.isVisible(pos)) == simulatedOppo.count(pos => observedSelf.forall(_.distance(pos) > 1))
+  private def hasSameUnvisibleOppo(size : Int, simulatedOppo: Iterable[Pos], observedSelf: Iterable[Pos]) = {
+     simulatedOppo.count(pos => observedSelf.forall(_.distance(pos) > 1)) == size
   }
 
   def removeFog(state: WondevState, oppoScope: Set[Set[Pos]]): WondevState = {

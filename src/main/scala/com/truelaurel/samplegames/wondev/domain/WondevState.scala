@@ -1,6 +1,5 @@
 package com.truelaurel.samplegames.wondev.domain
 
-import com.truelaurel.algorithm.game.GameState
 import com.truelaurel.math.geometry.Pos
 import com.truelaurel.samplegames.wondev.analysis.WondevAnalysis
 
@@ -58,32 +57,6 @@ case class WondevState(size: Int,
                        units: Seq[Pos],
                        legalActions: Seq[WondevAction],
                        nextPlayer: Boolean = true
-                      ) extends GameState[Boolean] {
-
-  private lazy val allUnits: Array[Array[Boolean]] = extractFreeCellTable
-
-  private def extractFreeCellTable = {
-
-    val occupyTable: Array[Array[Boolean]] = Array.fill(size, size)(true)
-    units.foreach(u => if (u.x != -1) {
-      occupyTable(u.x)(u.y) = false
-    })
-    occupyTable
-
-  }
-
-  private lazy val heights: Array[Array[Int]] = WondevAnalysis.extractArrayHeight(this)
-
-  def isFree(pos: Pos): Boolean = allUnits(pos.x)(pos.y)
-
-  def heightOf(pos: Pos): Int = heights(pos.x)(pos.y)
-
-  private val neighborTable = WondevContext.neighborMapBySize(size)
-
-  def neighborOf(pos: Pos): Array[Pos] = {
-    neighborTable(pos.x)(pos.y)
-  }
-
-  lazy val pushTargets: Map[(Pos, Pos), Array[Pos]] = WondevContext.pushTargets(size)
+                      ) {
 
 }

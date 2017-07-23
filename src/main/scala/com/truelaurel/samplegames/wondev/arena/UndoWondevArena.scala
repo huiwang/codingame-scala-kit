@@ -18,9 +18,9 @@ object UndoWondevArena {
         if (fromState.readable.isFree(build) || (build == fromState.readable.unitAt(unitIndex))) {
           fromState.undoable.increaseHeight(build)
         }
-      case PushBuild(_, build, push) =>
-        val pushedUnitIndex = fromState.readable.unitIdOf(build)
+      case PushBuild(_,  build, push) =>
         if (fromState.readable.isFree(push)) {
+          val pushedUnitIndex = fromState.readable.unitIdOf(build)
           fromState.undoable.moveUnit(pushedUnitIndex, push)
           fromState.undoable.increaseHeight(build)
         }
@@ -38,7 +38,8 @@ object UndoWondevArena {
     val opStart = if (state.nextPlayer) 2 else 0
     val myUnits = if (state.nextPlayer) state.readable.myUnits else state.readable.opUnits
 
-    val actions: ArrayBuffer[WondevAction] = ArrayBuffer.empty
+    val actions: Array[WondevAction] = Array.ofDim(128)
+    var aid = 0
     var id = myStart
     while (id < myStart + 2) {
       val unit = state.readable.unitAt(id)
@@ -55,7 +56,8 @@ object UndoWondevArena {
             val target2 = neighbors2(nid2)
             val h2 = state.readable.heightOf(target2)
             if (WondevContext.isPlayable(h2) && (state.readable.isFree(target2) || target2 == unit || myUnits.forall(_.distance(target2) > 1))) {
-              actions.append(MoveBuild(id, target1, target2))
+              actions(aid) = MoveBuild(id, target1, target2)
+              aid += 1
             }
             nid2 += 1
           }
@@ -74,7 +76,8 @@ object UndoWondevArena {
             val target2 = pushTargets(pid)
             val h2 = state.readable.heightOf(target2)
             if (WondevContext.isPlayable(h2) && state.readable.heightOf(target1) + 1 >= h2 && (myUnits.forall(_.distance(target2) > 1) || state.readable.isFree(target2))) {
-              actions.append(PushBuild(id, target1, target2))
+              actions(aid) = PushBuild(id, target1, target2)
+              aid += 1
             }
             pid += 1
           }
@@ -84,7 +87,7 @@ object UndoWondevArena {
       }
       id += 1
     }
-    actions
+    actions.take(aid)
   }
 
 
