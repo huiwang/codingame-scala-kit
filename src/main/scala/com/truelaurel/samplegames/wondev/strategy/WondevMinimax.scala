@@ -33,7 +33,7 @@ object MinimaxPlayer {
       state.legalActions.maxBy(action => {
         val simulated = WondevSimulator.next(fastWondevState, action)
         val score = WondevEvaluator.evaluate(simulated)
-        simulated.undoable.undo()
+        simulated.writable.undo()
         score
       })
     }

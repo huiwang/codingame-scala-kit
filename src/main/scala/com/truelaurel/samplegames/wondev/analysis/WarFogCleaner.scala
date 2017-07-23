@@ -41,14 +41,14 @@ object WarFogCleaner {
       var i = 0
       while (i < previousScope.length) {
         val oppoSet = previousScope(i)
-        previousState.undoable.start()
-        val oppoUpdated = previousState.undoable.setOppo(oppoSet)
-        previousState.undoable.end()
+        previousState.writable.start()
+        val oppoUpdated = previousState.writable.setOppo(oppoSet)
+        previousState.writable.end()
         val myActionApplied = WondevSimulator.next(oppoUpdated, previousAction)
         val oppoLegalActions = WondevSimulator.nextLegalActions(previousState)
         findConsistentState(oppoLegalActions, myActionApplied, observed, visibleOppo, observedSelf, observedOppo, restricted)
-        myActionApplied.undoable.undo()
-        oppoUpdated.undoable.undo()
+        myActionApplied.writable.undo()
+        oppoUpdated.writable.undo()
         i += 1
       }
       if (restricted.isEmpty) previousOppoScope else restricted.toSet
@@ -70,7 +70,7 @@ object WarFogCleaner {
       if (consistent(simulated, observed, visibleOppo, observedSelf, observedOppo)) {
         restricted.append(simulated.readable.opUnits.toSet)
       }
-      simulated.undoable.undo()
+      simulated.writable.undo()
       i += 1
     }
   }

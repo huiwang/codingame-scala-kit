@@ -14,11 +14,11 @@ class FastWondevState(val size: Int,
 
   private val freeCellTable: Array[Array[Boolean]] = extractFreeCellTable
 
-  val undoable = new Undoable()
+  val writable = new Writable()
 
   val readable = new Readable()
 
-  class Undoable {
+  class Writable {
 
     type Operation = () => Unit
 

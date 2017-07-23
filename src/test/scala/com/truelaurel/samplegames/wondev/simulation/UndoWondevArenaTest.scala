@@ -40,7 +40,7 @@ class UndoWondevArenaTest extends FlatSpec with Matchers {
     simulated.readable.isFree(Pos(0,0)) should be(true)
     simulated.readable.isFree(Pos(1,1)) should be(false)
 
-    simulated.undoable.undo()
+    simulated.writable.undo()
 
     state should be(simulated)
     simulated.readable.isFree(Pos(0,0)) should be(false)

@@ -11,24 +11,24 @@ object WondevSimulator {
 
 
   def next(fromState: FastWondevState, wondevAction: WondevAction): FastWondevState = {
-    fromState.undoable.start()
+    fromState.writable.start()
     wondevAction match {
       case MoveBuild(unitIndex, move, build) =>
-        fromState.undoable.moveUnit(unitIndex, move)
+        fromState.writable.moveUnit(unitIndex, move)
         if (fromState.readable.isFree(build) || (build == fromState.readable.unitAt(unitIndex))) {
-          fromState.undoable.increaseHeight(build)
+          fromState.writable.increaseHeight(build)
         }
       case PushBuild(_,  build, push) =>
         if (fromState.readable.isFree(push)) {
           val pushedUnitIndex = fromState.readable.unitIdOf(build)
-          fromState.undoable.moveUnit(pushedUnitIndex, push)
-          fromState.undoable.increaseHeight(build)
+          fromState.writable.moveUnit(pushedUnitIndex, push)
+          fromState.writable.increaseHeight(build)
         }
       case AcceptDefeat =>
         throw new IllegalStateException("Unable to simulate this defeat action")
     }
-    fromState.undoable.swapPlayer()
-    fromState.undoable.end()
+    fromState.writable.swapPlayer()
+    fromState.writable.end()
     fromState
   }
 
