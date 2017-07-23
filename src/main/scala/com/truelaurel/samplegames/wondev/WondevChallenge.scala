@@ -2,8 +2,8 @@ package com.truelaurel.samplegames.wondev
 
 import com.truelaurel.codingame.logging.CGLogger
 import com.truelaurel.math.geometry.Pos
-import com.truelaurel.samplegames.wondev.analysis.WarFogAnalysis
-import com.truelaurel.samplegames.wondev.arena.UndoWondevArena
+import com.truelaurel.samplegames.wondev.analysis.WarFogCleaner
+import com.truelaurel.samplegames.wondev.simulation.WondevSimulator
 import com.truelaurel.samplegames.wondev.domain.{WondevAction, WondevState}
 import com.truelaurel.samplegames.wondev.io.WondevIO
 import com.truelaurel.samplegames.wondev.strategy.MinimaxPlayer
@@ -36,7 +36,7 @@ object Player {
         val state = WondevIO.readState(turn, initContext)
 
         val start = System.nanoTime()
-        val predictedActions = UndoWondevArena.nextLegalActions(state)
+        val predictedActions = WondevSimulator.nextLegalActions(state)
         if (state.legalActions.toSet != predictedActions.toSet) {
           CGLogger.info("action prediction not working")
         }
@@ -45,11 +45,11 @@ object Player {
 
         CGLogger.info("previous action " + previousAction)
         CGLogger.info("previous oppo scope " + previousOppoScope)
-        val oppoScope = WarFogAnalysis.restrictOppoScope(state, previousState, previousAction, previousOppoScope)
+        val oppoScope = WarFogCleaner.restrictOppoScope(state, previousState, previousAction, previousOppoScope)
 
         CGLogger.info("restricted " + oppoScope)
         CGLogger.info("Elapsed " + (System.nanoTime() - start) / 1000000)
-        val clearedState = WarFogAnalysis.removeFog(state, oppoScope)
+        val clearedState = WarFogCleaner.removeFog(state, oppoScope)
         val action = MinimaxPlayer.react(clearedState)
         previousState = state
         previousAction = action

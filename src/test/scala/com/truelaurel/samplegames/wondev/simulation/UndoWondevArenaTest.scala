@@ -1,4 +1,4 @@
-package com.truelaurel.samplegames.wondev.arena
+package com.truelaurel.samplegames.wondev.simulation
 
 import com.truelaurel.math.geometry.Pos
 import com.truelaurel.samplegames.wondev.domain.{FastWondevState, MoveBuild}
@@ -23,7 +23,7 @@ class UndoWondevArenaTest extends FlatSpec with Matchers {
 
   it should "next" in {
     val copied = state.copy()
-    val simulated = UndoWondevArena.next(copied, MoveBuild(0, Pos(1, 1), Pos(1, 0)))
+    val simulated = WondevSimulator.next(copied, MoveBuild(0, Pos(1, 1), Pos(1, 0)))
     val expected = new FastWondevState(
       size = 5,
       units = Array(Pos(1, 1), Pos(4, 0), Pos(0, 4), Pos(4, 4)),

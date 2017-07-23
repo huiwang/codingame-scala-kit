@@ -1,13 +1,23 @@
 package com.truelaurel.samplegames.wondev.domain
 
-import com.truelaurel.math.geometry.Pos
-import com.truelaurel.samplegames.wondev.analysis.WondevAnalysis
+import com.truelaurel.algorithm.game.GameState
+import com.truelaurel.math.geometry.{Direction, Pos}
+import com.truelaurel.samplegames.wondev.analysis.WondevEvaluator
 
 
 case class WondevContext(size: Int,
                          players: Int) {}
 
 object WondevContext {
+
+  def neighborsOf(pos: Pos, size: Int): Set[Pos] = {
+    Direction.all
+      .map(d => pos.neighborIn(d))
+      .filter(p => p.x < size && p.x >= 0 && p.y < size && p.y >= 0)
+      .toSet
+  }
+
+  def isVisible(pos: Pos): Boolean = pos.x != -1
 
   val neighborMapBySize = Map(
     5 -> computeNeighborTable(5),
@@ -22,7 +32,7 @@ object WondevContext {
       x <- 0 until size
       y <- 0 until size
       pos = Pos(x, y)
-      neighbors = WondevAnalysis.neighborsOf(pos, size).toArray
+      neighbors = neighborsOf(pos, size).toArray
     } {
       neighborsTable(x)(y) = neighbors
     }
@@ -57,6 +67,6 @@ case class WondevState(size: Int,
                        units: Seq[Pos],
                        legalActions: Seq[WondevAction],
                        nextPlayer: Boolean = true
-                      ) {
+                      ) extends GameState[Boolean]{
 
 }

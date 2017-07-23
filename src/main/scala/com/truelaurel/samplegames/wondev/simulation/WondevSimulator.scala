@@ -1,12 +1,12 @@
-package com.truelaurel.samplegames.wondev.arena
+package com.truelaurel.samplegames.wondev.simulation
 
 import com.truelaurel.math.geometry.Pos
-import com.truelaurel.samplegames.wondev.analysis.WondevAnalysis
+import com.truelaurel.samplegames.wondev.analysis.WondevEvaluator
 import com.truelaurel.samplegames.wondev.domain._
 
 import scala.collection.mutable.ArrayBuffer
 
-object UndoWondevArena {
+object WondevSimulator {
   def nextLegalActions(state: WondevState) : Seq[WondevAction] = nextLegalActions(FastWondevState.fromSlowState(state))
 
 
@@ -68,7 +68,7 @@ object UndoWondevArena {
       var oid = opStart
       while (oid < opStart + 2) {
         val target1 = state.readable.unitAt(oid)
-        if (WondevAnalysis.isVisible(target1) && unit.distance(target1) == 1) {
+        if (WondevContext.isVisible(target1) && unit.distance(target1) == 1) {
           val pushTargets: Array[Pos] = WondevContext.pushTargets(state.size)(unit, target1)
 
           var pid = 0

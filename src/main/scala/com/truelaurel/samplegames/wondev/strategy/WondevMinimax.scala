@@ -1,8 +1,8 @@
 package com.truelaurel.samplegames.wondev.strategy
 
 import com.truelaurel.algorithm.game.{Outcome, RulesFor2p, Undecided}
-import com.truelaurel.samplegames.wondev.analysis.WondevAnalysis
-import com.truelaurel.samplegames.wondev.arena.UndoWondevArena
+import com.truelaurel.samplegames.wondev.analysis.WondevEvaluator
+import com.truelaurel.samplegames.wondev.simulation.WondevSimulator
 import com.truelaurel.samplegames.wondev.domain._
 
 /**
@@ -31,8 +31,8 @@ object MinimaxPlayer {
     if (state.legalActions.isEmpty) AcceptDefeat else {
       val fastWondevState = FastWondevState.fromSlowState(state)
       state.legalActions.maxBy(action => {
-        val simulated = UndoWondevArena.next(fastWondevState, action)
-        val score = WondevAnalysis.evaluate(simulated)
+        val simulated = WondevSimulator.next(fastWondevState, action)
+        val score = WondevEvaluator.evaluate(simulated)
         simulated.undoable.undo()
         score
       })

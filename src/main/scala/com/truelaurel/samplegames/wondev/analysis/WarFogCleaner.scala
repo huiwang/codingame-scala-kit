@@ -1,7 +1,7 @@
 package com.truelaurel.samplegames.wondev.analysis
 
 import com.truelaurel.math.geometry.Pos
-import com.truelaurel.samplegames.wondev.arena.UndoWondevArena
+import com.truelaurel.samplegames.wondev.simulation.WondevSimulator
 import com.truelaurel.samplegames.wondev.domain.{FastWondevState, WondevAction, WondevContext, WondevState}
 
 import scala.collection.mutable.ArrayBuffer
@@ -9,7 +9,7 @@ import scala.collection.mutable.ArrayBuffer
 /**
   * Created by hwang on 15/07/2017.
   */
-object WarFogAnalysis {
+object WarFogCleaner {
 
 
   def restrictOppoScope(observedRaw: WondevState,
@@ -19,7 +19,7 @@ object WarFogAnalysis {
     val observed = FastWondevState.fromSlowState(observedRaw)
     if (previousAction == null) {
       val oppoUnits = observed.readable.opUnits
-      val visibleOppo = oppoUnits.filter(WondevAnalysis.isVisible)
+      val visibleOppo = oppoUnits.filter(WondevContext.isVisible)
       val myUnits = observed.readable.myUnits
       val occupables = observed.readable.feasibleOppo()
       val oppoScope = occupables.subsets(2).toSet.filter(set => hasSameUnvisibleOppo(2 - visibleOppo.length, set, myUnits))
@@ -36,7 +36,7 @@ object WarFogAnalysis {
       val restricted = collection.mutable.ArrayBuffer.empty[Set[Pos]]
       val previousScope = previousOppoScope.toArray
       val observedOppo = observed.readable.opUnits
-      val visibleOppo = observedOppo.filter(WondevAnalysis.isVisible)
+      val visibleOppo = observedOppo.filter(WondevContext.isVisible)
       val observedSelf = observed.readable.myUnits
       var i = 0
       while (i < previousScope.length) {
@@ -44,8 +44,8 @@ object WarFogAnalysis {
         previousState.undoable.start()
         val oppoUpdated = previousState.undoable.setOppo(oppoSet)
         previousState.undoable.end()
-        val myActionApplied = UndoWondevArena.next(oppoUpdated, previousAction)
-        val oppoLegalActions = UndoWondevArena.nextLegalActions(previousState)
+        val myActionApplied = WondevSimulator.next(oppoUpdated, previousAction)
+        val oppoLegalActions = WondevSimulator.nextLegalActions(previousState)
         findConsistentState(oppoLegalActions, myActionApplied, observed, visibleOppo, observedSelf, observedOppo, restricted)
         myActionApplied.undoable.undo()
         oppoUpdated.undoable.undo()
@@ -66,7 +66,7 @@ object WarFogAnalysis {
     var i = 0
     while (i < legalActions.size) {
       val action = legalActions(i)
-      val simulated = UndoWondevArena.next(myActionApplied, action)
+      val simulated = WondevSimulator.next(myActionApplied, action)
       if (consistent(simulated, observed, visibleOppo, observedSelf, observedOppo)) {
         restricted.append(simulated.readable.opUnits.toSet)
       }

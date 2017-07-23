@@ -8,20 +8,10 @@ import com.truelaurel.samplegames.wondev.domain._
 /**
   * Created by hwang on 24/06/2017.
   */
-object WondevAnalysis {
-
-  def neighborsOf(pos: Pos, size: Int): Set[Pos] = {
-    Direction.all
-      .map(d => pos.neighborIn(d))
-      .filter(p => p.x < size && p.x >= 0 && p.y < size && p.y >= 0)
-      .toSet
-  }
-
-  def isVisible(pos: Pos): Boolean = pos.x != -1
-
+object WondevEvaluator {
 
   def evaluate(state: FastWondevState): Double = {
-    evaluateUnits(state, state.readable.myUnits) - 2.0 * evaluateUnits(state, state.readable.opUnits.filter(isVisible))
+    evaluateUnits(state, state.readable.myUnits) - 2.0 * evaluateUnits(state, state.readable.opUnits.filter(WondevContext.isVisible))
   }
 
 
@@ -31,7 +21,7 @@ object WondevAnalysis {
     }).sum
   }
 
-  def countExits(state: FastWondevState, unit: Pos, depth: Int): Double = {
+  private def countExits(state: FastWondevState, unit: Pos, depth: Int): Double = {
     val queue = new util.LinkedList[Pos]()
     var reached = 0.0
     queue.add(unit)
@@ -58,12 +48,6 @@ object WondevAnalysis {
         })
     }
     reached
-  }
-
-  def extractArrayHeight(state: WondevState): Array[Array[Int]] = {
-    val heights: Array[Array[Int]] = Array.ofDim(state.size, state.size)
-    state.heightMap.foreach { case (pos, h) => heights(pos.x)(pos.y) = h }
-    heights
   }
 
 }
