@@ -411,6 +411,34 @@ class WarFogAnalysisTest extends FlatSpec with Matchers {
   }
 
 
+  it should "restrict oppo scope with history event 9" in {
+
+    /**
+      * mapIndex=0
+      * seed=866159496
+      * symmetric=true
+      *
+      * turn 12
+      */
+
+    val observed = WondevState(5,Map(Pos(0,2) -> 0, Pos(0,0) -> 0, Pos(4,0) -> 0, Pos(3,4) -> 0, Pos(3,1) -> 0, Pos(4,1) -> 1, Pos(2,0) -> 2, Pos(0,3) -> 0, Pos(4,4) -> 0, Pos(3,0) -> 0, Pos(1,1) -> 0, Pos(1,4) -> 0, Pos(0,4) -> 0, Pos(3,2) -> 0, Pos(1,3) -> 0, Pos(2,2) -> 0, Pos(4,2) -> 2, Pos(2,4) -> 0, Pos(0,1) -> 0, Pos(3,3) -> 0, Pos(2,3) -> 2, Pos(1,2) -> 1, Pos(2,1) -> 2, Pos(4,3) -> 0, Pos(1,0) -> 0),List(Pos(2,2), Pos(0,1), Pos(3,2), Pos(-1,-1)),List(MoveBuild(0,Pos(3,1),Pos(4,1)), MoveBuild(0,Pos(3,1),Pos(3,0)), MoveBuild(0,Pos(3,1),Pos(4,0)), MoveBuild(0,Pos(3,1),Pos(2,0)), MoveBuild(0,Pos(3,1),Pos(4,2)), MoveBuild(0,Pos(3,1),Pos(2,2)), MoveBuild(0,Pos(3,1),Pos(2,1)), MoveBuild(0,Pos(1,1),Pos(2,1)), MoveBuild(0,Pos(1,1),Pos(1,0)), MoveBuild(0,Pos(1,1),Pos(2,0)), MoveBuild(0,Pos(1,1),Pos(0,0)), MoveBuild(0,Pos(1,1),Pos(1,2)), MoveBuild(0,Pos(1,1),Pos(2,2)), MoveBuild(0,Pos(1,1),Pos(0,2)), MoveBuild(0,Pos(3,3),Pos(4,3)), MoveBuild(0,Pos(3,3),Pos(4,2)), MoveBuild(0,Pos(3,3),Pos(2,2)), MoveBuild(0,Pos(3,3),Pos(3,4)), MoveBuild(0,Pos(3,3),Pos(4,4)), MoveBuild(0,Pos(3,3),Pos(2,4)), MoveBuild(0,Pos(3,3),Pos(2,3)), MoveBuild(0,Pos(1,3),Pos(2,3)), MoveBuild(0,Pos(1,3),Pos(1,2)), MoveBuild(0,Pos(1,3),Pos(2,2)), MoveBuild(0,Pos(1,3),Pos(0,2)), MoveBuild(0,Pos(1,3),Pos(1,4)), MoveBuild(0,Pos(1,3),Pos(2,4)), MoveBuild(0,Pos(1,3),Pos(0,4)), MoveBuild(0,Pos(1,3),Pos(0,3)), MoveBuild(0,Pos(1,2),Pos(2,2)), MoveBuild(0,Pos(1,2),Pos(1,1)), MoveBuild(0,Pos(1,2),Pos(2,1)), MoveBuild(0,Pos(1,2),Pos(1,3)), MoveBuild(0,Pos(1,2),Pos(2,3)), MoveBuild(0,Pos(1,2),Pos(0,3)), MoveBuild(0,Pos(1,2),Pos(0,2)), MoveBuild(1,Pos(1,1),Pos(2,1)), MoveBuild(1,Pos(1,1),Pos(1,0)), MoveBuild(1,Pos(1,1),Pos(2,0)), MoveBuild(1,Pos(1,1),Pos(0,0)), MoveBuild(1,Pos(1,1),Pos(1,2)), MoveBuild(1,Pos(1,1),Pos(0,2)), MoveBuild(1,Pos(1,1),Pos(0,1)), MoveBuild(1,Pos(0,0),Pos(1,0)), MoveBuild(1,Pos(0,0),Pos(0,1)), MoveBuild(1,Pos(0,0),Pos(1,1)), MoveBuild(1,Pos(1,0),Pos(2,0)), MoveBuild(1,Pos(1,0),Pos(1,1)), MoveBuild(1,Pos(1,0),Pos(2,1)), MoveBuild(1,Pos(1,0),Pos(0,1)), MoveBuild(1,Pos(1,0),Pos(0,0)), MoveBuild(1,Pos(0,2),Pos(1,2)), MoveBuild(1,Pos(0,2),Pos(0,1)), MoveBuild(1,Pos(0,2),Pos(1,1)), MoveBuild(1,Pos(0,2),Pos(0,3)), MoveBuild(1,Pos(0,2),Pos(1,3)), MoveBuild(1,Pos(1,2),Pos(1,1)), MoveBuild(1,Pos(1,2),Pos(2,1)), MoveBuild(1,Pos(1,2),Pos(0,1)), MoveBuild(1,Pos(1,2),Pos(1,3)), MoveBuild(1,Pos(1,2),Pos(2,3)), MoveBuild(1,Pos(1,2),Pos(0,3)), MoveBuild(1,Pos(1,2),Pos(0,2)), PushBuild(0,Pos(3,2),Pos(4,1)), PushBuild(0,Pos(3,2),Pos(4,3))),true)
+
+
+    val previousAction = MoveBuild(1,Pos(0,1),Pos(1,2))
+
+    val previousOppoScope = Set(Set(Pos(3,1), Pos(4,2)), Set(Pos(3,0), Pos(3,1)))
+
+    val previousState = WondevState(5,Map(Pos(0,2) -> 0, Pos(0,0) -> 0, Pos(4,0) -> 0, Pos(3,4) -> 0, Pos(3,1) -> 0, Pos(4,1) -> 1, Pos(2,0) -> 2, Pos(0,3) -> 0, Pos(4,4) -> 0, Pos(3,0) -> 0, Pos(1,1) -> 0, Pos(1,4) -> 0, Pos(0,4) -> 0, Pos(3,2) -> 0, Pos(1,3) -> 0, Pos(2,2) -> 0, Pos(4,2) -> 1, Pos(2,4) -> 0, Pos(0,1) -> 0, Pos(3,3) -> 0, Pos(2,3) -> 2, Pos(1,2) -> 0, Pos(2,1) -> 2, Pos(4,3) -> 0, Pos(1,0) -> 0),List(Pos(2,2), Pos(1,0), Pos(3,1), Pos(-1,-1)),List(MoveBuild(0,Pos(3,2),Pos(4,2)), MoveBuild(0,Pos(3,2),Pos(4,1)), MoveBuild(0,Pos(3,2),Pos(2,1)), MoveBuild(0,Pos(3,2),Pos(3,3)), MoveBuild(0,Pos(3,2),Pos(4,3)), MoveBuild(0,Pos(3,2),Pos(2,3)), MoveBuild(0,Pos(3,2),Pos(2,2)), MoveBuild(0,Pos(1,1),Pos(2,1)), MoveBuild(0,Pos(1,1),Pos(2,0)), MoveBuild(0,Pos(1,1),Pos(0,0)), MoveBuild(0,Pos(1,1),Pos(1,2)), MoveBuild(0,Pos(1,1),Pos(2,2)), MoveBuild(0,Pos(1,1),Pos(0,2)), MoveBuild(0,Pos(1,1),Pos(0,1)), MoveBuild(0,Pos(3,3),Pos(4,3)), MoveBuild(0,Pos(3,3),Pos(3,2)), MoveBuild(0,Pos(3,3),Pos(4,2)), MoveBuild(0,Pos(3,3),Pos(2,2)), MoveBuild(0,Pos(3,3),Pos(3,4)), MoveBuild(0,Pos(3,3),Pos(4,4)), MoveBuild(0,Pos(3,3),Pos(2,4)), MoveBuild(0,Pos(3,3),Pos(2,3)), MoveBuild(0,Pos(1,3),Pos(2,3)), MoveBuild(0,Pos(1,3),Pos(1,2)), MoveBuild(0,Pos(1,3),Pos(2,2)), MoveBuild(0,Pos(1,3),Pos(0,2)), MoveBuild(0,Pos(1,3),Pos(1,4)), MoveBuild(0,Pos(1,3),Pos(2,4)), MoveBuild(0,Pos(1,3),Pos(0,4)), MoveBuild(0,Pos(1,3),Pos(0,3)), MoveBuild(0,Pos(1,2),Pos(2,2)), MoveBuild(0,Pos(1,2),Pos(1,1)), MoveBuild(0,Pos(1,2),Pos(2,1)), MoveBuild(0,Pos(1,2),Pos(0,1)), MoveBuild(0,Pos(1,2),Pos(1,3)), MoveBuild(0,Pos(1,2),Pos(2,3)), MoveBuild(0,Pos(1,2),Pos(0,3)), MoveBuild(0,Pos(1,2),Pos(0,2)), MoveBuild(1,Pos(1,1),Pos(2,1)), MoveBuild(1,Pos(1,1),Pos(1,0)), MoveBuild(1,Pos(1,1),Pos(2,0)), MoveBuild(1,Pos(1,1),Pos(0,0)), MoveBuild(1,Pos(1,1),Pos(1,2)), MoveBuild(1,Pos(1,1),Pos(0,2)), MoveBuild(1,Pos(1,1),Pos(0,1)), MoveBuild(1,Pos(0,1),Pos(1,1)), MoveBuild(1,Pos(0,1),Pos(0,0)), MoveBuild(1,Pos(0,1),Pos(1,0)), MoveBuild(1,Pos(0,1),Pos(0,2)), MoveBuild(1,Pos(0,1),Pos(1,2)), MoveBuild(1,Pos(0,0),Pos(1,0)), MoveBuild(1,Pos(0,0),Pos(0,1)), MoveBuild(1,Pos(0,0),Pos(1,1)), PushBuild(0,Pos(3,1),Pos(4,1)), PushBuild(0,Pos(3,1),Pos(3,0)), PushBuild(0,Pos(3,1),Pos(4,0))),true)
+
+
+    val restricted = WarFogAnalysis.restrictOppoScope(observed, previousState, previousAction, previousOppoScope)
+
+    restricted should be(Set(Set(Pos(3, 0), Pos(3, 2))))
+
+
+  }
+
+
 
 
 

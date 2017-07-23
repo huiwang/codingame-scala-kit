@@ -32,18 +32,21 @@ class FastWondevState(val size: Int,
     def setOppo(oppo: Set[Pos]): FastWondevState = {
       val oldUnit2 = units(2)
       val oldUnit3 = units(3)
+      val oppoSeq = oppo.toSeq
+      val newUnit2 = oppoSeq.head
+      val newUnit3 = oppoSeq(1)
+      units(2) = newUnit2
+      units(3) = newUnit3
+      val oldFree2 = readable.isFree(units(2))
+      val oldFree3 = readable.isFree(units(3))
+      setOccupied(freeCellTable, units(2))
+      setOccupied(freeCellTable, units(3))
       push(() => {
         units(2) = oldUnit2
         units(3) = oldUnit3
-        setOccupied(freeCellTable, oldUnit2)
-        setOccupied(freeCellTable, oldUnit3)
+        freeCellTable(newUnit2.x)(newUnit2.y) = oldFree2
+        freeCellTable(newUnit3.x)(newUnit3.y) = oldFree3
       })
-      val oppoSeq = oppo.toSeq
-      units(2) = oppoSeq.head
-      units(3) = oppoSeq(1)
-      setOccupied(freeCellTable, units(2))
-      setOccupied(freeCellTable, units(3))
-      FastWondevState.this
     }
 
     def moveUnit(id: Int, to: Pos): FastWondevState = {
@@ -124,6 +127,21 @@ class FastWondevState(val size: Int,
       feasible.toSet
     }
 
+    def findIncreasedCell : Option[Pos] = {
+      var i = 0
+      while (i < size) {
+        var j = 0
+        while (j < size) {
+          val pos = Pos(i, j)
+          if(heightOf(pos) == 1) {
+            return Some(pos)
+          }
+          j += 1
+        }
+        i += 1
+      }
+      None
+    }
 
     def myUnits: Array[Pos] = units.take(2)
 

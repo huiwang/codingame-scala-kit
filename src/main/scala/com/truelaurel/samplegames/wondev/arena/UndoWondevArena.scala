@@ -1,6 +1,5 @@
 package com.truelaurel.samplegames.wondev.arena
 
-import com.truelaurel.codingame.challenge.Undoer
 import com.truelaurel.math.geometry.Pos
 import com.truelaurel.samplegames.wondev.analysis.WondevAnalysis
 import com.truelaurel.samplegames.wondev.domain._
@@ -8,6 +7,8 @@ import com.truelaurel.samplegames.wondev.domain._
 import scala.collection.mutable.ArrayBuffer
 
 object UndoWondevArena {
+  def nextLegalActions(state: WondevState) : Seq[WondevAction] = nextLegalActions(FastWondevState.fromSlowState(state))
+
 
   def next(fromState: FastWondevState, wondevAction: WondevAction): FastWondevState = {
     fromState.undoable.start()

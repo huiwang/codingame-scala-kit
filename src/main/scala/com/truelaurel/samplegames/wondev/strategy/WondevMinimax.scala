@@ -1,11 +1,8 @@
 package com.truelaurel.samplegames.wondev.strategy
 
-import com.truelaurel.algorithm.alphabeta.{AlphaBetaAi, AlphaBetaAi2}
 import com.truelaurel.algorithm.game.{Outcome, RulesFor2p, Undecided}
-import com.truelaurel.codingame.challenge.GameBot
-import com.truelaurel.math.geometry.Pos
 import com.truelaurel.samplegames.wondev.analysis.WondevAnalysis
-import com.truelaurel.samplegames.wondev.arena.WondevArena
+import com.truelaurel.samplegames.wondev.arena.UndoWondevArena
 import com.truelaurel.samplegames.wondev.domain._
 
 /**
@@ -17,10 +14,10 @@ class WondevMinimax(val initial: WondevState) extends RulesFor2p[WondevState, Wo
 
   override def validMoves(state: WondevState): Seq[WondevAction] = {
     i += 1
-    if (i == 1) state.legalActions else WondevArena.nextLegalActions(state)
+    if (i == 1) state.legalActions else ???
   }
 
-  override def applyMove(state: WondevState, move: WondevAction): WondevState = WondevArena.next(state, move)
+  override def applyMove(state: WondevState, move: WondevAction): WondevState = ???
 
   override def outcome(state: WondevState): Outcome[Boolean] = Undecided
 }
@@ -31,8 +28,15 @@ object MinimaxPlayer {
         val rules = new WondevMinimax(cleaned)
         val minimax = AlphaBetaAi2(rules, WondevAnalysis.evaluate, moveScore)
         val action = minimax.bestMove(rules.initial, depth = 2)*/
-    if (state.legalActions.isEmpty) AcceptDefeat else
-      state.legalActions.maxBy(action => WondevAnalysis.evaluate(WondevArena.next(state, action)))
+    if (state.legalActions.isEmpty) AcceptDefeat else {
+      val fastWondevState = FastWondevState.fromSlowState(state)
+      state.legalActions.maxBy(action => {
+        val simulated = UndoWondevArena.next(fastWondevState, action)
+        val score = WondevAnalysis.evaluate(simulated)
+        simulated.undoable.undo()
+        score
+      })
+    }
   }
 
   def moveScore(action: WondevAction, state: WondevState): Double = {

@@ -2,7 +2,7 @@ package com.truelaurel.samplegames.wondev.analysis
 
 import com.truelaurel.math.geometry.Pos
 import com.truelaurel.samplegames.wondev.arena.UndoWondevArena
-import com.truelaurel.samplegames.wondev.domain.{FastWondevState, WondevAction, WondevState}
+import com.truelaurel.samplegames.wondev.domain.{FastWondevState, WondevAction, WondevContext, WondevState}
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -23,9 +23,15 @@ object WarFogAnalysis {
     if (previousAction == null) {
       val occupables = observed.readable.feasibleOppo()
       val oppoScope = occupables.subsets(2).toSet.filter(set => hasSameUnvisibleOppo(oppoUnits, set, myUnits))
-      val result = oppoScope.filter(oppoSet => visibleOppo.forall(oppoSet.contains))
-      result
-    } else {
+      val increased = observed.readable.findIncreasedCell
+      if (increased.isDefined) {
+        //oppo started the game
+        oppoScope.filter(oppoSet => visibleOppo.forall(oppoSet.contains)
+          && oppoSet.exists(_.distance(increased.get) == 1))
+      } else {
+        oppoScope.filter(oppoSet => visibleOppo.forall(oppoSet.contains))
+      }
+    }  else {
       val previousState = FastWondevState.fromSlowState(previousStateRaw)
       val restricted = collection.mutable.ArrayBuffer.empty[Set[Pos]]
       val previousScope = previousOppoScope.toArray
