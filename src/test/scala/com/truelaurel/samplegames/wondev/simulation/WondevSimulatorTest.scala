@@ -1,17 +1,55 @@
 package com.truelaurel.samplegames.wondev.simulation
 
 import com.truelaurel.math.geometry.Pos
-import com.truelaurel.samplegames.wondev.domain.{MoveBuild, PushBuild, WondevState}
+import com.truelaurel.samplegames.wondev.domain.{FastWondevState, MoveBuild, PushBuild, WondevState}
 import org.scalatest.{FlatSpec, Matchers}
-
 /**
   * data copied from
   * mapIndex=0
   * seed=168724840
   */
-class WondevArenaTest extends FlatSpec with Matchers {
+class WondevSimulatorTest extends FlatSpec with Matchers {
 
-  behavior of "WondevArenaTest"
+  behavior of "UndoWondevArenaTest"
+
+  val state = new FastWondevState(
+    size = 5,
+    units = Array(Pos(0, 0), Pos(4, 0), Pos(0, 4), Pos(4, 4)),
+    height = Array(
+      Array(0, 0, 0, 0, 0),
+      Array(0, 0, 0, 0, 0),
+      Array(0, 0, 0, 0, 0),
+      Array(0, 0, 0, 0, 0),
+      Array(0, 0, 0, 0, 0)
+    ),
+    nextPlayer = true
+  )
+
+  it should "next" in {
+    val copied = state.copy()
+    val simulated = WondevSimulator.next(copied, MoveBuild(0, Pos(1, 1), Pos(1, 0)))
+    val expected = new FastWondevState(
+      size = 5,
+      units = Array(Pos(1, 1), Pos(4, 0), Pos(0, 4), Pos(4, 4)),
+      height = Array(
+        Array(0, 0, 0, 0, 0),
+        Array(1, 0, 0, 0, 0),
+        Array(0, 0, 0, 0, 0),
+        Array(0, 0, 0, 0, 0),
+        Array(0, 0, 0, 0, 0)
+      ),
+      nextPlayer = false
+    )
+    simulated should be(expected)
+    simulated.readable.isFree(Pos(0,0)) should be(true)
+    simulated.readable.isFree(Pos(1,1)) should be(false)
+
+    simulated.writable.undo()
+
+    state should be(simulated)
+    simulated.readable.isFree(Pos(0,0)) should be(false)
+    simulated.readable.isFree(Pos(1,1)) should be(true)
+  }
 
   it should "nextLegalActions 1" in {
     val meFirstState = WondevState(5,
@@ -100,6 +138,5 @@ class WondevArenaTest extends FlatSpec with Matchers {
     actual should be(expected)
 
   }
-
 
 }

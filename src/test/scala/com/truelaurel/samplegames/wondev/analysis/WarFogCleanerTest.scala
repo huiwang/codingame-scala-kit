@@ -7,7 +7,7 @@ import org.scalatest.{FlatSpec, Matchers}
 /**
   * Created by hwang on 16/07/2017.
   */
-class WarFogAnalysisTest extends FlatSpec with Matchers {
+class WarFogCleanerTest extends FlatSpec with Matchers {
 
   behavior of "WarFogAnalysisTest"
 
