@@ -1,5 +1,6 @@
 package com.truelaurel.samplegames.wondev.domain
 
+import com.truelaurel.algorithm.game.GameState
 import com.truelaurel.math.geometry.Pos
 
 import scala.collection.mutable.ArrayBuffer
@@ -8,7 +9,7 @@ import scala.collection.mutable.ArrayBuffer
 class FastWondevState(val size: Int,
                       private val units: Array[Pos],
                       private val height: Array[Array[Int]],
-                      var nextPlayer: Boolean) {
+                      var nextPlayer: Boolean) extends GameState[Boolean]{
 
   private val neighborTable = WondevContext.neighborMapBySize(size)
 
