@@ -17,7 +17,7 @@ class HillClimbing(duration: Duration) {
     chrono.start()
     while (!chrono.willOutOfTime) {
       val tweaked = problem.tweakSolution(solution)
-      solution = if (tweaked.quality() > solution.quality()) tweaked else solution
+      solution = if (tweaked.quality > solution.quality) tweaked else solution
     }
     solution
   }

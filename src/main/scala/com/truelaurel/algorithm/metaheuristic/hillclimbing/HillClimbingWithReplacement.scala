@@ -19,7 +19,7 @@ class HillClimbingWithReplacement(duration: Duration)  {
     chrono.start()
     while (!chrono.willOutOfTime) {
       solution = problem.tweakSolution(solution)
-      if (solution.quality() > bestSolution.quality()) {
+      if (solution.quality > bestSolution.quality) {
         bestSolution = solution
       }
     }

@@ -19,8 +19,8 @@ class SteepestAscentHillClimbingWithReplacement(duration: Duration, selectionPre
     var bestSolution = solution
     chrono.start()
     while (!chrono.willOutOfTime) {
-      solution = selectionRange.map(_ => problem.tweakSolution(solution)).maxBy(_.quality())
-      if (solution.quality() > bestSolution.quality()) {
+      solution = selectionRange.map(_ => problem.tweakSolution(solution)).maxBy(_.quality)
+      if (solution.quality > bestSolution.quality) {
         bestSolution = solution
       }
     }
