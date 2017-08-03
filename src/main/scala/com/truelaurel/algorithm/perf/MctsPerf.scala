@@ -2,7 +2,6 @@ package com.truelaurel.algorithm.perf
 
 import com.truelaurel.algorithm.mcts.MctsNode
 import com.truelaurel.math.geometry.Pos
-import com.truelaurel.samplegames.dummy.DummyBoard
 import com.truelaurel.samplegames.gomoku.{GomokuBoard, GomokuRules}
 import org.openjdk.jmh.annotations._
 
@@ -25,7 +24,7 @@ class MctsPerf {
   }
 
   @Benchmark
-  def dummy100steps(): MctsNode[DummyBoard, Int] = {
+  def dummy100steps() = {
     DummyMcts.dummyRoot.steps(100)
   }
 }

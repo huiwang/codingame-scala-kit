@@ -19,18 +19,18 @@ class MuPlusLambda(mu: Int, lambda: Int, stopper: Stopper) {
     stopper.start()
     var parents = parentsRange
       .map(_ => problem.randomSolution())
-      .map(s => (s, s.quality()))
+      .map(s => (s, s.quality))
       .sortBy(_._2)
       .map(_._1)
     var bestSolution = parents.last
     while (!stopper.willOutOfTime) {
       //truncation selection
       val greatest = parents
-        .map(s => (s, s.quality()))
+        .map(s => (s, s.quality))
         .sortBy(_._2)
         .map(_._1)
         .takeRight(mu)
-      bestSolution = if(bestSolution.quality() > greatest.last.quality()) {
+      bestSolution = if(bestSolution.quality > greatest.last.quality) {
         bestSolution
       } else greatest.last
       parents = greatest ++ greatest.flatMap(s => tweakedRange.map(_ => problem.tweakSolution(s)))

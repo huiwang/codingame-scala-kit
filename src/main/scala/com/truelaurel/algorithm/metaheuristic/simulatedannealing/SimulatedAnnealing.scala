@@ -17,12 +17,12 @@ class SimulatedAnnealing(duration: Duration, initTemperature: Double, coolingRat
     chronometer.start()
     while (!chronometer.willOutOfTime) {
       val tweaked = problem.tweakSolution(solution)
-      if (tweaked.quality() > solution.quality() ||
-        random.nextDouble() < Math.exp((tweaked.quality() - solution.quality()) / t)) {
+      if (tweaked.quality > solution.quality ||
+        random.nextDouble() < Math.exp((tweaked.quality - solution.quality) / t)) {
         solution = tweaked
       }
 
-      if (solution.quality() > best.quality()) {
+      if (solution.quality > best.quality) {
         best = solution
       }
 
