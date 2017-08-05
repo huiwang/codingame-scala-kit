@@ -21,6 +21,8 @@ case class Pos(x: Int, y: Int) {
   }
 
   def distance(pos: Pos): Int = Math.max(Math.abs(x - pos.x), Math.abs(y - pos.y))
+
+  def distanceEuclide(pos: Pos): Double = Math.sqrt(Math.pow(x - pos.x, 2) + Math.pow(y - pos.y, 2))
 }
 
 object Pos {
