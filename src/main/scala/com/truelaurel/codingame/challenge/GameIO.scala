@@ -17,5 +17,5 @@ trait GameIO[Context, State, Action] {
   /**
     * Writes action to the referee system
     */
-  def writeAction(action: Action)
+  def writeAction(state : State, action: Action)
 }
