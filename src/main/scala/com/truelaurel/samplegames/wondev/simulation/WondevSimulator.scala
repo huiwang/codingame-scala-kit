@@ -7,10 +7,10 @@ import com.truelaurel.samplegames.wondev.domain._
 import scala.collection.mutable.ArrayBuffer
 
 object WondevSimulator {
-  def nextLegalActions(state: WondevState) : Seq[WondevAction] = nextLegalActions(FastWondevState.fromSlowState(state))
+  def nextLegalActions(state: WondevState) : Seq[WondevAction] = nextLegalActions(MutableWondevState.fromSlowState(state))
 
 
-  def next(fromState: FastWondevState, wondevAction: WondevAction): FastWondevState = {
+  def next(fromState: MutableWondevState, wondevAction: WondevAction): MutableWondevState = {
     fromState.writable.start()
     wondevAction match {
       case MoveBuild(unitIndex, move, build) =>
@@ -32,7 +32,7 @@ object WondevSimulator {
     fromState
   }
 
-  def nextLegalActions(state: FastWondevState): Seq[WondevAction] = {
+  def nextLegalActions(state: MutableWondevState): Seq[WondevAction] = {
 
     val myStart = if (state.nextPlayer) 0 else 2
     val opStart = if (state.nextPlayer) 2 else 0

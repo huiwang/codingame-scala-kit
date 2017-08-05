@@ -1,17 +1,17 @@
 package com.truelaurel.algorithm.alphabeta
 
 import com.truelaurel.algorithm.game._
-import com.truelaurel.samplegames.wondev.domain.{FastWondevState, WondevAction}
+import com.truelaurel.samplegames.wondev.domain.{MutableWondevState, WondevAction}
 
 /**
   * @param heuristic must represent higher chance of success for state.nextPlayer
   */
-case class AlphaBetaAi2(rules: RulesFor2p[FastWondevState, WondevAction],
-                        heuristic: FastWondevState => Double,
-                        moveHeuristc: (WondevAction, FastWondevState) => Double
+case class AlphaBetaAi2(rules: RulesFor2p[MutableWondevState, WondevAction],
+                        heuristic: MutableWondevState => Double,
+                        moveHeuristc: (WondevAction, MutableWondevState) => Double
                        ) {
 
-  type S = FastWondevState
+  type S = MutableWondevState
   type M = WondevAction
 
   val MIN = Double.MinValue

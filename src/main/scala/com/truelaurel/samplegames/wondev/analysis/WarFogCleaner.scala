@@ -2,7 +2,7 @@ package com.truelaurel.samplegames.wondev.analysis
 
 import com.truelaurel.math.geometry.Pos
 import com.truelaurel.samplegames.wondev.simulation.WondevSimulator
-import com.truelaurel.samplegames.wondev.domain.{FastWondevState, WondevAction, WondevContext, WondevState}
+import com.truelaurel.samplegames.wondev.domain.{MutableWondevState, WondevAction, WondevContext, WondevState}
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -12,11 +12,15 @@ import scala.collection.mutable.ArrayBuffer
 object WarFogCleaner {
 
 
+  def restrictOppoScope(observed : WondevState, context: WondevContext): Set[Set[Pos]] = {
+    restrictOppoScope(observed, context.previousState, context.previousAction, context.previousOppoScope)
+  }
+
   def restrictOppoScope(observedRaw: WondevState,
                         previousStateRaw: WondevState,
                         previousAction: WondevAction,
                         previousOppoScope: Set[Set[Pos]]): Set[Set[Pos]] = {
-    val observed = FastWondevState.fromSlowState(observedRaw)
+    val observed = MutableWondevState.fromSlowState(observedRaw)
     if (previousAction == null) {
       val oppoUnits = observed.readable.opUnits
       val visibleOppo = oppoUnits.filter(WondevContext.isVisible)
@@ -32,7 +36,7 @@ object WarFogCleaner {
         oppoScope.filter(oppoSet => visibleOppo.forall(oppoSet.contains))
       }
     } else {
-      val previousState = FastWondevState.fromSlowState(previousStateRaw)
+      val previousState = MutableWondevState.fromSlowState(previousStateRaw)
       val restricted = collection.mutable.ArrayBuffer.empty[Set[Pos]]
       val previousScope = previousOppoScope.toArray
       val observedOppo = observed.readable.opUnits
@@ -57,8 +61,8 @@ object WarFogCleaner {
 
 
   def findConsistentState(legalActions: Seq[WondevAction],
-                          myActionApplied: FastWondevState,
-                          observed: FastWondevState,
+                          myActionApplied: MutableWondevState,
+                          observed: MutableWondevState,
                           visibleOppo: Array[Pos],
                           observedSelf: Array[Pos],
                           observedOppo: Array[Pos],
@@ -75,7 +79,7 @@ object WarFogCleaner {
     }
   }
 
-  def consistent(simulated: FastWondevState, observed: FastWondevState, visibleOppo: Array[Pos], observedSelf: Array[Pos], observedOppo: Array[Pos]): Boolean = {
+  def consistent(simulated: MutableWondevState, observed: MutableWondevState, visibleOppo: Array[Pos], observedSelf: Array[Pos], observedOppo: Array[Pos]): Boolean = {
     val simulatedOppo = simulated.readable.opUnits
     val simulatedSelf = simulated.readable.myUnits
     (observedSelf sameElements simulatedSelf) &&

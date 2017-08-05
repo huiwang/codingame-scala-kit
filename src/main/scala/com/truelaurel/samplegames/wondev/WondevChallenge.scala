@@ -20,20 +20,17 @@ object Player {
     CGLogger.current = CGLogger.info
 
     var turn = 0
-    val initContext = WondevIO.readContext
-    var previousState: WondevState = null
-    var previousAction: WondevAction = null
-    var previousOppoScope: Set[Set[Pos]] = null
+    var context = WondevIO.readContext
 
     val time = System.nanoTime()
-    for ( i <- 0 until 5) {
+    for (i <- 0 until 5) {
       WondevWarmup.warmup()
     }
     System.err.println("warmup elt: " + (System.nanoTime() - time) / 1000000 + "ms")
 
     try {
       while (true) {
-        val state = WondevIO.readState(turn, initContext)
+        val state = WondevIO.readState(turn, context)
 
         val start = System.nanoTime()
         val predictedActions = WondevSimulator.nextLegalActions(state)
@@ -41,20 +38,13 @@ object Player {
           CGLogger.info("action prediction not working")
         }
 
+        CGLogger.info(context)
         CGLogger.info(state)
+        val restrictedOppoScope = WarFogCleaner.restrictOppoScope(state, context)
 
-        CGLogger.info("previous action " + previousAction)
-        CGLogger.info("previous oppo scope " + previousOppoScope)
-        val oppoScope = WarFogCleaner.restrictOppoScope(state, previousState, previousAction, previousOppoScope)
-
-        CGLogger.info("restricted " + oppoScope)
-        CGLogger.info("Elapsed " + (System.nanoTime() - start) / 1000000)
-        val clearedState = WarFogCleaner.removeFog(state, oppoScope)
+        val clearedState = WarFogCleaner.removeFog(state, restrictedOppoScope)
         val action = MinimaxPlayer.react(clearedState)
-        previousState = state
-        previousAction = action
-        previousOppoScope = oppoScope
-
+        context = context.copy(previousState = state, previousAction = action, previousOppoScope = restrictedOppoScope)
         WondevIO.writeAction(state, action)
         turn += 1
       }

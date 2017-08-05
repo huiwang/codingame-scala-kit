@@ -6,10 +6,10 @@ import com.truelaurel.math.geometry.Pos
 import scala.collection.mutable.ArrayBuffer
 
 
-class FastWondevState(val size: Int,
-                      private val units: Array[Pos],
-                      private val height: Array[Array[Int]],
-                      var nextPlayer: Boolean) extends GameState[Boolean]{
+class MutableWondevState(val size: Int,
+                         private val units: Array[Pos],
+                         private val height: Array[Array[Int]],
+                         var nextPlayer: Boolean) extends GameState[Boolean]{
 
   private val neighborTable = WondevContext.neighborMapBySize(size)
 
@@ -30,7 +30,7 @@ class FastWondevState(val size: Int,
       current = Nil
     }
 
-    def setOppo(oppo: Set[Pos]): FastWondevState = {
+    def setOppo(oppo: Set[Pos]): MutableWondevState = {
       val oldUnit2 = units(2)
       val oldUnit3 = units(3)
       val oppoSeq = oppo.toSeq
@@ -50,21 +50,21 @@ class FastWondevState(val size: Int,
       })
     }
 
-    def moveUnit(id: Int, to: Pos): FastWondevState = {
+    def moveUnit(id: Int, to: Pos): MutableWondevState = {
       val from: Pos = doMove(id, to)
       push(() => {
         doMove(id, from)
       })
     }
 
-    def increaseHeight(pos: Pos): FastWondevState = {
+    def increaseHeight(pos: Pos): MutableWondevState = {
       height(pos.x)(pos.y) += 1
       push(() => {
         height(pos.x)(pos.y) -= 1
       })
     }
 
-    def swapPlayer(): FastWondevState = {
+    def swapPlayer(): MutableWondevState = {
       doSwap()
       push(() => {
         doSwap()
@@ -84,9 +84,9 @@ class FastWondevState(val size: Int,
       stack = stack.tail
     }
 
-    private def push(operation: Operation): FastWondevState = {
+    private def push(operation: Operation): MutableWondevState = {
       current = operation :: current
-      FastWondevState.this
+      MutableWondevState.this
     }
   }
 
@@ -148,7 +148,7 @@ class FastWondevState(val size: Int,
 
     def opUnits: Array[Pos] = units.takeRight(2)
 
-    def hasSameHeightMap(that: FastWondevState): Boolean = {
+    def hasSameHeightMap(that: MutableWondevState): Boolean = {
       var i = 0
       while (i < height.length) {
         val row = height(i)
@@ -180,10 +180,10 @@ class FastWondevState(val size: Int,
     }
   }
 
-  def canEqual(other: Any): Boolean = other.isInstanceOf[FastWondevState]
+  def canEqual(other: Any): Boolean = other.isInstanceOf[MutableWondevState]
 
   override def equals(other: Any): Boolean = other match {
-    case that: FastWondevState =>
+    case that: MutableWondevState =>
       (that canEqual this) &&
         size == that.size &&
         (units sameElements that.units) &&
@@ -197,22 +197,22 @@ class FastWondevState(val size: Int,
     state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
   }
 
-  def copy(): FastWondevState = {
-    new FastWondevState(size, units.clone(), height.clone(), nextPlayer)
+  def copy(): MutableWondevState = {
+    new MutableWondevState(size, units.clone(), height.clone(), nextPlayer)
   }
 
   override def toString: String = s"FastWondevState(size=$size, units=${units.mkString("[", ",", "]")}, " +
     s"height=${height.map(_.mkString("[", ",", "]")).mkString("[", ",", "]")}, nextPlayer=$nextPlayer)"
 }
 
-object FastWondevState {
-  def fromSlowState(wondevState: WondevState): FastWondevState = {
+object MutableWondevState {
+  def fromSlowState(wondevState: WondevState): MutableWondevState = {
     val height: Array[Array[Int]] = Array.fill(wondevState.size)(Array.fill(wondevState.size)(0))
     for {
       (pos, h) <- wondevState.heightMap
     } {
       height(pos.x)(pos.y) = h
     }
-    new FastWondevState(wondevState.size, wondevState.units.toArray, height, wondevState.nextPlayer)
+    new MutableWondevState(wondevState.size, wondevState.units.toArray, height, wondevState.nextPlayer)
   }
 }

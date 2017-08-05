@@ -9,22 +9,22 @@ import com.truelaurel.samplegames.wondev.simulation.WondevSimulator
 /**
   * Created by hwang on 28/06/2017.
   */
-class WondevMinimax(val initial: FastWondevState) extends RulesFor2p[FastWondevState, WondevAction] {
+class WondevMinimax(val initial: MutableWondevState) extends RulesFor2p[MutableWondevState, WondevAction] {
 
-  override def validMoves(state: FastWondevState): Seq[WondevAction] = {
+  override def validMoves(state: MutableWondevState): Seq[WondevAction] = {
     WondevSimulator.nextLegalActions(state)
   }
 
-  override def applyMove(state: FastWondevState, move: WondevAction): FastWondevState = WondevSimulator.next(state, move)
+  override def applyMove(state: MutableWondevState, move: WondevAction): MutableWondevState = WondevSimulator.next(state, move)
 
-  override def outcome(state: FastWondevState): Outcome[Boolean] = Undecided
+  override def outcome(state: MutableWondevState): Outcome[Boolean] = Undecided
 }
 
 object MinimaxPlayer {
   def react(state: WondevState): WondevAction = {
 
     if (state.legalActions.isEmpty) AcceptDefeat else {
-      val fastWondevState = FastWondevState.fromSlowState(state)
+      val fastWondevState = MutableWondevState.fromSlowState(state)
       val rules = new WondevMinimax(fastWondevState)
       val minimax = AlphaBetaAi2(rules, WondevEvaluator.evaluate, moveScore)
       val action = minimax.bestMove(rules.initial, depth = 2)
@@ -32,7 +32,7 @@ object MinimaxPlayer {
     }
   }
 
-  def moveScore(action: WondevAction, state: FastWondevState): Double = {
+  def moveScore(action: WondevAction, state: MutableWondevState): Double = {
     -1.0 * (action match {
       case MoveBuild(unitIndex, move, build) => state.readable.heightOf(build)
       case PushBuild(unitIndex, build, push) => 10 + state.readable.heightOf(build)

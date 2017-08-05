@@ -10,18 +10,18 @@ import com.truelaurel.samplegames.wondev.domain._
   */
 object WondevEvaluator {
 
-  def evaluate(state: FastWondevState): Double = {
+  def evaluate(state: MutableWondevState): Double = {
     evaluateUnits(state, state.readable.myUnits) - 2.0 * evaluateUnits(state, state.readable.opUnits.filter(WondevContext.isVisible))
   }
 
 
-  private def evaluateUnits(state: FastWondevState, units: Seq[Pos]): Double = {
+  private def evaluateUnits(state: MutableWondevState, units: Seq[Pos]): Double = {
     units.map(unit => {
       countExits(state, unit, 3) + state.readable.heightOf(unit)
     }).sum
   }
 
-  private def countExits(state: FastWondevState, unit: Pos, depth: Int): Double = {
+  private def countExits(state: MutableWondevState, unit: Pos, depth: Int): Double = {
     val queue = new util.LinkedList[Pos]()
     var reached = 0.0
     queue.add(unit)
