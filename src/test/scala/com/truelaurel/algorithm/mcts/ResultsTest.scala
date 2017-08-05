@@ -15,8 +15,8 @@ class ResultsTest extends FlatSpec with Matchers {
     val p1 = res.withOutcome(Wins(true))
     p1.played shouldBe 1
     p1.score shouldBe 1
-    p1.wins(true) shouldBe 1
-    p1.wins(false) shouldBe 0
+    p1.won shouldBe 1
+    p1.lost shouldBe 0
   }
 
   it should "keep losses" in {
@@ -25,8 +25,8 @@ class ResultsTest extends FlatSpec with Matchers {
     val p1 = res.withOutcome(Wins(false))
     p1.played shouldBe 1
     p1.score shouldBe -1
-    p1.wins(true) shouldBe 0
-    p1.wins(false) shouldBe 1
+    p1.won shouldBe 0
+    p1.lost shouldBe 1
   }
 
   it should "find best move with current results" in {
@@ -34,8 +34,7 @@ class ResultsTest extends FlatSpec with Matchers {
       1 -> Results(played = 3, score = 2),
       2 -> Results(played = 3, score = 1))
 
-    Results.mostPromisingMove(true, moves) shouldBe 1
-    Results.mostPromisingMove(false, moves) shouldBe 2
+    Results.mostPromisingMove(moves) shouldBe 2
   }
 
   it should "find move with no results" in {
@@ -44,8 +43,8 @@ class ResultsTest extends FlatSpec with Matchers {
       3 -> Results(played = 0, score = 0),
       2 -> Results(played = 3, score = 1))
 
-    Results.mostPromisingMove(true, moves) shouldBe 3
-    Results.mostPromisingMove(false, moves) shouldBe 3
+    Results.mostPromisingMove(moves) shouldBe 3
+    Results.mostPromisingMove(moves) shouldBe 3
   }
 
 }

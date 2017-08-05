@@ -5,21 +5,21 @@ import com.truelaurel.algorithm.game._
 import scala.annotation.tailrec
 
 
-case class MctsNode[State <: GameState[Boolean], Move](state: State,
-                                                       rules: RulesFor2p[State, Move],
-                                                       randomPlay: State => Outcome[Boolean],
-                                                       results: Results = Results(),
-                                                       children: Map[Move, MctsNode[State, Move]] = Map.empty[Move, MctsNode[State, Move]]) {
+case class MctsNode[P, State <: GameState[P], Move](state: State,
+                                                    rules: GameRules[P, State, Move],
+                                                    randomPlay: State => Outcome[P],
+                                                    results: Results = Results(),
+                                                    children: Map[Move, MctsNode[P, State, Move]] = Map.empty[Move, MctsNode[P, State, Move]]) {
 
   def bestMove: Move =
-    children.mapValues(_.results.played).maxBy(_._2)._1
+    children.mapValues(_.results.score).minBy(_._2)._1
 
   @tailrec
-  final def steps(count: Int): MctsNode[State, Move] =
+  final def steps(count: Int): MctsNode[P, State, Move] =
     if (count == 0) this
     else step.steps(count - 1)
 
-  def step: MctsNode[State, Move] =
+  def step: MctsNode[P, State, Move] =
     deepStep._2
 
   def moveToExplore: Move = {
@@ -28,7 +28,7 @@ case class MctsNode[State <: GameState[Boolean], Move](state: State,
       case Some(unexploredMove) => unexploredMove
       case None =>
         val movesResults = validMoves.map(m => m -> children(m).results)
-        Results.mostPromisingMove(state.nextPlayer, movesResults, results.played)
+        Results.mostPromisingMove(movesResults)
     }
   }
 
@@ -36,11 +36,11 @@ case class MctsNode[State <: GameState[Boolean], Move](state: State,
     for {
       (move, n) <- children
       r@Results(played, _) = n.results
-      wins = r.wins(state.nextPlayer).toInt
+      wins = r.won.toInt
     } yield s"$wins/$played for $move\n"
   }.mkString
 
-  private def deepStep: (Outcome[Boolean], MctsNode[State, Move]) = {
+  private def deepStep: (Outcome[P], MctsNode[P, State, Move]) = {
     rules.outcome(state) match {
       case Undecided =>
         val move = moveToExplore
@@ -51,14 +51,14 @@ case class MctsNode[State <: GameState[Boolean], Move](state: State,
             expand(move)
         }
         (outcome, copy(
-          results = results.withOutcome(outcome),
+          results = results.withOutcome(state.nextPlayer, outcome),
           children = children + (move -> updatedChild)))
-      case decided =>
-        (decided, copy(results = results.withOutcome(decided)))
+            case decided =>
+              (decided, copy(results = results.withOutcome(state.nextPlayer,decided)))
     }
   }
 
-  private def expand(move: Move): (Outcome[Boolean], MctsNode[State, Move]) = {
+  private def expand(move: Move): (Outcome[P], MctsNode[P, State, Move]) = {
     val nextState = rules.applyMove(state, move)
     val outcome = rules.outcome(nextState) match {
       case Undecided => randomPlay(nextState)
@@ -66,17 +66,10 @@ case class MctsNode[State <: GameState[Boolean], Move](state: State,
     }
     val childNode = copy(
       state = nextState,
-      results = Results().withOutcome(outcome),
-      children = Map.empty[Move, MctsNode[State, Move]])
+      results = Results().withOutcome(state.nextPlayer,outcome),
+      children = Map.empty[Move, MctsNode[P, State, Move]])
     (outcome, childNode)
   }
 }
 
-object MctsNode {
-  def apply[State <: GameState[Boolean], Move](state: State, rules: RulesFor2p[State, Move]): MctsNode[State, Move] =
-    MctsNode(
-      state,
-      rules,
-      rules.randomPlay
-    )
-}
+
