@@ -55,7 +55,7 @@ case class StdBundlerIo(srcFolder: String = "./src/main/scala") extends BundlerI
   }
 
   def findFile(fileName: String): File = {
-    Files.find(Paths.get("."), Int.MaxValue, (path, _) => path.endsWith(fileName))
+    Files.find(Paths.get("src"), Int.MaxValue, (path, _) => path.endsWith(fileName))
       .findAny()
       .orElseThrow(() => new IllegalArgumentException(s"$fileName not found"))
       .toFile
