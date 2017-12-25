@@ -1,15 +1,5 @@
-[![Build Status](https://travis-ci.org/TrueLaurel/CodinGame-Scala-Kit.svg?branch=master)](https://travis-ci.org/TrueLaurel/CodinGame-Scala-Kit)
+[![Build Status](https://travis-ci.org/huiwang/codingame-scala-kit.svg?branch=master)](https://travis-ci.org/huiwang/codingame-scala-kit)
 [![Gitter](https://badges.gitter.im/TrueLaurel/CodinGame-Scala-Kit.svg)](https://gitter.im/TrueLaurel/CodinGame-Scala-Kit?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
-
-# What's new?
-> 2017-07 [Bot Architecture](http://truelaurel.com/2017/07/07/Bot-Architecture-in-CodinGame-Scala-Kit/)
->
-> 2017-06 [Design Evaluation Function](http://truelaurel.com/2017/05/01/Design-Evaluation-Function/)
->
-> 2017-04 [Debugging in CodinGame Scala Kit](http://truelaurel.com/2017/04/27/Debug-in-CodinGame-Scala-Kit/)
-
-# Resources
-
 
 # CodinGame Scala Kit
 I love Both CodinGame and Scala because they make programming fun.
