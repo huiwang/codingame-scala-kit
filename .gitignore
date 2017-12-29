@@ -19,3 +19,7 @@ project/boot/
 ### Kit
 
 brutaltester
+
+### Vi
+*.swp
+
