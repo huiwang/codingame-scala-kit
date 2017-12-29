@@ -1,7 +1,7 @@
 package com.truelaurel.codingame.tool.bundle
 
 import java.io.{File, PrintWriter}
-import java.nio.file.{Files, Paths}
+import java.nio.file.{Files, Paths, FileVisitOption}
 import java.util.Objects
 
 import scala.io.Source
@@ -55,7 +55,7 @@ case class StdBundlerIo(srcFolder: String = "./src/main/scala") extends BundlerI
   }
 
   def findFile(fileName: String): File = {
-    Files.find(Paths.get("src"), Int.MaxValue, (path, _) => path.endsWith(fileName))
+    Files.find(Paths.get("src"), Int.MaxValue, (path, _) => path.endsWith(fileName), FileVisitOption.FOLLOW_LINKS)
       .findAny()
       .orElseThrow(() => new IllegalArgumentException(s"$fileName not found"))
       .toFile

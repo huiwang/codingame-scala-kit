@@ -48,6 +48,12 @@ The example Bot [Ghost in the Cell](https://www.codingame.com/multiplayer/bot-pr
 
 5. Open CodinGame Sync to synchronize Player.scala file continuously to online IDE
 
+## CodinGame Scala Kit integration into your own git depo
+
+Using CodinGame Scala Kit as a git submodule inside your own git depot you can both store your solutions into
+a private depot, and still use and contribute to this scala kit.
+[All instructions are available within this example project](https://github.com/dacr/codingame-with-scalakit-example)
+
 ## Screenshot
 ![alt tag](./asset/screenshot.png)
 
