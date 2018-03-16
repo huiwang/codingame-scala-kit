@@ -1,6 +1,8 @@
 package com.truelaurel.math.geometry
 
 case class Pos(x: Int, y: Int) {
+  def this(x: Double, y: Double) = this(x.toInt, y.toInt)
+
   def neighbours4: Seq[Pos] =
     Seq(Pos(x + 1, y),
       Pos(x - 1, y),
