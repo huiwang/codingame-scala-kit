@@ -10,16 +10,16 @@ class GameLoop[Context, State, Action](
                                         turns: Int = 200
                                       ) {
   def run(): Unit = {
-    val time = System.nanoTime()
+    CGLogger.startOfRound = System.nanoTime
     val initContext = gameIO.readContext
-    CGLogger.info("GameInit elt: " + (System.nanoTime() - time) / 1000000 + "ms")
+    CGLogger.info("GameInit")
     (1 to turns).foldLeft(initContext) {
       case (c, turn) =>
         val state = gameIO.readState(turn, c)
+        CGLogger.startOfRound = System.nanoTime
         CGLogger.info(state)
-        val time = System.nanoTime()
         val actions = myPlayer.react(state)
-        CGLogger.info("GameReact elt: " + (System.nanoTime() - time) / 1000000 + "ms")
+        CGLogger.info("GameReact")
         gameIO.writeAction(state, actions)
         accumulator.accumulate(c, state, actions)
     }
