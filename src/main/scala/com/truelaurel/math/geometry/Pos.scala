@@ -11,6 +11,10 @@ case class Pos(x: Int, y: Int) {
 
   def +(pos: Pos): Pos = Pos(x + pos.x, y + pos.y)
 
+  def /(r: Int): Pos = Pos(x / r, y / r)
+
+  def %(r: Int): Pos = Pos(x % r, y % r)
+
   def neighborIn(direction: Direction): Pos = direction match {
     case N => Pos(x, y - 1)
     case S => Pos(x, y + 1)
