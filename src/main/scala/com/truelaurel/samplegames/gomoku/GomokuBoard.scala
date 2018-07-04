@@ -34,16 +34,20 @@ case class GomokuBoard(
   def play(x: Int, y: Int): GomokuBoard = play(Pos(x, y))
 
   def play(p: Pos): GomokuBoard =
-    if (nextPlayer)
+    forcePlay(p, nextPlayer)
+
+  def forcePlay(p: Pos, player: Boolean): GomokuBoard = {
+    if (player)
       copy(
-        nextPlayer = false,
+        nextPlayer = !player,
         dataFree = dataFree - (p.x, p.y),
         dataTrue = dataTrue + (p.x, p.y))
     else
       copy(
-        nextPlayer = true,
+        nextPlayer = !player,
         dataFree = dataFree - (p.x, p.y),
         dataFalse = dataFalse + (p.x, p.y))
+  }
 
   def remove(p: Pos): GomokuBoard =
     copy(

@@ -2,14 +2,16 @@ package com.truelaurel.math.geometry.grid
 
 case class Masks(size: Int, needed: Int) {
   val empty = GridData(size)
-  val matrixIndices = for {
+
+  val matrixIndices: Seq[(Int, Int)] = for {
     r0 <- 0 to size - needed
     c0 <- 0 to size - needed
   } yield (r0, c0)
+    
   val matricesCompleted: Set[Long] =
     (preComputedMatricesRows ++ preComputedMatricesCols :+ preComputedMatricesDiag1 :+ preComputedMatricesDiag2).toSet
 
-  def isComplete(grid: GridData) =
+  def isComplete(grid: GridData): Boolean =
     matrixIndices.exists {
       case (r0, c0) =>
         val gsm = grid.subMatrix(r0, c0, needed)
@@ -20,14 +22,14 @@ case class Masks(size: Int, needed: Int) {
     (0 until needed).map(row => (for {
       c <- 0 until needed
       i = row * needed + c
-      bit = (1L << i)
+      bit = 1L << i
     } yield bit).sum)
 
   def preComputedMatricesCols: Seq[Long] =
     (0 until needed).map(col => (for {
       r <- 0 until needed
       i = r * needed + col
-      bit = (1L << i)
+      bit = 1L << i
     } yield bit).sum)
 
   def preComputedMatricesDiag1: Long =
@@ -35,7 +37,7 @@ case class Masks(size: Int, needed: Int) {
       r <- 0 until needed
       c = r
       i = r * needed + c
-      bit = (1L << i)
+      bit = 1L << i
     } yield bit).sum
 
   def preComputedMatricesDiag2: Long =
@@ -43,7 +45,7 @@ case class Masks(size: Int, needed: Int) {
       r <- 0 until needed
       c = needed - 1 - r
       i = r * needed + c
-      bit = (1L << i)
+      bit = 1L << i
     } yield bit).sum
 
 }
