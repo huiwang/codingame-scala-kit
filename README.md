@@ -1,6 +1,3 @@
-[![Build Status](https://travis-ci.org/huiwang/codingame-scala-kit.svg?branch=master)](https://travis-ci.org/huiwang/codingame-scala-kit)
-[![Gitter](https://badges.gitter.im/TrueLaurel/CodinGame-Scala-Kit.svg)](https://gitter.im/TrueLaurel/CodinGame-Scala-Kit?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
-
 # CodinGame Scala Kit
 I love Both CodinGame and Scala because they make programming fun.
 
