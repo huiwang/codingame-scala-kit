@@ -4,30 +4,32 @@ import com.truelaurel.codingame.challenge.GameIO
 import com.truelaurel.math.geometry.{Direction, Pos}
 import com.truelaurel.samplegames.wondev.domain._
 
+import scala.io.StdIn
+
 
 object WondevIO extends GameIO[WondevContext, WondevState, WondevAction] {
   def readContext: WondevContext = {
-    val size = readInt
-    val unitsperplayer = readInt
+    val size = StdIn.readInt()
+    val unitsperplayer = StdIn.readInt()
     WondevContext(size, unitsperplayer)
   }
 
   def readState(turn: Int, context: WondevContext): WondevState = {
 
-    val rows = Seq.fill(context.size)(readLine)
+    val rows = Seq.fill(context.size)(StdIn.readLine())
     val myUnits = Seq.fill(context.players) {
-      val Array(unitx, unity) = for (i <- readLine split " ") yield i.toInt
+      val Array(unitx, unity) = for (i <- StdIn.readLine() split " ") yield i.toInt
       Pos(unitx, unity)
     }
     val opUnits = Seq.fill(context.players) {
-      val Array(unitx, unity) = for (i <- readLine split " ") yield i.toInt
+      val Array(unitx, unity) = for (i <- StdIn.readLine() split " ") yield i.toInt
       Pos(unitx, unity)
     }
 
     val units = myUnits ++ opUnits
 
-    val legalactions = Seq.fill(readInt) {
-      val Array(_type, _index, dir1, dir2) = readLine split " "
+    val legalactions = Seq.fill(StdIn.readInt()) {
+      val Array(_type, _index, dir1, dir2) = StdIn.readLine() split " "
       val index = _index.toInt
       val unit = units(index)
       val d1 = Direction(dir1)
