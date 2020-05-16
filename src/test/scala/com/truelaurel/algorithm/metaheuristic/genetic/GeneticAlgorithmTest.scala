@@ -18,7 +18,7 @@ class GeneticAlgorithmTest extends FlatSpec with Matchers {
   val popSize = 100
   val tournamentSize = 20
   val eliteSize = 20
-  val stopper = new CountStopper(1000)
+  val stopper = new CountStopper(5000)
 
   val ga = new GeneticAlgorithm[MoveSet](popSize, tournamentSize, eliteSize, stopper)
 
