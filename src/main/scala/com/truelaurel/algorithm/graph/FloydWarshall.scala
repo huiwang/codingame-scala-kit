@@ -41,9 +41,9 @@ object ShortestPath {
     }
 
     // Extract paths.
-    val itenearies = mutable.Map[Int, Map[Int, Seq[Int]]]()
+    val itenearies = mutable.Map[Int, Map[Int, ArrayBuffer[Int]]]()
     for (i <- 0 until n) {
-      val ps = mutable.Map[Int, Seq[Int]]()
+      val ps = mutable.Map[Int, ArrayBuffer[Int]]()
       for (j <- 0 until n)
         if (ds(i)(j) != inf) {
           val p = new ArrayBuffer[Int]()

@@ -9,8 +9,7 @@ case class Bundler(fileName: String, io: BundlerIo) {
 
   def bundle(): Unit = {
     val outputFileContent = buildOutput
-    val formattedOutputFileContent = org.scalafmt.Scalafmt.format(outputFileContent).get
-    io.save(fileName, formattedOutputFileContent)
+    io.save(fileName, outputFileContent)
   }
 
   def buildOutput: String = {

@@ -9,7 +9,7 @@ import scala.collection.mutable.ArrayBuffer
 class MutableWondevState(val size: Int,
                          private val units: Array[Pos],
                          private val height: Array[Array[Int]],
-                         var nextPlayer: Boolean) extends GameState[Boolean]{
+                         var nextPlayer: Boolean) extends GameState[Boolean] {
 
   private val neighborTable = WondevContext.neighborMapBySize(size)
 
@@ -128,13 +128,13 @@ class MutableWondevState(val size: Int,
       feasible.toSet
     }
 
-    def findIncreasedCell : Option[Pos] = {
+    def findIncreasedCell: Option[Pos] = {
       var i = 0
       while (i < size) {
         var j = 0
         while (j < size) {
           val pos = Pos(i, j)
-          if(heightOf(pos) == 1) {
+          if (heightOf(pos) == 1) {
             return Some(pos)
           }
           j += 1
@@ -187,7 +187,7 @@ class MutableWondevState(val size: Int,
       (that canEqual this) &&
         size == that.size &&
         (units sameElements that.units) &&
-        height.deep == that.height.deep &&
+        height.zip(that.height).forall { case (a, b) => a.sameElements(b) } &&
         nextPlayer == that.nextPlayer
     case _ => false
   }

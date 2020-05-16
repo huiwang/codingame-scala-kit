@@ -9,7 +9,7 @@ class BreathFirstShortestPathFinder[T](graph: Map[T, Vector[T]], obstacles: Set[
   }
 
   def findPaths(source: T, targets: Set[T]): Paths = {
-    path(targets, Map(source -> Vector.empty), Set.empty, Map.empty).mapValues(_.reverse)
+    path(targets, Map(source -> Vector.empty), Set.empty, Map.empty).mapValues(_.reverse).toMap
   }
 
   private def path(targets: Set[T], paths: Paths, visited: Set[T], found: Paths): Paths = {
