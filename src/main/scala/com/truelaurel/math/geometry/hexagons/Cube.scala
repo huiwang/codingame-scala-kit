@@ -12,9 +12,11 @@ case class Cube(x: Int, y: Int, z: Int) {
   }
 
   def neighbor(orientation: Int): Cube = {
-    Cube(x + Cube.directions(orientation)(0),
+    Cube(
+      x + Cube.directions(orientation)(0),
       y + Cube.directions(orientation)(1),
-      z + Cube.directions(orientation)(2))
+      z + Cube.directions(orientation)(2)
+    )
   }
 
   def distanceTo(that: Cube): Int =
@@ -29,7 +31,8 @@ object Cube {
     Array(0, +1, -1),
     Array(-1, +1, 0),
     Array(-1, 0, +1),
-    Array(0, -1, +1))
+    Array(0, -1, +1)
+  )
 
   def apply(x: Int, y: Int): Cube = {
     Offset(x, y).toCube

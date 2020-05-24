@@ -13,10 +13,9 @@ class CompilationTest extends FlatSpec with Matchers {
   }
 
   it should "reject invalid code" in {
-    intercept[ToolBoxError]{
+    intercept[ToolBoxError] {
       compiles("object Toto extends App { println) }")
     }
   }
-
 
 }

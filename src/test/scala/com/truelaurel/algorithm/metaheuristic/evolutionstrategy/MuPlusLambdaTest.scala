@@ -3,7 +3,6 @@ package com.truelaurel.algorithm.metaheuristic.evolutionstrategy
 import com.truelaurel.time.CountStopper
 import org.scalatest.{FlatSpec, Matchers}
 
-
 class MuPlusLambdaTest extends FlatSpec with Matchers {
 
   behavior of "MuPlusLambda"

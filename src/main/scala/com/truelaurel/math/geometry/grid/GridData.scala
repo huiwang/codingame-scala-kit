@@ -28,10 +28,11 @@ case class GridData(size: Int, rows: Array[Long]) {
   def neighbours4(p: Pos): Seq[Pos] =
     p.neighbours4.filter(isValidPos)
 
-  def isValidPos(p: Pos): Boolean = p.x >= 0 &&
-    p.y >= 0 &&
-    p.x < size &&
-    p.y < size
+  def isValidPos(p: Pos): Boolean =
+    p.x >= 0 &&
+      p.y >= 0 &&
+      p.x < size &&
+      p.y < size
 
   def freeNeighbours4(p: Pos): Seq[Pos] =
     p.neighbours4.filter(pos => isValidPos(pos) && isFree(pos))
@@ -101,13 +102,16 @@ object GridData {
   def apply(size: Int): GridData =
     GridData(size, rows = Array.fill(size)(0L))
 
-  def fullGrid(size: Int) = fullGridCache.getOrElseUpdate(size, {
-    val all = for {
-      r <- 0 until size
-      c <- 0 until size
-    } yield r * size + c
-    BitSet(all: _*)
-  })
+  def fullGrid(size: Int) =
+    fullGridCache.getOrElseUpdate(
+      size, {
+        val all = for {
+          r <- 0 until size
+          c <- 0 until size
+        } yield r * size + c
+        BitSet(all: _*)
+      }
+    )
 
   def full(size: Int) = GridData(size, Array.fill(size)((1L << size + 1) - 1))
 }

@@ -14,7 +14,13 @@ object RandomizationMutation {
     * @tparam T type of element
     * @return randomly mutated vector
     */
-  def mutate[T](v: Vector[T], randomLegalElem: Int => T, p: Double): Vector[T] = {
-    v.zipWithIndex.map(pair => if (p >= Mathl.random.nextDouble()) randomLegalElem(pair._2) else pair._1)
+  def mutate[T](
+      v: Vector[T],
+      randomLegalElem: Int => T,
+      p: Double
+  ): Vector[T] = {
+    v.zipWithIndex.map(pair =>
+      if (p >= Mathl.random.nextDouble()) randomLegalElem(pair._2) else pair._1
+    )
   }
 }

@@ -2,8 +2,7 @@ package com.truelaurel.physics
 
 import com.truelaurel.math.geometry.Vectorl
 
-case class Disk(p: Vectorl, v: Vectorl, r: Double, m: Double = 1.0) {
-}
+case class Disk(p: Vectorl, v: Vectorl, r: Double, m: Double = 1.0) {}
 
 object DiskMover {
   def move(disk: Disk, time: Double): Disk = {
@@ -16,8 +15,14 @@ object Collision {
     collideTime(d1.p, d1.v, d1.r, d2.p, d2.v, d2.r)
   }
 
-  def collideTime(p1: Vectorl, v1: Vectorl, r1: Double,
-                  p2: Vectorl, v2: Vectorl, r2: Double): Option[Double] = {
+  def collideTime(
+      p1: Vectorl,
+      v1: Vectorl,
+      r1: Double,
+      p2: Vectorl,
+      v2: Vectorl,
+      r2: Double
+  ): Option[Double] = {
     val dr = p2 - p1
     val dv = v2 - v1
     val dvdr = dv.dotProduct(dr)
@@ -31,11 +36,18 @@ object Collision {
     Some(-(dvdr + Math.sqrt(d)) / dvdv)
   }
 
-  def bounceOffWithMinimumImpulse(p1: Vectorl, v1: Vectorl, m1: Double,
-                                  p2: Vectorl, v2: Vectorl, m2: Double,
-                                  minImpulse: Double): (Vectorl, Vectorl) = {
+  def bounceOffWithMinimumImpulse(
+      p1: Vectorl,
+      v1: Vectorl,
+      m1: Double,
+      p2: Vectorl,
+      v2: Vectorl,
+      m2: Double,
+      minImpulse: Double
+  ): (Vectorl, Vectorl) = {
     val impulse = computeImpulse(p1, v1, m1, p2, v2, m2)
-    val adjusted = impulse.norm * (impulse.mag * 0.5 + minImpulse).max(impulse.mag)
+    val adjusted =
+      impulse.norm * (impulse.mag * 0.5 + minImpulse).max(impulse.mag)
     bouncedSpeed(v1, m1, v2, m2, adjusted)
   }
 
@@ -44,18 +56,37 @@ object Collision {
     (d1.copy(v = v1), d2.copy(v = v2))
   }
 
-  def bounceOff(p1: Vectorl, v1: Vectorl, m1: Double,
-                p2: Vectorl, v2: Vectorl, m2: Double): (Vectorl, Vectorl) = {
+  def bounceOff(
+      p1: Vectorl,
+      v1: Vectorl,
+      m1: Double,
+      p2: Vectorl,
+      v2: Vectorl,
+      m2: Double
+  ): (Vectorl, Vectorl) = {
     val impulse = computeImpulse(p1, v1, m1, p2, v2, m2)
 
     bouncedSpeed(v1, m1, v2, m2, impulse)
   }
 
-  private def bouncedSpeed(v1: Vectorl, m1: Double, v2: Vectorl, m2: Double, impulse: Vectorl) = {
+  private def bouncedSpeed(
+      v1: Vectorl,
+      m1: Double,
+      v2: Vectorl,
+      m2: Double,
+      impulse: Vectorl
+  ) = {
     (v1 + impulse / m1, v2 - impulse / m2)
   }
 
-  private def computeImpulse(p1: Vectorl, v1: Vectorl, m1: Double, p2: Vectorl, v2: Vectorl, m2: Double) = {
+  private def computeImpulse(
+      p1: Vectorl,
+      v1: Vectorl,
+      m1: Double,
+      p2: Vectorl,
+      v2: Vectorl,
+      m2: Double
+  ) = {
     val dr = p2 - p1
     val dv = v2 - v1
     val drdr = dr.dotProduct(dr)

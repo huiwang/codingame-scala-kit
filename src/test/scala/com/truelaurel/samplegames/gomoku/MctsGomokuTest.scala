@@ -11,7 +11,6 @@ class MctsGomokuTest extends FlatSpec with Matchers {
   val rules = GomokuRules(3, 3)
   val ai = MctsAi(rules)(_.results.played > 50)
 
-
   it should "find the best move for false when it's a win" in {
     val root = GomokuBoard(3)
     val falseToWin = root.play(2, 0).play(0, 0).play(2, 2).play(1, 1)

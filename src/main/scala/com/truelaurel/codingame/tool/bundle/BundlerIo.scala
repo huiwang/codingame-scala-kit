@@ -7,7 +7,6 @@ import java.util.Objects
 import scala.io.Source
 import scala.util.control.NonFatal
 
-
 trait BundlerIo {
   def readFile(file: File): List[String]
 
@@ -20,7 +19,8 @@ trait BundlerIo {
   def filesInFolder(folder: File): List[File]
 }
 
-case class StdBundlerIo(srcFolder: String = "./src/main/scala") extends BundlerIo {
+case class StdBundlerIo(srcFolder: String = "./src/main/scala")
+    extends BundlerIo {
 
   def readFile(file: File): List[String] = {
     println(s"reading from $file")
@@ -55,7 +55,13 @@ case class StdBundlerIo(srcFolder: String = "./src/main/scala") extends BundlerI
   }
 
   def findFile(fileName: String): File = {
-    Files.find(Paths.get("src"), Int.MaxValue, (path, _) => path.endsWith(fileName), FileVisitOption.FOLLOW_LINKS)
+    Files
+      .find(
+        Paths.get("src"),
+        Int.MaxValue,
+        (path, _) => path.endsWith(fileName),
+        FileVisitOption.FOLLOW_LINKS
+      )
       .findAny()
       .orElseThrow(() => new IllegalArgumentException(s"$fileName not found"))
       .toFile
@@ -63,8 +69,12 @@ case class StdBundlerIo(srcFolder: String = "./src/main/scala") extends BundlerI
 
   def filesInFolder(folder: File): List[File] = {
     Objects.requireNonNull(folder, "Folder should not be null")
-    val files = folder.listFiles((pathname: File) => !pathname.getName.startsWith("."))
-    Objects.requireNonNull(files, "visibleFiles should not be null in folder " + folder)
+    val files =
+      folder.listFiles((pathname: File) => !pathname.getName.startsWith("."))
+    Objects.requireNonNull(
+      files,
+      "visibleFiles should not be null in folder " + folder
+    )
     files.filterNot(_.isDirectory).toList.sortBy(_.getAbsolutePath)
   }
 }

@@ -11,17 +11,28 @@ import com.truelaurel.samplegames.wondev.domain._
 object WondevEvaluator {
 
   def evaluate(state: MutableWondevState): Double = {
-    evaluateUnits(state, state.readable.myUnits) - 2.0 * evaluateUnits(state, state.readable.opUnits.filter(WondevContext.isVisible))
+    evaluateUnits(state, state.readable.myUnits) - 2.0 * evaluateUnits(
+      state,
+      state.readable.opUnits.filter(WondevContext.isVisible)
+    )
   }
 
-
-  private def evaluateUnits(state: MutableWondevState, units: Seq[Pos]): Double = {
-    units.map(unit => {
-      countExits(state, unit, 3) + state.readable.heightOf(unit)
-    }).sum
+  private def evaluateUnits(
+      state: MutableWondevState,
+      units: Seq[Pos]
+  ): Double = {
+    units
+      .map(unit => {
+        countExits(state, unit, 3) + state.readable.heightOf(unit)
+      })
+      .sum
   }
 
-  private def countExits(state: MutableWondevState, unit: Pos, depth: Int): Double = {
+  private def countExits(
+      state: MutableWondevState,
+      unit: Pos,
+      depth: Int
+  ): Double = {
     val queue = new util.LinkedList[Pos]()
     var reached = 0.0
     queue.add(unit)
@@ -37,7 +48,8 @@ object WondevEvaluator {
         .foreach(neighbor => {
           val distance2 = unit.distance(neighbor)
           val neighborHeight = state.readable.heightOf(neighbor)
-          if (distance2 > distance1 &&
+          if (
+            distance2 > distance1 &&
             distance2 <= depth &&
             WondevContext.isPlayable(neighborHeight) &&
             neighborHeight <= reachableHeight &&

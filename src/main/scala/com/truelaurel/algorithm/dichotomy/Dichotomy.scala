@@ -11,7 +11,8 @@ object Dichotomy {
     * @return the target value where we can't go lower anymore
     */
   def search(low: Int, high: Int, lower: Int => Boolean): Int = {
-    if (low == high) low else {
+    if (low == high) low
+    else {
       val mid = (low + high) / 2
       if (lower(mid)) {
         search(low, mid, lower)

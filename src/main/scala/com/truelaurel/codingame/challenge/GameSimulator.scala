@@ -1,6 +1,7 @@
 package com.truelaurel.codingame.challenge
 
 trait GameSimulator[State, Action] {
+
   /**
     * Impacts the provided action on the given state and
     * produces a new state according to the defined game rule
@@ -12,4 +13,3 @@ trait GameSimulator[State, Action] {
   def simulate(state: State, action: Action): State
 
 }
-

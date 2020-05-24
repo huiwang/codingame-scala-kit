@@ -5,11 +5,12 @@ import com.truelaurel.math.geometry.Pos
 
 import scala.collection.mutable.ArrayBuffer
 
-
-class MutableWondevState(val size: Int,
-                         private val units: Array[Pos],
-                         private val height: Array[Array[Int]],
-                         var nextPlayer: Boolean) extends GameState[Boolean] {
+class MutableWondevState(
+    val size: Int,
+    private val units: Array[Pos],
+    private val height: Array[Array[Int]],
+    var nextPlayer: Boolean
+) extends GameState[Boolean] {
 
   private val neighborTable = WondevContext.neighborMapBySize(size)
 
@@ -118,7 +119,10 @@ class MutableWondevState(val size: Int,
         var j = 0
         while (j < size) {
           val pos = Pos(i, j)
-          if (WondevContext.isPlayable(heightOf(pos)) && units(0) != pos && units(1) != pos) {
+          if (
+            WondevContext
+              .isPlayable(heightOf(pos)) && units(0) != pos && units(1) != pos
+          ) {
             feasible.append(pos)
           }
           j += 1
@@ -166,13 +170,11 @@ class MutableWondevState(val size: Int,
     }
   }
 
-
   private def extractFreeCellTable = {
     val occupyTable: Array[Array[Boolean]] = Array.fill(size, size)(true)
     units.foreach(u => setOccupied(occupyTable, u))
     occupyTable
   }
-
 
   private def setOccupied(occupyTable: Array[Array[Boolean]], u: Pos) = {
     if (u.x != -1) {
@@ -182,15 +184,16 @@ class MutableWondevState(val size: Int,
 
   def canEqual(other: Any): Boolean = other.isInstanceOf[MutableWondevState]
 
-  override def equals(other: Any): Boolean = other match {
-    case that: MutableWondevState =>
-      (that canEqual this) &&
-        size == that.size &&
-        (units sameElements that.units) &&
-        height.zip(that.height).forall { case (a, b) => a.sameElements(b) } &&
-        nextPlayer == that.nextPlayer
-    case _ => false
-  }
+  override def equals(other: Any): Boolean =
+    other match {
+      case that: MutableWondevState =>
+        (that canEqual this) &&
+          size == that.size &&
+          (units sameElements that.units) &&
+          height.zip(that.height).forall { case (a, b) => a.sameElements(b) } &&
+          nextPlayer == that.nextPlayer
+      case _ => false
+    }
 
   override def hashCode(): Int = {
     val state = Seq(size, units, height, nextPlayer)
@@ -201,18 +204,25 @@ class MutableWondevState(val size: Int,
     new MutableWondevState(size, units.clone(), height.clone(), nextPlayer)
   }
 
-  override def toString: String = s"FastWondevState(size=$size, units=${units.mkString("[", ",", "]")}, " +
-    s"height=${height.map(_.mkString("[", ",", "]")).mkString("[", ",", "]")}, nextPlayer=$nextPlayer)"
+  override def toString: String =
+    s"FastWondevState(size=$size, units=${units.mkString("[", ",", "]")}, " +
+      s"height=${height.map(_.mkString("[", ",", "]")).mkString("[", ",", "]")}, nextPlayer=$nextPlayer)"
 }
 
 object MutableWondevState {
   def fromSlowState(wondevState: WondevState): MutableWondevState = {
-    val height: Array[Array[Int]] = Array.fill(wondevState.size)(Array.fill(wondevState.size)(0))
+    val height: Array[Array[Int]] =
+      Array.fill(wondevState.size)(Array.fill(wondevState.size)(0))
     for {
       (pos, h) <- wondevState.heightMap
     } {
       height(pos.x)(pos.y) = h
     }
-    new MutableWondevState(wondevState.size, wondevState.units.toArray, height, wondevState.nextPlayer)
+    new MutableWondevState(
+      wondevState.size,
+      wondevState.units.toArray,
+      height,
+      wondevState.nextPlayer
+    )
   }
 }

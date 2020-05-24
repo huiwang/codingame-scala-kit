@@ -7,9 +7,15 @@ import com.truelaurel.math.Mathl
   */
 object UniformCrossover {
 
-  def crossover[T](v: Vector[T], w: Vector[T], p: Double): (Vector[T], Vector[T]) = {
+  def crossover[T](
+      v: Vector[T],
+      w: Vector[T],
+      p: Double
+  ): (Vector[T], Vector[T]) = {
     require(v.size == w.size, "two vectors should have the same size")
-    v.zip(w).map(pair => if (p >= Mathl.random.nextDouble()) pair.swap else pair).unzip
+    v.zip(w)
+      .map(pair => if (p >= Mathl.random.nextDouble()) pair.swap else pair)
+      .unzip
   }
 
 }

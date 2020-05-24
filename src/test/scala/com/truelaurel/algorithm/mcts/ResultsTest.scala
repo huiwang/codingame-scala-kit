@@ -32,7 +32,8 @@ class ResultsTest extends FlatSpec with Matchers {
   it should "find best move with current results" in {
     val moves = Map(
       1 -> Results(played = 3, score = 2),
-      2 -> Results(played = 3, score = 1))
+      2 -> Results(played = 3, score = 1)
+    )
 
     Results.mostPromisingMove(moves) shouldBe 2
   }
@@ -41,7 +42,8 @@ class ResultsTest extends FlatSpec with Matchers {
     val moves = Map(
       1 -> Results(played = 3, score = 2),
       3 -> Results(played = 0, score = 0),
-      2 -> Results(played = 3, score = 1))
+      2 -> Results(played = 3, score = 1)
+    )
 
     Results.mostPromisingMove(moves) shouldBe 3
     Results.mostPromisingMove(moves) shouldBe 3

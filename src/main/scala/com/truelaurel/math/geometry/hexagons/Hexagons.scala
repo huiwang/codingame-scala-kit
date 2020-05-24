@@ -3,7 +3,7 @@ package com.truelaurel.math.geometry.hexagons
 /**
   * Created by hwang on 15/04/2017.
   */
-case class Offset(x : Int, y : Int) {
+case class Offset(x: Int, y: Int) {
   def toCube: Cube = {
     val xp = x - (y - (y & 1)) / 2
     val zp = y
@@ -21,9 +21,3 @@ case class Offset(x : Int, y : Int) {
   }
 
 }
-
-
-
-
-
-

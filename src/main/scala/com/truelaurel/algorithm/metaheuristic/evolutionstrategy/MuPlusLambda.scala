@@ -30,10 +30,12 @@ class MuPlusLambda(mu: Int, lambda: Int, stopper: Stopper) {
         .sortBy(_._2)
         .map(_._1)
         .takeRight(mu)
-      bestSolution = if(bestSolution.quality > greatest.last.quality) {
+      bestSolution = if (bestSolution.quality > greatest.last.quality) {
         bestSolution
       } else greatest.last
-      parents = greatest ++ greatest.flatMap(s => tweakedRange.map(_ => problem.tweakSolution(s)))
+      parents = greatest ++ greatest.flatMap(s =>
+        tweakedRange.map(_ => problem.tweakSolution(s))
+      )
     }
     bestSolution
   }

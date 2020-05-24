@@ -2,7 +2,8 @@ package com.truelaurel.samplegames.dummy
 
 import com.truelaurel.algorithm.game._
 
-case class DummyRules(branching: Int = 100, depth: Int = 20) extends RulesFor2p[DummyBoard, Int] {
+case class DummyRules(branching: Int = 100, depth: Int = 20)
+    extends RulesFor2p[DummyBoard, Int] {
   val initial: DummyBoard = DummyBoard(Nil, false)
 
   val moves = 1 to branching
@@ -19,4 +20,4 @@ case class DummyRules(branching: Int = 100, depth: Int = 20) extends RulesFor2p[
 }
 
 case class DummyBoard(played: List[Int], nextPlayer: Boolean)
-  extends GameState[Boolean]
+    extends GameState[Boolean]

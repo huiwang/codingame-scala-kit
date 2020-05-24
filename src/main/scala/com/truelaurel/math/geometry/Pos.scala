@@ -4,10 +4,7 @@ case class Pos(x: Int, y: Int) {
   def this(x: Double, y: Double) = this(x.toInt, y.toInt)
 
   def neighbours4: Seq[Pos] =
-    Seq(Pos(x + 1, y),
-      Pos(x - 1, y),
-      Pos(x, y - 1),
-      Pos(x, y + 1))
+    Seq(Pos(x + 1, y), Pos(x - 1, y), Pos(x, y - 1), Pos(x, y + 1))
 
   def +(pos: Pos): Pos = Pos(x + pos.x, y + pos.y)
 
@@ -15,20 +12,23 @@ case class Pos(x: Int, y: Int) {
 
   def %(r: Int): Pos = Pos(x % r, y % r)
 
-  def neighborIn(direction: Direction): Pos = direction match {
-    case N => Pos(x, y - 1)
-    case S => Pos(x, y + 1)
-    case W => Pos(x - 1, y)
-    case E => Pos(x + 1, y)
-    case NE => Pos(x + 1, y - 1)
-    case SE => Pos(x + 1, y + 1)
-    case NW => Pos(x - 1, y - 1)
-    case SW => Pos(x - 1, y + 1)
-  }
+  def neighborIn(direction: Direction): Pos =
+    direction match {
+      case N  => Pos(x, y - 1)
+      case S  => Pos(x, y + 1)
+      case W  => Pos(x - 1, y)
+      case E  => Pos(x + 1, y)
+      case NE => Pos(x + 1, y - 1)
+      case SE => Pos(x + 1, y + 1)
+      case NW => Pos(x - 1, y - 1)
+      case SW => Pos(x - 1, y + 1)
+    }
 
-  def distance(pos: Pos): Int = Math.max(Math.abs(x - pos.x), Math.abs(y - pos.y))
+  def distance(pos: Pos): Int =
+    Math.max(Math.abs(x - pos.x), Math.abs(y - pos.y))
 
-  def distanceEuclide(pos: Pos): Double = Math.sqrt(Math.pow(x - pos.x, 2) + Math.pow(y - pos.y, 2))
+  def distanceEuclide(pos: Pos): Double =
+    Math.sqrt(Math.pow(x - pos.x, 2) + Math.pow(y - pos.y, 2))
 }
 
 object Pos {
@@ -38,7 +38,6 @@ object Pos {
   val downLeft: (Int, Int) = (-1, 1)
   val all = Seq(right, down, downRight, downLeft)
 }
-
 
 sealed trait Direction {
   def similar: Array[Direction]
@@ -78,7 +77,6 @@ case object SE extends Direction {
 
 object Direction {
 
-
   /**
     * @param size of the square
     * @return the valid neighbors
@@ -91,15 +89,16 @@ object Direction {
 
   val all = Seq(N, W, S, E, SW, SE, NW, NE)
 
-  def apply(dir: String): Direction = dir match {
-    case "N" => N
-    case "S" => S
-    case "W" => W
-    case "E" => E
-    case "NE" => NE
-    case "SE" => SE
-    case "NW" => NW
-    case "SW" => SW
-    case _ => throw new IllegalArgumentException("unknown direction " + dir)
-  }
+  def apply(dir: String): Direction =
+    dir match {
+      case "N"  => N
+      case "S"  => S
+      case "W"  => W
+      case "E"  => E
+      case "NE" => NE
+      case "SE" => SE
+      case "NW" => NW
+      case "SW" => SW
+      case _    => throw new IllegalArgumentException("unknown direction " + dir)
+    }
 }

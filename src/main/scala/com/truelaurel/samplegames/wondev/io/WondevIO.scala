@@ -6,7 +6,6 @@ import com.truelaurel.samplegames.wondev.domain._
 
 import scala.io.StdIn
 
-
 object WondevIO extends GameIO[WondevContext, WondevState, WondevAction] {
   def readContext: WondevContext = {
     val size = StdIn.readInt()
@@ -18,11 +17,13 @@ object WondevIO extends GameIO[WondevContext, WondevState, WondevAction] {
 
     val rows = Seq.fill(context.size)(StdIn.readLine())
     val myUnits = Seq.fill(context.players) {
-      val Array(unitx, unity) = for (i <- StdIn.readLine() split " ") yield i.toInt
+      val Array(unitx, unity) =
+        for (i <- StdIn.readLine() split " ") yield i.toInt
       Pos(unitx, unity)
     }
     val opUnits = Seq.fill(context.players) {
-      val Array(unitx, unity) = for (i <- StdIn.readLine() split " ") yield i.toInt
+      val Array(unitx, unity) =
+        for (i <- StdIn.readLine() split " ") yield i.toInt
       Pos(unitx, unity)
     }
 
@@ -42,7 +43,6 @@ object WondevIO extends GameIO[WondevContext, WondevState, WondevAction] {
         PushBuild(index, target1, target2)
       }
     }
-
 
     val heights = (for {
       (row: String, y: Int) <- rows.zipWithIndex
@@ -68,6 +68,3 @@ object WondevIO extends GameIO[WondevContext, WondevState, WondevAction] {
     }
   }
 }
-
-
-

@@ -8,13 +8,15 @@ case class Results(played: Int = 0, score: Int = 0) {
   def withOutcome(outcome: Outcome[Boolean]): Results =
     withOutcome(true, outcome)
 
-  def withOutcome[P](player: P, outcome: Outcome[P]): Results = copy(
-    played = played + 1,
-    score = score + (outcome match {
-      case Wins(`player`) => 1
-      case Wins(_) => -1
-      case _ => 0
-    }))
+  def withOutcome[P](player: P, outcome: Outcome[P]): Results =
+    copy(
+      played = played + 1,
+      score = score + (outcome match {
+        case Wins(`player`) => 1
+        case Wins(_)        => -1
+        case _              => 0
+      })
+    )
 
   def uct(total: Int): Double = {
     if (played == 0) Double.MaxValue
@@ -44,7 +46,7 @@ s+f = p-f
 f = (p-s)/2
 t = (p+s)/2
 
- */
+   */
 }
 
 object Results {

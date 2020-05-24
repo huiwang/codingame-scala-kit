@@ -26,7 +26,9 @@ object Player {
     for (i <- 0 until 5) {
       WondevWarmup.warmup()
     }
-    System.err.println("warmup elt: " + (System.nanoTime() - time) / 1000000 + "ms")
+    System.err.println(
+      "warmup elt: " + (System.nanoTime() - time) / 1000000 + "ms"
+    )
 
     try {
       while (true) {
@@ -40,11 +42,16 @@ object Player {
 
         CGLogger.info(context)
         CGLogger.info(state)
-        val restrictedOppoScope = WarFogCleaner.restrictOppoScope(state, context)
+        val restrictedOppoScope =
+          WarFogCleaner.restrictOppoScope(state, context)
 
         val clearedState = WarFogCleaner.removeFog(state, restrictedOppoScope)
         val action = MinimaxPlayer.react(clearedState)
-        context = context.copy(previousState = state, previousAction = action, previousOppoScope = restrictedOppoScope)
+        context = context.copy(
+          previousState = state,
+          previousAction = action,
+          previousOppoScope = restrictedOppoScope
+        )
         WondevIO.writeAction(state, action)
         turn += 1
       }
@@ -53,4 +60,3 @@ object Player {
     }
   }
 }
-

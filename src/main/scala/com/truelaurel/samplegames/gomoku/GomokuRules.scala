@@ -7,7 +7,7 @@ import com.truelaurel.math.geometry.grid.{BitGrid, GridData, Masks}
 import scala.math.abs
 
 case class GomokuRules(size: Int, lengthToWin: Int)
-  extends RulesFor2p[GomokuBoard, Pos] {
+    extends RulesFor2p[GomokuBoard, Pos] {
 
   val initial: GomokuBoard = GomokuBoard(size)
   val masks = Masks(size, lengthToWin)

@@ -2,8 +2,8 @@ package com.truelaurel.algorithm.metaheuristic.genetic
 
 import scala.util.Random
 
-
-case class MoveSetGeneticRepresentation(ref: Referee = null) extends GeneticRepresentation[MoveSet] {
+case class MoveSetGeneticRepresentation(ref: Referee = null)
+    extends GeneticRepresentation[MoveSet] {
   override def mutate(solution: MoveSet): MoveSet = {
     for (i <- 0 until 20) {
       if (Random.nextInt.abs % 100 < 10)
@@ -19,7 +19,10 @@ case class MoveSetGeneticRepresentation(ref: Referee = null) extends GeneticRepr
     MoveSet(vecarr)
   }
 
-  override def crossover(solutionA: MoveSet, solutionB: MoveSet): (MoveSet, MoveSet) = {
+  override def crossover(
+      solutionA: MoveSet,
+      solutionB: MoveSet
+  ): (MoveSet, MoveSet) = {
     val vecarrA = new Array[Vec](20)
     val vecarrB = new Array[Vec](20)
     for (i <- 0 until 20) {

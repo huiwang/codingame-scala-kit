@@ -13,6 +13,7 @@ resolvers += Resolver.mavenLocal
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.1.2" % "test"
 libraryDependencies += "com.github.writethemfirst" % "approvals-java" % "0.4" % "test"
 libraryDependencies += "org.scala-lang" % "scala-compiler" % "2.13.1" % "test"
+libraryDependencies += "org.scalameta" %% "scalafmt-core" % "2.5.2"
 
 enablePlugins(JmhPlugin)
 enablePlugins(JavaAppPackaging)

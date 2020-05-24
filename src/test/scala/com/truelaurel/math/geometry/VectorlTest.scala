@@ -11,7 +11,6 @@ class VectorlTest extends FlatSpec with Matchers {
   behavior of "Vectorl"
   implicit val doubleEquality = TolerantNumerics.tolerantDoubleEquality(0.01)
 
-
   val vectorl = Vectorl(1, 1)
   val sqrtOf2: Double = Math.sqrt(2)
 

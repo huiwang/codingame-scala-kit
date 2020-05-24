@@ -4,7 +4,6 @@ case class Vec(speed: Int = 0, rotate: Int = 0)
 
 case class MoveSet(vecarr: Array[Vec]) {}
 
-
 class Pod {
   var x: Int = 0
   var y: Int = 0

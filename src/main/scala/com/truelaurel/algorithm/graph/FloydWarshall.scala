@@ -3,15 +3,18 @@ package com.truelaurel.algorithm.graph
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
-
 case class Edge(from: Int, to: Int, distance: Int)
 
 case class Iti(distance: Int, path: Vector[Int])
+
 /**
   * Floyd–Warshall algorithm
   */
 object ShortestPath {
-  def shortestItinearies(vertexCount: Int, edges: Vector[Edge]): Map[Int, Map[Int, Iti]] = {
+  def shortestItinearies(
+      vertexCount: Int,
+      edges: Vector[Edge]
+  ): Map[Int, Map[Int, Iti]] = {
     val n = vertexCount
     val inf = Int.MaxValue
 
@@ -24,7 +27,9 @@ object ShortestPath {
 
     // Here goes the magic!
     for (k <- 0 until n; i <- 0 until n; j <- 0 until n)
-      if (ds(i)(k) != inf && ds(k)(j) != inf && ds(i)(k) + ds(k)(j) < ds(i)(j)) {
+      if (
+        ds(i)(k) != inf && ds(k)(j) != inf && ds(i)(k) + ds(k)(j) < ds(i)(j)
+      ) {
         ds(i)(j) = ds(i)(k) + ds(k)(j)
         ns(i)(j) = k
       }
