@@ -14,7 +14,8 @@ object GomokuDemo {
     val outcome = rules.judge(
       truePl = mctsMove,
       falsePl = alphaBetaMove,
-      s => println(s.toText))
+      s => println(s.toText)
+    )
     println(outcome)
   }
 
@@ -26,6 +27,5 @@ object GomokuDemo {
 
   def alphaBetaMove(s: GomokuBoard): Pos =
     AlphaBetaAi(rules, rules.centerHeuristic).chooseMove(s, 3)
-
 
 }

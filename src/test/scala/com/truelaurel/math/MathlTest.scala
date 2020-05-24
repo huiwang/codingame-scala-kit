@@ -12,7 +12,7 @@ class MathlTest extends FlatSpec with Matchers {
 
   it can "change" in {
     for (i <- 0 until 100)
-      random.nextInt should not equal(random.nextInt)
+      random.nextInt should not equal (random.nextInt)
   }
 
   it can "set a range" in {
@@ -28,7 +28,7 @@ class MathlTest extends FlatSpec with Matchers {
   it should "have different behavior for positive and negative number" in {
     val value1 = 1.5
     val value2 = -1.5
-    halfUp(value1).abs should not equal(halfUp(value2))
+    halfUp(value1).abs should not equal (halfUp(value2))
   }
 
   behavior of "Almost Equal"
@@ -37,6 +37,9 @@ class MathlTest extends FlatSpec with Matchers {
     val value1 = 0.0
     val value2 = 0.000001
     for (i <- 0 until 100)
-      almostEqual(randomBetween(value1, value2), randomBetween(value1, value2)) should equal(true)
+      almostEqual(
+        randomBetween(value1, value2),
+        randomBetween(value1, value2)
+      ) should equal(true)
   }
 }

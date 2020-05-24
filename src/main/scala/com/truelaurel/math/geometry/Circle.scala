@@ -25,7 +25,9 @@ case class Circle(center: Pos, radius: Int) {
         Seq(new Pos(XIa, YIa), new Pos(XIa, YIb)).distinct
       } else Seq.empty
     } else {
-      val a = (-sqr(xc1) - sqr(yc1) + sqr(xc2) + sqr(yc2) + sqr(rc1) - sqr(rc2)) / (2 * (yc2 - yc1))
+      val a = (-sqr(xc1) - sqr(yc1) + sqr(xc2) + sqr(yc2) + sqr(rc1) - sqr(
+        rc2
+      )) / (2 * (yc2 - yc1))
       val d = (xc2.toDouble - xc1) / (yc2 - yc1)
       val A = sqr(d) + 1
       val B = -2 * xc1 + 2 * yc1 * d - 2 * a * d

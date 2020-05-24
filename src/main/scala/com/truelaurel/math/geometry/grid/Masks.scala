@@ -7,7 +7,7 @@ case class Masks(size: Int, needed: Int) {
     r0 <- 0 to size - needed
     c0 <- 0 to size - needed
   } yield (r0, c0)
-    
+
   val matricesCompleted: Set[Long] =
     (preComputedMatricesRows ++ preComputedMatricesCols :+ preComputedMatricesDiag1 :+ preComputedMatricesDiag2).toSet
 
@@ -19,18 +19,22 @@ case class Masks(size: Int, needed: Int) {
     }
 
   def preComputedMatricesRows: Seq[Long] =
-    (0 until needed).map(row => (for {
-      c <- 0 until needed
-      i = row * needed + c
-      bit = 1L << i
-    } yield bit).sum)
+    (0 until needed).map(row =>
+      (for {
+        c <- 0 until needed
+        i = row * needed + c
+        bit = 1L << i
+      } yield bit).sum
+    )
 
   def preComputedMatricesCols: Seq[Long] =
-    (0 until needed).map(col => (for {
-      r <- 0 until needed
-      i = r * needed + col
-      bit = 1L << i
-    } yield bit).sum)
+    (0 until needed).map(col =>
+      (for {
+        r <- 0 until needed
+        i = r * needed + col
+        bit = 1L << i
+      } yield bit).sum
+    )
 
   def preComputedMatricesDiag1: Long =
     (for {

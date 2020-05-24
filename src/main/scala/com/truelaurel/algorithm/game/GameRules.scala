@@ -13,9 +13,11 @@ trait GameRules[P, S <: GameState[P], M] {
   def outcome(state: S): Outcome[P]
 
   @tailrec
-  final def judge(players: Map[P, S => M],
-                  debug: S => Unit,
-                  state: S = initial): Outcome[P] = {
+  final def judge(
+      players: Map[P, S => M],
+      debug: S => Unit,
+      state: S = initial
+  ): Outcome[P] = {
     debug(state)
     outcome(state) match {
       case Undecided =>
@@ -40,7 +42,7 @@ trait GameRules[P, S <: GameState[P], M] {
     def playRec(s: S): Outcome[P] = {
       outcome(s) match {
         case Undecided => playRec(applyMove(s, selectMove(s)))
-        case decided => decided
+        case decided   => decided
       }
     }
 

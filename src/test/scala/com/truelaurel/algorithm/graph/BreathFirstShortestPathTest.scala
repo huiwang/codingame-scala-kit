@@ -15,7 +15,9 @@ class BreathFirstShortestPathTest extends FlatSpec with Matchers {
     )
     val obstacles: Set[Int] = Set.empty
     val finder = new BreathFirstShortestPathFinder(graph, obstacles)
-    finder.findPaths(1, Set(2, 3)) should be(Map(2 -> Vector(2), 3 -> Vector(3)))
+    finder.findPaths(1, Set(2, 3)) should be(
+      Map(2 -> Vector(2), 3 -> Vector(3))
+    )
   }
 
   it should "findPaths with multiple levels" in {
@@ -27,7 +29,9 @@ class BreathFirstShortestPathTest extends FlatSpec with Matchers {
     )
     val obstacles: Set[Int] = Set.empty
     val finder = new BreathFirstShortestPathFinder(graph, obstacles)
-    finder.findPaths(1, Set(5, 6)) should be(Map(5 -> Vector(3, 5), 6 -> Vector(2, 4, 6)))
+    finder.findPaths(1, Set(5, 6)) should be(
+      Map(5 -> Vector(3, 5), 6 -> Vector(2, 4, 6))
+    )
   }
 
   it should "findPaths with  multiple levels and obstacles" in {
@@ -39,7 +43,9 @@ class BreathFirstShortestPathTest extends FlatSpec with Matchers {
     )
     val obstacles = Set(3)
     val finder = new BreathFirstShortestPathFinder(graph, obstacles)
-    finder.findPaths(1, Set(5, 6)) should be(Map(5 -> Vector(2, 4, 5), 6 -> Vector(2, 4, 6)))
+    finder.findPaths(1, Set(5, 6)) should be(
+      Map(5 -> Vector(2, 4, 5), 6 -> Vector(2, 4, 6))
+    )
   }
 
 }

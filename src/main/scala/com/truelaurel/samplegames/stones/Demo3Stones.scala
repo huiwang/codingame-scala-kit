@@ -9,10 +9,8 @@ import scala.concurrent.duration.DurationInt
 object Demo3Stones {
 
   def main(args: Array[String]): Unit = {
-    val outcome = Rules.judge(
-      truePl = aiMove,
-      falsePl = aiMove,
-      s => println(s.toText))
+    val outcome =
+      Rules.judge(truePl = aiMove, falsePl = aiMove, s => println(s.toText))
     println(outcome)
   }
 

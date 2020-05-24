@@ -11,16 +11,16 @@ import scala.util.Random
 // for a Mars Lander simple problem (https://www.codingame.com/ide/puzzle/mars-lander-episode-1)
 object LanderBasicDemo {
   def main(args: Array[String]): Unit = {
-    val initialState = LanderBasicState(y = 1000, vy = 100, fuel = 500, power = 0)
-    val sol = new SimulatedAnnealing(200.millis, 1000, 0.99).search(initialState.problem)
+    val initialState =
+      LanderBasicState(y = 1000, vy = 100, fuel = 500, power = 0)
+    val sol = new SimulatedAnnealing(200.millis, 1000, 0.99)
+      .search(initialState.problem)
     println(sol.quality, initialState.endState(sol.moves), sol)
   }
 }
 
-
 case class LanderBasicState(y: Int, vy: Int, fuel: Int, power: Int) {
   state =>
-
 
   object problem extends Problem[LanderBasicSolution] {
 
@@ -36,7 +36,6 @@ case class LanderBasicState(y: Int, vy: Int, fuel: Int, power: Int) {
       LanderBasicSolution(moves)
     }
 
-
     def tweakSolution(solution: LanderBasicSolution): LanderBasicSolution = {
       val r = Random.nextInt(solution.moves.size)
       val kept = solution.moves.take(r)
@@ -46,7 +45,8 @@ case class LanderBasicState(y: Int, vy: Int, fuel: Int, power: Int) {
     }
   }
 
-  case class LanderBasicSolution(moves: Stream[LanderBasicMove]) extends Solution {
+  case class LanderBasicSolution(moves: Stream[LanderBasicMove])
+      extends Solution {
     val quality: Double = {
       val finalState = endState(moves)
       if (finalState.y > 3000) -finalState.y
@@ -55,10 +55,11 @@ case class LanderBasicState(y: Int, vy: Int, fuel: Int, power: Int) {
     }
   }
 
-  def endState(movesToApply: Stream[LanderBasicMove]): LanderBasicState = movesToApply match {
-    case h #:: t if !canLandSafely => apply(h).endState(t)
-    case _ => this
-  }
+  def endState(movesToApply: Stream[LanderBasicMove]): LanderBasicState =
+    movesToApply match {
+      case h #:: t if !canLandSafely => apply(h).endState(t)
+      case _                         => this
+    }
 
   def canLandSafely: Boolean = y == 0 && vy.abs <= 40
 
@@ -84,9 +85,10 @@ case class LanderBasicState(y: Int, vy: Int, fuel: Int, power: Int) {
   def genNextMove: LanderBasicMove = {
     val r = Random.nextInt(3)
     val move = state.initialMove
-    val nextMove = if (r == 0 && move.thrust < 4) LanderBasicMove(move.thrust + 1)
-    else if (r == 1 && move.thrust > 0) LanderBasicMove(move.thrust - 1)
-    else move
+    val nextMove =
+      if (r == 0 && move.thrust < 4) LanderBasicMove(move.thrust + 1)
+      else if (r == 1 && move.thrust > 0) LanderBasicMove(move.thrust - 1)
+      else move
     nextMove
   }
 }

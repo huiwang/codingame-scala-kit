@@ -13,7 +13,7 @@ case class Vectorl(x: Double, y: Double) {
   lazy val mag: Double = Math.sqrt(mag2)
   lazy val norm: Vectorl = if (mag > 0) this * (1.0 / mag) else Vectorl(0, 0)
 
-  def /(factor : Double): Vectorl = this * (1.0 / factor)
+  def /(factor: Double): Vectorl = this * (1.0 / factor)
 
   def +(that: Vectorl): Vectorl = Vectorl(x + that.x, y + that.y)
 
@@ -31,7 +31,8 @@ case class Vectorl(x: Double, y: Double) {
     }
   }
 
-  def rotateInDegree(degree: Double): Vectorl = rotateInRadian(Math.toRadians(degree))
+  def rotateInDegree(degree: Double): Vectorl =
+    rotateInRadian(Math.toRadians(degree))
 
   def rotateInRadian(radians: Double): Vectorl = {
     val rotated = angleInRadian + radians
@@ -65,10 +66,12 @@ case class Vectorl(x: Double, y: Double) {
 
   def round = Vectorl(Mathl.halfUp(x), Mathl.halfUp(y))
 
-  override def equals(o: Any): Boolean = o match {
-    case that: Vectorl => Mathl.almostEqual(x, that.x) && Mathl.almostEqual(y, that.y)
-    case _ => false
-  }
+  override def equals(o: Any): Boolean =
+    o match {
+      case that: Vectorl =>
+        Mathl.almostEqual(x, that.x) && Mathl.almostEqual(y, that.y)
+      case _ => false
+    }
 
   private def angleInDegree: Double = Math.toDegrees(angleInRadian)
 

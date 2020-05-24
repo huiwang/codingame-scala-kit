@@ -6,7 +6,11 @@ import com.truelaurel.time.Chronometer
 import scala.concurrent.duration.Duration
 import scala.util.Random
 
-class SimulatedAnnealing(duration: Duration, initTemperature: Double, coolingRate: Double) {
+class SimulatedAnnealing(
+    duration: Duration,
+    initTemperature: Double,
+    coolingRate: Double
+) {
   val chronometer = new Chronometer(duration)
   val random = Random
 
@@ -17,8 +21,10 @@ class SimulatedAnnealing(duration: Duration, initTemperature: Double, coolingRat
     chronometer.start()
     while (!chronometer.willOutOfTime) {
       val tweaked = problem.tweakSolution(solution)
-      if (tweaked.quality > solution.quality ||
-        random.nextDouble() < Math.exp((tweaked.quality - solution.quality) / t)) {
+      if (
+        tweaked.quality > solution.quality ||
+        random.nextDouble() < Math.exp((tweaked.quality - solution.quality) / t)
+      ) {
         solution = tweaked
       }
 

@@ -19,4 +19,3 @@ trait GameAccumulator[Context, State, Action] {
     */
   def accumulate(context: Context, state: State, action: Action): Context
 }
-

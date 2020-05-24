@@ -1,7 +1,5 @@
 package com.truelaurel.algorithm.metaheuristic.genetic
 
-
-
 trait GeneticRepresentation[S] {
 
   def randomSolution: S
@@ -12,5 +10,3 @@ trait GeneticRepresentation[S] {
 
   def assess(solution: S): AssessedSolution[S]
 }
-
-

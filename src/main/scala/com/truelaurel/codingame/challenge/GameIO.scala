@@ -4,6 +4,7 @@ package com.truelaurel.codingame.challenge
   * Created by hwang on 09/07/2017.
   */
 trait GameIO[Context, State, Action] {
+
   /**
     * Reads game context from the referee system. A context stores game's global information
     */
@@ -17,5 +18,5 @@ trait GameIO[Context, State, Action] {
   /**
     * Writes action to the referee system
     */
-  def writeAction(state : State, action: Action)
+  def writeAction(state: State, action: Action)
 }

@@ -2,12 +2,13 @@ package com.truelaurel.samplegames.wondev.domain
 
 import com.truelaurel.math.geometry.{Direction, Pos}
 
-case class WondevContext(size: Int,
-                         players: Int,
-                         previousState: WondevState = null,
-                         previousAction: WondevAction = null,
-                         previousOppoScope: Set[Set[Pos]] = null
-                        ) {}
+case class WondevContext(
+    size: Int,
+    players: Int,
+    previousState: WondevState = null,
+    previousAction: WondevAction = null,
+    previousOppoScope: Set[Set[Pos]] = null
+) {}
 object WondevContext {
 
   def neighborsOf(pos: Pos, size: Int): Set[Pos] = {
@@ -39,7 +40,6 @@ object WondevContext {
     neighborsTable
   }
 
-
   val pushTargets = Map(
     5 -> computePushTargets(5),
     6 -> computePushTargets(6),
@@ -53,7 +53,10 @@ object WondevContext {
       pos = Pos(x, y)
       neighbor <- neighborMapBySize(size)(x)(y)
       neighborNeighbor = neighborMapBySize(size)(neighbor.x)(neighbor.y)
-      pushable = neighborNeighbor.filter(nn => nn.distanceEuclide(pos) > 2.0 || (nn.distance(pos) == 2 && pos.distanceEuclide(neighbor) == 1.0))
+      pushable = neighborNeighbor.filter(nn =>
+        nn.distanceEuclide(pos) > 2.0 || (nn.distance(pos) == 2 && pos
+          .distanceEuclide(neighbor) == 1.0)
+      )
     } yield (pos, neighbor) -> pushable).toMap
     map
   }

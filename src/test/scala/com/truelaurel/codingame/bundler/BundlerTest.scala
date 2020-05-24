@@ -22,7 +22,7 @@ class BundlerTest extends FlatSpec with Matchers {
     compiles(output) shouldBe true
   }
 
- it should "move simple content in root package" in {
+  it should "move simple content in root package" in {
     //GIVEN
     val inputName = "pkg/Demo.scala"
     val content =
@@ -32,7 +32,9 @@ class BundlerTest extends FlatSpec with Matchers {
     //WHEN
     val output = Bundler(inputName, io).buildOutput
     //THEN
-    output should equal("object Demo extends App")(after being linefeedNormalised)
+    output should equal("object Demo extends App")(
+      after being linefeedNormalised
+    )
     compiles(output) shouldBe true
   }
 
@@ -64,14 +66,12 @@ class BundlerTest extends FlatSpec with Matchers {
     //WHEN
     val output = Bundler(inputName, io).buildOutput
     //THEN
-    output should equal(
-      """object Demo extends App {
+    output should equal("""object Demo extends App {
         |
         |println("hello")
         |}""".stripMargin)(after being linefeedNormalised)
     compiles(output) shouldBe true
   }
-
 
   it should "copy also file in same folder" in {
     //GIVEN
@@ -79,9 +79,7 @@ class BundlerTest extends FlatSpec with Matchers {
     val content = "object Demo extends App"
     val utilName = "pkg/Util.scala"
     val utilContent = "object Util { def abs(x:Int) = if(x>0) x else -x }"
-    val io = prepareMockIo(Map(
-      inputName -> content,
-      utilName -> utilContent))
+    val io = prepareMockIo(Map(inputName -> content, utilName -> utilContent))
     //WHEN
     val output = Bundler("Demo.scala", io).buildOutput
     //THEN
@@ -91,7 +89,6 @@ class BundlerTest extends FlatSpec with Matchers {
     output should equal(expected)(after being linefeedNormalised)
     compiles(output) shouldBe true
   }
-
 
   it should "keep import Util._" in {
     //GIVEN
@@ -103,9 +100,7 @@ class BundlerTest extends FlatSpec with Matchers {
     val utilContent =
       """package util
         |object Util { def abs(x:Int) = if(x>0) x else -x }""".stripMargin
-    val io = prepareMockIo(Map(
-      inputName -> content,
-      utilName -> utilContent))
+    val io = prepareMockIo(Map(inputName -> content, utilName -> utilContent))
     //WHEN
     val output = Bundler("Demo.scala", io).buildOutput
     //THEN
@@ -120,7 +115,6 @@ class BundlerTest extends FlatSpec with Matchers {
     compiles(output) shouldBe true
   }
 
-
   it should "resolve import from another package" in {
     //GIVEN
     val inputName = "Demo.scala"
@@ -131,9 +125,7 @@ class BundlerTest extends FlatSpec with Matchers {
     val utilContent =
       """package util
         |object Util { def abs(x:Int) = if(x>0) x else -x }""".stripMargin
-    val io = prepareMockIo(Map(
-      inputName -> content,
-      utilName -> utilContent))
+    val io = prepareMockIo(Map(inputName -> content, utilName -> utilContent))
     //WHEN
     val output = Bundler(inputName, io).buildOutput
     //THEN
@@ -162,10 +154,13 @@ class BundlerTest extends FlatSpec with Matchers {
     val utilContent2 =
       """package util
         |object Util2 { def sqr(x:Int) = x * x }""".stripMargin
-    val io = prepareMockIo(Map(
-      inputName -> content,
-      utilName -> utilContent,
-      utilName2 -> utilContent2))
+    val io = prepareMockIo(
+      Map(
+        inputName -> content,
+        utilName -> utilContent,
+        utilName2 -> utilContent2
+      )
+    )
     //WHEN
     val output = Bundler(inputName, io).buildOutput
     //THEN
@@ -181,7 +176,7 @@ class BundlerTest extends FlatSpec with Matchers {
     compiles(output) shouldBe true
   }
 
- it should "resolve imports from 2 other packages with the same class name" in {
+  it should "resolve imports from 2 other packages with the same class name" in {
     //GIVEN
     val inputName = "Demo.scala"
     val content =
@@ -201,10 +196,13 @@ class BundlerTest extends FlatSpec with Matchers {
         |import util.Util._
         |
         |object Util { def sqr(x:Int) = abs(x * x) }""".stripMargin
-    val io = prepareMockIo(Map(
-      inputName -> content,
-      utilName -> utilContent,
-      utilName2 -> utilContent2))
+    val io = prepareMockIo(
+      Map(
+        inputName -> content,
+        utilName -> utilContent,
+        utilName2 -> utilContent2
+      )
+    )
     //WHEN
     val output = Bundler(inputName, io).buildOutput
     //THEN
@@ -234,48 +232,44 @@ class BundlerTest extends FlatSpec with Matchers {
     compiles(output) shouldBe true
   }
 
+  private def prepareMockIo(fileContents: Map[String, String]): BundlerIo =
+    new BundlerIo {
+      val root = new File(".")
 
-  private def prepareMockIo(fileContents: Map[String, String]): BundlerIo = new BundlerIo {
-    val root = new File(".")
-
-    val contentsByFile = fileContents.map {
-      case (pathName, content) => new File(root, pathName) -> content
-    }
-
-    def filesInFolder(folder: File): List[File] =
-      contentsByFile.keys
-        .toList
-        .filter(_.getParentFile == folder)
-
-    def findFolder(packageElements: Array[String]): File =
-      packageElements.init.foldLeft(root) {
-        case (folder, pkg) => new File(folder, pkg)
+      val contentsByFile = fileContents.map {
+        case (pathName, content) => new File(root, pathName) -> content
       }
 
-    def findFile(fileName: String): File =
-      new File(root, fileContents.keys.find(fn => fn.endsWith(fileName)).get)
+      def filesInFolder(folder: File): List[File] =
+        contentsByFile.keys.toList
+          .filter(_.getParentFile == folder)
 
-    def save(fileName: String, content: String): Unit = ???
+      def findFolder(packageElements: Array[String]): File =
+        packageElements.init.foldLeft(root) {
+          case (folder, pkg) => new File(folder, pkg)
+        }
 
-    def readFile(file: File): List[String] = {
-      val content = contentsByFile(file)
-      content.split("""\r\n|\n""").toList
+      def findFile(fileName: String): File =
+        new File(root, fileContents.keys.find(fn => fn.endsWith(fileName)).get)
+
+      def save(fileName: String, content: String): Unit = ???
+
+      def readFile(file: File): List[String] = {
+        val content = contentsByFile(file)
+        content.split("""\r\n|\n""").toList
+      }
     }
-  }
-
 
   private def linefeedNormalised: Uniformity[String] =
     new AbstractStringUniformity {
       def normalized(s: String): String =
-        s.
-          replaceAll("\r\n", "\n").
-          split("\n").
-          map(_.trim).
-          filterNot("".==).
-          mkString("\n")
+        s.replaceAll("\r\n", "\n")
+          .split("\n")
+          .map(_.trim)
+          .filterNot("".==)
+          .mkString("\n")
 
       override def toString: String = "linefeedNormalised"
     }
-
 
 }

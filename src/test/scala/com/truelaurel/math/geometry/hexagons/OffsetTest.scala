@@ -5,7 +5,7 @@ import org.scalatest.{FlatSpec, Matchers}
 /**
   * Created by hwang on 20/04/2017.
   */
-class OffsetTest extends FlatSpec with Matchers{
+class OffsetTest extends FlatSpec with Matchers {
 
   behavior of "OffsetTest"
 

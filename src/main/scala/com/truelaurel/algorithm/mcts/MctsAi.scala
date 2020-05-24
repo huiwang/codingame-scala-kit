@@ -4,9 +4,10 @@ import com.truelaurel.algorithm.game.{GameRules, GameState, Outcome}
 
 import scala.annotation.tailrec
 
-case class MctsAi[P, S <: GameState[P], M](rules: GameRules[P, S, M])
-                                          (stopCondition: MctsNode[P, S, M] => Boolean,
-                                           randomPlay: S => Outcome[P] = rules.randomPlay _) {
+case class MctsAi[P, S <: GameState[P], M](rules: GameRules[P, S, M])(
+    stopCondition: MctsNode[P, S, M] => Boolean,
+    randomPlay: S => Outcome[P] = rules.randomPlay _
+) {
 
   def chooseMove(state: S): M = {
     @tailrec
@@ -28,8 +29,7 @@ case class MctsAi[P, S <: GameState[P], M](rules: GameRules[P, S, M])
     iterate(makeNode(state))
   }
 
-  def makeNode(state: S):  MctsNode[P, S, M] =
+  def makeNode(state: S): MctsNode[P, S, M] =
     MctsNode[P, S, M](state, rules, randomPlay)
-
 
 }

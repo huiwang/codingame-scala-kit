@@ -9,7 +9,7 @@ import scala.concurrent.duration.Duration
   * Replace next starting solution directly with the tweaked solution
   * This allows to make more exploration even the tweaked one is not better
   */
-class HillClimbingWithReplacement(duration: Duration)  {
+class HillClimbingWithReplacement(duration: Duration) {
 
   val chrono = new Chronometer(duration)
 

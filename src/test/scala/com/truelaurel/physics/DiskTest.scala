@@ -14,25 +14,39 @@ class DiskTest extends FlatSpec with Matchers {
   behavior of "A disk"
 
   it can "move" in {
-    diskCollisionResolver.move(disk, 1.0) should equal(Disk(Vectorl(4, 4), Vectorl(2, 3), 1))
+    diskCollisionResolver.move(disk, 1.0) should equal(
+      Disk(Vectorl(4, 4), Vectorl(2, 3), 1)
+    )
   }
 
   behavior of "A disk for collision detection"
 
   it should "return none when it moves away from another disk" in {
-    diskCollisionResolver.collideTime(disk, Disk(Vectorl(-2, -5), Vectorl(-2, -3), 1)) should equal(None)
+    diskCollisionResolver.collideTime(
+      disk,
+      Disk(Vectorl(-2, -5), Vectorl(-2, -3), 1)
+    ) should equal(None)
   }
 
   it should "return none when it's relatively still than another disk" in {
-    diskCollisionResolver.collideTime(disk, Disk(Vectorl(10, 10), Vectorl(2, 3), 2)) should equal(None)
+    diskCollisionResolver.collideTime(
+      disk,
+      Disk(Vectorl(10, 10), Vectorl(2, 3), 2)
+    ) should equal(None)
   }
 
   it should "return none when another disk is moving too fast" in {
-    diskCollisionResolver.collideTime(disk, Disk(Vectorl(10, 10), Vectorl(-100, 0), 2)) should equal(None)
+    diskCollisionResolver.collideTime(
+      disk,
+      Disk(Vectorl(10, 10), Vectorl(-100, 0), 2)
+    ) should equal(None)
   }
 
   it should "return collision time when collision is going to happen" in {
-    diskCollisionResolver.collideTime(disk, Disk(Vectorl(5, 1), Vectorl(-2, 3), 1)) should equal(Some(0.25))
+    diskCollisionResolver.collideTime(
+      disk,
+      Disk(Vectorl(5, 1), Vectorl(-2, 3), 1)
+    ) should equal(Some(0.25))
   }
 
   behavior of "A disk for bounce off"
@@ -53,6 +67,5 @@ class DiskTest extends FlatSpec with Matchers {
     d1 should equal(Disk(Vectorl(3, 3), Vectorl(-1 / 3.0, 0), 1, 2))
     d2 should equal(Disk(Vectorl(5, 3), Vectorl(5 / 3.0, 0), 1, 1))
   }
-
 
 }

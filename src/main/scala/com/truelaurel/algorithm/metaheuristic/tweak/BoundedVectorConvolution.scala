@@ -5,7 +5,11 @@ import com.truelaurel.math.Mathl
 /**
   * Created by hwang on 12/02/2017.
   */
-class BoundedVectorConvolution(noiseProbability: Double, min: Double, max: Double) {
+class BoundedVectorConvolution(
+    noiseProbability: Double,
+    min: Double,
+    max: Double
+) {
 
   def tweak(v: Vector[Double], noiseGenerator: () => Double): Vector[Double] = {
     v.map(elem => {
